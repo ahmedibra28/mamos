@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
+:root {
+  --primary-color: #142f43;
+  --secondary-color: #daddfc;
+  --white-color: #aaaaae;
+}
+
+button {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.navbar-light .navbar-toggler-icon {
+  background-image: url('/menu.svg') !important;
+}
+
+input,
+select,
+textarea {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.7rem !important;
+}
+
+.btn-primary,
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+.btn-outline-primary {
+  padding: 5px !important;
+  border-radius: 0px !important;
+}
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+table,
+.report {
+  font-family: 'Courier Prime', monospace !important;
+}
+
+.modal-background,
+.offcanvas,
+body {
+  font-family: 'PT Sans Narrow', sans-serif;
+  background-color: var(--secondary-color) !important;
+}
+nav {
+  background-color: var(--primary-color) !important;
+}
+.navbar-brand,
+.nav-link,
+.dropdown-item {
+  color: var(--secondary-color) !important;
+}
+
+.dropdown-item:hover,
+.navbar-brand:hover,
+.nav-link:hover {
+  color: var(--white-color) !important;
+  background-color: transparent !important;
+}
+.dropdown-menu {
+  background-color: var(--primary-color) !important;
+}
+
+label {
+  opacity: 0.5;
+}
+
+.dropdown-menu,
+.alert,
+.toast {
+  border-radius: 0 !important;
+  border: none;
+}
+
+#sidebar {
+  height: 100vh;
+  transition: 0.7s ease-in-out;
+  min-width: 10rem;
+
+  z-index: 1;
+}
+#sidebar.active {
+  margin-left: -10rem;
+}
+
+.wrapper {
+  min-width: 100%;
+}
+
+main {
+  min-height: 75vh;
+  width: 100%;
+}
+
+.custom-text-primary {
+  color: var(--primary-color) !important;
+}
+
+/* CopyRight */
+#watermark {
+  position: fixed;
+  bottom: 70px;
+  right: 55px;
+  z-index: 999;
+}
+#watermark::after {
+  position: absolute;
+  background-image: url('/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 80px;
+  height: 22px;
+  content: ' ';
+  transform: rotate(-90deg);
+}
