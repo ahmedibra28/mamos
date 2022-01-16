@@ -123,7 +123,7 @@ export const inputPassword = (args) => {
 }
 
 export const dynamicInputSelect = (args) => {
-  const { register, errors, name, label, data, isRequired = true } = args
+  const { register, errors, name, label, data, isRequired = true, value } = args
 
   return (
     <div className='mb-3'>
@@ -138,7 +138,7 @@ export const dynamicInputSelect = (args) => {
         {data &&
           data.map((d) => (
             <option key={d._id} value={name === 'group' ? d.name : d._id}>
-              {d.name}
+              {d[value]}
             </option>
           ))}
       </select>

@@ -2,12 +2,6 @@ export const routes = () => {
   return [
     {
       isActive: true,
-      menu: 'Hidden',
-      path: '/',
-      name: 'Home',
-    },
-    {
-      isActive: true,
       menu: 'Admin',
       path: '/admin/logon',
       name: 'User Logs',
