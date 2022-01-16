@@ -36,13 +36,13 @@ const Navigation = () => {
     return (
       <>
         <ul className='navbar-nav ms-auto'>
-          <li className='nav-item'>
+          {/* <li className='nav-item'>
             <Link href='/register'>
               <a className='nav-link active' aria-current='page'>
                 <FaUserPlus className='mb-1' /> Register
               </a>
             </Link>
-          </li>
+          </li> */}
           <li className='nav-item'>
             <Link href='/login'>
               <a className='nav-link active' aria-current='page'>
@@ -189,9 +189,9 @@ const Navigation = () => {
           <a>
             <Image
               priority
-              width='40'
-              height='40'
-              src='/favicon.png'
+              width='80'
+              height='35'
+              src='/logo.png'
               className='img-fluid brand-logos'
               alt='logo'
             />
