@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FaPlusCircle, FaTrash } from 'react-icons/fa'
+import useAirports from '../../api/airports'
+import useCountries from '../../api/countries'
+import useSeaports from '../../api/seaports'
 import {
   staticInputSelect,
   dynamicInputSelect,
@@ -15,6 +18,14 @@ const RequestQuote = () => {
     watch,
     formState: { errors },
   } = useForm()
+
+  const { getCountries } = useCountries()
+  const { getSeaports } = useSeaports()
+  const { getAirports } = useAirports()
+
+  const { data: countriesData } = getCountries
+  const { data: seaportsData } = getSeaports
+  const { data: airportsData } = getAirports
 
   const ContainerType = [
     { _id: '1', name: '20 FT' },
@@ -204,7 +215,12 @@ const RequestQuote = () => {
               label: 'Pickup Country *',
               name: 'pickupCountry',
               value: 'name',
-              data: CountryPickup && CountryPickup,
+              data:
+                countriesData &&
+                countriesData.filter(
+                  (country) =>
+                    country.isActive && country._id !== watch().destCountry
+                ),
             })}
           </div>
           {watch().shipmentType === 'AIR' ? (
@@ -214,8 +230,14 @@ const RequestQuote = () => {
                 errors,
                 label: 'Pickup Airport *',
                 name: 'pickupAirport',
-                value: 'airport',
-                data: CountryPickup && CountryPickup,
+                value: 'name',
+                data:
+                  airportsData &&
+                  airportsData.filter(
+                    (airport) =>
+                      airport.country._id === watch().pickupCountry &&
+                      airport.isActive
+                  ),
               })}
             </div>
           ) : (
@@ -225,8 +247,14 @@ const RequestQuote = () => {
                 errors,
                 label: 'Pickup Port *',
                 name: 'pickupPort',
-                value: 'port',
-                data: CountryPickup && CountryPickup,
+                value: 'name',
+                data:
+                  seaportsData &&
+                  seaportsData.filter(
+                    (seaport) =>
+                      seaport.country._id === watch().pickupCountry &&
+                      seaport.isActive
+                  ),
               })}
             </div>
           )}
@@ -238,7 +266,12 @@ const RequestQuote = () => {
               label: 'Dest Country *',
               name: 'destCountry',
               value: 'name',
-              data: CountryPickup && CountryPickup,
+              data:
+                countriesData &&
+                countriesData.filter(
+                  (country) =>
+                    country.isActive && country._id !== watch().pickupCountry
+                ),
             })}
           </div>
           {watch().shipmentType === 'AIR' ? (
@@ -248,8 +281,14 @@ const RequestQuote = () => {
                 errors,
                 label: 'Dest Airport *',
                 name: 'destAirport',
-                value: 'airport',
-                data: CountryPickup && CountryPickup,
+                value: 'name',
+                data:
+                  airportsData &&
+                  airportsData.filter(
+                    (airport) =>
+                      airport.country._id === watch().destCountry &&
+                      airport.isActive
+                  ),
               })}
             </div>
           ) : (
@@ -259,8 +298,14 @@ const RequestQuote = () => {
                 errors,
                 label: 'Dest Port *',
                 name: 'destPort',
-                value: 'port',
-                data: CountryPickup && CountryPickup,
+                value: 'name',
+                data:
+                  seaportsData &&
+                  seaportsData.filter(
+                    (seaport) =>
+                      seaport.country._id === watch().destCountry &&
+                      seaport.isActive
+                  ),
               })}
             </div>
           )}
@@ -288,6 +333,7 @@ const RequestQuote = () => {
         </div>
         {inputFields.map((inputField, index) => (
           <div key={index}>
+            <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
             <div className='row gx-1 shadow p-2'>
               <div className='col-md-2 col-6'>
                 <label htmlFor='item' className='form-label'>
@@ -296,7 +342,7 @@ const RequestQuote = () => {
                 <input
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Package quantity'
                   name='qty'
                   id='qty'
@@ -312,7 +358,7 @@ const RequestQuote = () => {
                 <select
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Unit'
                   name='packageUnit'
                   id='packageUnit'
@@ -334,7 +380,7 @@ const RequestQuote = () => {
                 <input
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Weight'
                   name='weight'
                   id='weight'
@@ -350,7 +396,7 @@ const RequestQuote = () => {
                 <select
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Unit'
                   name='weightUnit'
                   id='weightUnit'
@@ -369,7 +415,7 @@ const RequestQuote = () => {
                 <select
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Unit'
                   name='unit'
                   id='unit'
@@ -387,7 +433,7 @@ const RequestQuote = () => {
                 <input
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Length'
                   name='length'
                   id='length'
@@ -404,7 +450,7 @@ const RequestQuote = () => {
                 <input
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Width'
                   name='width'
                   id='width'
@@ -420,7 +466,7 @@ const RequestQuote = () => {
                 <input
                   type='number'
                   min={0}
-                  className='form-control'
+                  className='form-control form-control-sm'
                   placeholder='Height'
                   name='height'
                   id='height'
@@ -443,7 +489,7 @@ const RequestQuote = () => {
                   <button
                     type='button'
                     onClick={() => handleRemoveField(index)}
-                    className='btn btn-danger btn-sm form-control'
+                    className='btn btn-danger btn-sm form-control form-control-sm'
                   >
                     <FaTrash className='mb-1' /> Remove
                   </button>
