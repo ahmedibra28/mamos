@@ -226,7 +226,7 @@ const Airport = () => {
           className='btn btn-primary position-fixed rounded-3 animate__bounceIn'
           style={{
             bottom: '20px',
-            right: '20px',
+            right: '25px',
           }}
           data-bs-toggle='modal'
           data-bs-target='#editAirportModal'
@@ -239,7 +239,7 @@ const Airport = () => {
             className='btn btn-success position-fixed rounded-3 animate__bounceIn'
             style={{
               bottom: '60px',
-              right: '20px',
+              right: '25px',
             }}
           >
             <FaFileDownload className='mb-1' />

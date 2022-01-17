@@ -13,24 +13,18 @@ import {
   FaTrash,
 } from 'react-icons/fa'
 
-import useSeaports from '../../api/seaports'
-import useCountries from '../../api/countries'
+import useShippers from '../../api/shippers'
 
 import { CSVLink } from 'react-csv'
 
 import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
-import {
-  dynamicInputSelect,
-  inputCheckBox,
-  inputText,
-} from '../../utils/dynamicForm'
+import { inputCheckBox, inputText, inputNumber } from '../../utils/dynamicForm'
 
-const Seaport = () => {
-  const { getSeaports, updateSeaport, addSeaport, deleteSeaport } =
-    useSeaports()
-  const { getCountries } = useCountries()
+const Shipper = () => {
+  const { getShippers, updateShipper, addShipper, deleteShipper } =
+    useShippers()
   const {
     register,
     handleSubmit,
@@ -43,8 +37,7 @@ const Seaport = () => {
     },
   })
 
-  const { data, isLoading, isError, error } = getSeaports
-  const { data: countriesData } = getCountries
+  const { data, isLoading, isError, error } = getShippers
 
   const {
     isLoading: isLoadingUpdate,
@@ -52,7 +45,7 @@ const Seaport = () => {
     error: errorUpdate,
     isSuccess: isSuccessUpdate,
     mutateAsync: updateMutateAsync,
-  } = updateSeaport
+  } = updateShipper
 
   const {
     isLoading: isLoadingDelete,
@@ -60,7 +53,7 @@ const Seaport = () => {
     error: errorDelete,
     isSuccess: isSuccessDelete,
     mutateAsync: deleteMutateAsync,
-  } = deleteSeaport
+  } = deleteShipper
 
   const {
     isLoading: isLoadingAdd,
@@ -68,7 +61,7 @@ const Seaport = () => {
     error: errorAdd,
     isSuccess: isSuccessAdd,
     mutateAsync: addMutateAsync,
-  } = addSeaport
+  } = addShipper
 
   const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
@@ -92,18 +85,23 @@ const Seaport = () => {
       ? updateMutateAsync({
           _id: id,
           name: data.name,
-          country: data.country,
+          type: data.type,
+          price: data.price,
+          deliveryTime: data.deliveryTime,
           isActive: data.isActive,
         })
       : addMutateAsync(data)
   }
 
-  const editHandler = (seaport) => {
-    setId(seaport._id)
+  const editHandler = (shipper) => {
+    setId(shipper._id)
     setEdit(true)
-    setValue('name', seaport.name)
-    setValue('country', seaport.country._id)
-    setValue('isActive', seaport.isActive)
+    setValue('name', shipper.name)
+    setValue('type', shipper.type)
+    setValue('price', shipper.price)
+    setValue('deliveryTime', shipper.deliveryTime)
+    setValue('name', shipper.name)
+    setValue('isActive', shipper.isActive)
   }
 
   const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
@@ -111,42 +109,42 @@ const Seaport = () => {
   return (
     <>
       <Head>
-        <title>Seaport</title>
-        <meta property='og:title' content='Seaport' key='title' />
+        <title>Shipper</title>
+        <meta property='og:title' content='Shipper' key='title' />
       </Head>
       {isSuccessUpdate && (
         <Message variant='success'>
-          Seaport has been updated successfully.
+          Shipper has been updated successfully.
         </Message>
       )}
       {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isSuccessAdd && (
         <Message variant='success'>
-          Seaport has been Created successfully.
+          Shipper has been Created successfully.
         </Message>
       )}
       {isErrorAdd && <Message variant='danger'>{errorAdd}</Message>}
       {isSuccessDelete && (
         <Message variant='success'>
-          Seaport has been deleted successfully.
+          Shipper has been deleted successfully.
         </Message>
       )}
       {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}
 
       <div
         className='modal fade'
-        id='editSeaportModal'
+        id='editShipperModal'
         data-bs-backdrop='static'
         data-bs-keyboard='false'
         tabIndex='-1'
-        aria-labelledby='editSeaportModalLabel'
+        aria-labelledby='editShipperModalLabel'
         aria-hidden='true'
       >
         <div className='modal-dialog'>
           <div className='modal-content modal-background'>
             <div className='modal-header'>
-              <h3 className='modal-title ' id='editSeaportModalLabel'>
-                {edit ? 'Edit Seaport' : 'Add Seaport'}
+              <h3 className='modal-title ' id='editShipperModalLabel'>
+                {edit ? 'Edit Shipper' : 'Add Shipper'}
               </h3>
               <button
                 type='button'
@@ -171,19 +169,40 @@ const Seaport = () => {
                 <Message variant='danger'>{error}</Message>
               ) : (
                 <form onSubmit={handleSubmit(submitHandler)}>
-                  {inputText({ register, label: 'Name', errors, name: 'name' })}
-                  {dynamicInputSelect({
-                    register,
-                    label: 'Country',
-                    errors,
-                    name: 'country',
-                    value: 'name',
-                    data:
-                      countriesData &&
-                      countriesData.filter((country) => country.isActive),
-                  })}
                   <div className='row'>
-                    <div className='col'>
+                    <div className='col-md-6 col-12'>
+                      {inputText({
+                        register,
+                        label: 'Name',
+                        errors,
+                        name: 'name',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {inputNumber({
+                        register,
+                        label: 'Delivery Time (day)',
+                        errors,
+                        name: 'deliveryTime',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {inputNumber({
+                        register,
+                        label: 'Price per Kg',
+                        errors,
+                        name: 'price',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {inputText({
+                        register,
+                        label: 'Transportation Type',
+                        errors,
+                        name: 'type',
+                      })}
+                    </div>
+                    <div className='col-12'>
                       {inputCheckBox({
                         register,
                         errors,
@@ -229,12 +248,12 @@ const Seaport = () => {
             right: '25px',
           }}
           data-bs-toggle='modal'
-          data-bs-target='#editSeaportModal'
+          data-bs-target='#editShipperModal'
         >
           <FaPlus className='mb-1' />
         </button>
 
-        <CSVLink data={data ? data : []} filename='seaport.csv'>
+        <CSVLink data={data ? data : []} filename='shipper.csv'>
           <button
             className='btn btn-success position-fixed rounded-3 animate__bounceIn'
             style={{
@@ -249,7 +268,7 @@ const Seaport = () => {
 
       <div className='row mt-2'>
         <div className='col-md-4 col-6 me-auto'>
-          <h3 className='fw-light font-monospace'>Seaports</h3>
+          <h3 className='fw-light font-monospace'>Shippers</h3>
         </div>
       </div>
 
@@ -272,39 +291,43 @@ const Seaport = () => {
               <caption>{data && data.length} records were found</caption>
               <thead>
                 <tr>
-                  <th>Country</th>
                   <th>Name</th>
+                  <th>Transportation Type</th>
+                  <th>Delivery Time (day)</th>
+                  <th>Price Per KG</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {data &&
-                  data.map((seaport) => (
-                    <tr key={seaport._id}>
-                      <td>{toUpper(seaport.country.name)}</td>
-                      <td>{toUpper(seaport.name)}</td>
+                  data.map((shipper) => (
+                    <tr key={shipper._id}>
+                      <td>{toUpper(shipper.name)}</td>
+                      <td>{shipper.type}</td>
+                      <td>{shipper.deliveryTime}</td>
+                      <td>${shipper.price.toFixed(2)}</td>
                       <td>
-                        {seaport.isActive ? (
+                        {shipper.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />
                         ) : (
                           <FaTimesCircle className='text-danger mb-1' />
                         )}
                       </td>
 
-                      <td className='btn-seaport'>
+                      <td className='btn-shipper'>
                         <button
                           className='btn btn-primary btn-sm rounded-pill '
-                          onClick={() => editHandler(seaport)}
+                          onClick={() => editHandler(shipper)}
                           data-bs-toggle='modal'
-                          data-bs-target='#editSeaportModal'
+                          data-bs-target='#editShipperModal'
                         >
                           <FaPenAlt />
                         </button>
 
                         <button
                           className='btn btn-danger btn-sm rounded-pill ms-1'
-                          onClick={() => deleteHandler(seaport._id)}
+                          onClick={() => deleteHandler(shipper._id)}
                           disabled={isLoadingDelete}
                         >
                           {isLoadingDelete ? (
@@ -328,6 +351,6 @@ const Seaport = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Seaport)), {
+export default dynamic(() => Promise.resolve(withAuth(Shipper)), {
   ssr: false,
 })

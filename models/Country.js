@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import User from './User'
 
-const countyScheme = mongoose.Schema(
+const countryScheme = mongoose.Schema(
   {
     name: { type: String, required: true },
     isActive: { type: Boolean, default: true },
@@ -16,5 +16,5 @@ const countyScheme = mongoose.Schema(
 )
 
 const Country =
-  mongoose.models.Country || mongoose.model('Country', countyScheme)
+  mongoose.models.Country || mongoose.model('Country', countryScheme)
 export default Country

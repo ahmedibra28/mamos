@@ -234,7 +234,7 @@ const Group = () => {
           className='btn btn-primary position-fixed rounded-3 animate__bounceIn'
           style={{
             bottom: '20px',
-            right: '20px',
+            right: '25px',
           }}
           data-bs-toggle='modal'
           data-bs-target='#editGroupModal'

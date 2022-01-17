@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { FaPlusCircle, FaTrash } from 'react-icons/fa'
+import { FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
 import useAirports from '../../api/airports'
 import useCountries from '../../api/countries'
 import useSeaports from '../../api/seaports'
+import useContainers from '../../api/containers'
 import {
   staticInputSelect,
   dynamicInputSelect,
@@ -22,10 +23,12 @@ const RequestQuote = () => {
   const { getCountries } = useCountries()
   const { getSeaports } = useSeaports()
   const { getAirports } = useAirports()
+  const { getContainers } = useContainers()
 
   const { data: countriesData } = getCountries
   const { data: seaportsData } = getSeaports
   const { data: airportsData } = getAirports
+  const { data: containersData } = getContainers
 
   const ContainerType = [
     { _id: '1', name: '20 FT' },
@@ -101,7 +104,7 @@ const RequestQuote = () => {
 
       <form onSubmit={handleSubmit(submitHandler)}>
         <div className='row'>
-          <div className='col-md-4 col-6'>
+          <div className='col-md-3 col-6'>
             {staticInputSelect({
               register,
               errors,
@@ -110,17 +113,50 @@ const RequestQuote = () => {
               data: [{ name: 'import' }, { name: 'export' }],
             })}
           </div>
-          <div className='col-md-4 col-6'>
+          <div className='col-md-3 col-6'>
             {staticInputSelect({
               register,
               errors,
-              label: 'Shipment Type *',
-              name: 'shipmentType',
-              data: [{ name: 'FCL' }, { name: 'LCL' }, { name: 'AIR' }],
+              label: 'Transportation Type *',
+              name: 'transportationType',
+              data: [
+                { name: 'Ship' },
+                // { name: 'Track' },
+                // { name: 'Train' },
+                { name: 'Plane' },
+              ],
             })}
           </div>
-          {watch().shipmentType === 'AIR' && (
-            <div className='col-md-4 col-6'>
+          {watch().transportationType !== '' && (
+            <div className='col-md-3 col-6'>
+              {staticInputSelect({
+                register,
+                errors,
+                label: 'Shipment Type *',
+                name: 'shipmentType',
+                data:
+                  watch().transportationType === 'Ship'
+                    ? [{ name: 'FCL' }, { name: 'LCL' }]
+                    : [{ name: 'KG' }],
+              })}
+            </div>
+          )}
+          {watch().transportationType === 'Ship' && (
+            <div className='col-md-3 col-6'>
+              {dynamicInputSelect({
+                register,
+                errors,
+                label: 'Container Type *',
+                name: 'containerType',
+                value: 'name',
+                data:
+                  containersData &&
+                  containersData.filter((item) => item.isActive),
+              })}
+            </div>
+          )}
+          {watch().transportationType === 'Plane' && (
+            <div className='col-md-3 col-6'>
               {staticInputSelect({
                 register,
                 errors,
@@ -131,21 +167,6 @@ const RequestQuote = () => {
                   { name: 'airport to airport' },
                   { name: 'store to store' },
                 ],
-              })}
-            </div>
-          )}
-          {(watch().shipmentType === 'LCL' ||
-            watch().shipmentType === 'FCL') && (
-            <div className='col-md-4 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Container Type *',
-                name: 'containerType',
-                value: 'name',
-                data:
-                  ContainerType &&
-                  ContainerType.filter((item) => [...new Set(item.name)]),
               })}
             </div>
           )}
@@ -365,7 +386,6 @@ const RequestQuote = () => {
                   name='length'
                   id='length'
                   value={inputField.length}
-                  required
                   onChange={(e) => handleInputChange(e, index)}
                 />
               </div>
@@ -382,7 +402,6 @@ const RequestQuote = () => {
                   name='width'
                   id='width'
                   value={inputField.width}
-                  required
                   onChange={(e) => handleInputChange(e, index)}
                 />
               </div>
@@ -398,7 +417,6 @@ const RequestQuote = () => {
                   name='height'
                   id='height'
                   value={inputField.height}
-                  required
                   onChange={(e) => handleInputChange(e, index)}
                 />
               </div>
@@ -431,7 +449,7 @@ const RequestQuote = () => {
           </div>
         ))}
 
-        <div className='col-md-6 col-12 text-center mx-auto'>
+        <div className='col-12 text-center mx-auto'>
           <button
             onClick={() => handleAddField()}
             type='button'
@@ -440,10 +458,15 @@ const RequestQuote = () => {
             <FaPlusCircle className='mb-1' /> Add New Package
           </button>
         </div>
-        <div className='col-md-6 col-12 text-center mx-auto'>
+        <div className='col-12 text-center mx-auto'>
           <button type='button' className='btn btn-light btn-sm'>
             Total Weight in KG {TotalKG} | Total Volume in CBM {TotalCBM} M
             <sup>3</sup>
+          </button>
+        </div>
+        <div className='col-12 text-center mx-auto'>
+          <button type='submit' className='btn btn-success btn-sm my-2 me-auto'>
+            <FaSearch className='mb-1' /> Get Available Shipments
           </button>
         </div>
       </form>

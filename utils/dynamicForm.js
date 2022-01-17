@@ -47,6 +47,7 @@ export const inputNumber = (args) => {
       <input
         {...register(name, isRequired && { required: `${label} is required` })}
         type='number'
+        step='0.001'
         placeholder={`Enter ${name}`}
         className='form-control form-control-sm'
       />
