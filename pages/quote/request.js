@@ -34,74 +34,6 @@ const RequestQuote = () => {
     { _id: '4', name: '45 Hig' },
   ]
 
-  const CountryPickup = [
-    {
-      _id: '1',
-      name: 'USA',
-      city: 'New York',
-      airport: 'JFK',
-      port: 'New York',
-    },
-    {
-      _id: '2',
-      name: 'USA',
-      city: 'Los Angeles',
-      airport: 'LAX',
-      port: 'Los Angeles',
-    },
-    { _id: '3', name: 'USA', city: 'Chicago', airport: 'ORD', port: 'Chicago' },
-    { _id: '4', name: 'USA', city: 'Houston', airport: 'IAH', port: 'Houston' },
-    {
-      _id: '5',
-      name: 'Somalia',
-      city: 'Mogadishu',
-      airport: 'AAA',
-      port: 'Mogadishu',
-    },
-    {
-      _id: '6',
-      name: 'Somalia',
-      city: 'Kismayo',
-      airport: 'Kismayo',
-      port: 'Kismayo',
-    },
-    {
-      _id: '7',
-      name: 'Kenya',
-      city: 'Nairobi',
-      airport: 'Nairobi',
-      port: 'Nairobi',
-    },
-    {
-      _id: '8',
-      name: 'Kenya',
-      city: 'Nakuru',
-      airport: 'Nakuru',
-      port: 'Nakuru',
-    },
-    {
-      _id: '9',
-      name: 'Kenya',
-      city: 'Mombasa',
-      airport: 'Mombasa',
-      port: 'Mombasa',
-    },
-    {
-      _id: '10',
-      name: 'Ethiopia',
-      city: 'Addis Ababa',
-      airport: 'Addis Ababa',
-      port: 'Addis Ababa',
-    },
-    {
-      _id: '11',
-      name: 'Ethiopia',
-      city: 'Dire Dawa',
-      airport: 'Dire Dawa',
-      port: 'Dire Dawa',
-    },
-  ]
-
   const [inputFields, setInputFields] = useState([
     {
       qty: 0,
@@ -149,6 +81,17 @@ const RequestQuote = () => {
   const submitHandler = (data) => {
     console.log({ data, inputFields })
   }
+
+  const TotalCBM =
+    inputFields &&
+    inputFields.reduce(
+      (acc, curr) => acc + curr.length * curr.width * curr.height,
+      0
+    )
+
+  const TotalKG =
+    inputFields &&
+    inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
   return (
     <div className='mt-1'>
       <p className='font-monospace text-center shadow-sm p-2'>
@@ -310,27 +253,11 @@ const RequestQuote = () => {
             </div>
           )}
         </div>
-        <div className='row'>
-          <div className='col-md-4 col-12'>
-            <h5 className='font-monospace text-decoration-underline'>
-              Cargo Details
-            </h5>
-          </div>
-          <div className='col-md-4 col-12'>
-            <button className='btn btn-secondary btn-sm fw-light'>
-              Total Weight in KG 6 KG | Total Volume in CBM 1.00 M<sup>3</sup>
-            </button>
-          </div>
-          <div className='col-md-4 col-12 text-end'>
-            <button
-              onClick={() => handleAddField()}
-              type='button'
-              className='btn btn-primary btn-sm text-end'
-            >
-              <FaPlusCircle className='mb-1' /> Add New Cargo
-            </button>
-          </div>
-        </div>
+
+        <h5 className='font-monospace text-decoration-underline text-center'>
+          Cargo Details
+        </h5>
+
         {inputFields.map((inputField, index) => (
           <div key={index}>
             <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
@@ -353,7 +280,7 @@ const RequestQuote = () => {
               </div>
               <div className='col-md-1 col-6'>
                 <label htmlFor='item' className='form-label'>
-                  Unit
+                  P. Unit
                 </label>
                 <select
                   type='number'
@@ -373,7 +300,7 @@ const RequestQuote = () => {
                 </select>
               </div>
 
-              <div className='col-md-2 col-6'>
+              <div className='col-md-1 col-6'>
                 <label htmlFor='item' className='form-label'>
                   Weight
                 </label>
@@ -391,7 +318,7 @@ const RequestQuote = () => {
               </div>
               <div className='col-md-1 col-6'>
                 <label htmlFor='item' className='form-label'>
-                  Unit
+                  W. Unit
                 </label>
                 <select
                   type='number'
@@ -410,7 +337,7 @@ const RequestQuote = () => {
 
               <div className='col-md-1 col-6'>
                 <label htmlFor='item' className='form-label'>
-                  Unit
+                  CBM Unit
                 </label>
                 <select
                   type='number'
@@ -475,17 +402,22 @@ const RequestQuote = () => {
                   onChange={(e) => handleInputChange(e, index)}
                 />
               </div>
-              <div className='col-md-2 col-12 text-center my-auto'>
+              <div className='col-md-3 col-12 text-center my-auto'>
                 <div className='bg-secondary text-light p-2'>
-                  <span className='fw-light'>Total Weight</span> <br />
-                  <div className='text-center fw-bold'>
-                    {inputField.qty * inputField.weight} Kg
-                  </div>
-                  <span className='fw-light'>CBM</span> <br />
-                  <div className='text-center fw-bold'>
-                    {inputField.length * inputField.weight * inputField.height}{' '}
-                    M<sup>3</sup>
-                  </div>
+                  <button
+                    type='button'
+                    className='btn btn-light btn-sm form-control form control-sm'
+                  >
+                    Total Weight: {inputField.qty * inputField.weight} KG
+                  </button>
+                  <button
+                    type='button'
+                    className='btn btn-light btn-sm form-control form control-sm  my-1'
+                  >
+                    CBM:{' '}
+                    {inputField.length * inputField.width * inputField.height} M
+                    <sup>3</sup>
+                  </button>
                   <button
                     type='button'
                     onClick={() => handleRemoveField(index)}
@@ -498,6 +430,22 @@ const RequestQuote = () => {
             </div>
           </div>
         ))}
+
+        <div className='col-md-6 col-12 text-center mx-auto'>
+          <button
+            onClick={() => handleAddField()}
+            type='button'
+            className='btn btn-primary btn-sm my-2'
+          >
+            <FaPlusCircle className='mb-1' /> Add New Package
+          </button>
+        </div>
+        <div className='col-md-6 col-12 text-center mx-auto'>
+          <button type='button' className='btn btn-light btn-sm'>
+            Total Weight in KG {TotalKG} | Total Volume in CBM {TotalCBM} M
+            <sup>3</sup>
+          </button>
+        </div>
       </form>
     </div>
   )
