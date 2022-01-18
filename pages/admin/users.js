@@ -199,6 +199,7 @@ const Users = () => {
                     errors,
                     data: groupData && groupData,
                     name: 'group',
+                    value: 'name',
                     label: 'Group',
                   })}
 

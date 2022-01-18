@@ -8,8 +8,8 @@ const handler = nc()
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const { name, email, password } = req.body
-  const userExist = await User.findOne({ email })
+  const { name, email, password, mobile } = req.body
+  const userExist = await User.findOne({ email: email.toLowerCase() })
   if (userExist) {
     return res.status(400).send('User already exist')
   }
@@ -17,6 +17,7 @@ handler.post(async (req, res) => {
   const userCreate = await User.create({
     name,
     email,
+    mobile,
     password,
     group: 'user',
   })
@@ -25,6 +26,7 @@ handler.post(async (req, res) => {
     res.status(201).json({
       _id: userCreate._id,
       name: userCreate.name,
+      mobile: userCreate.mobile,
       email: userCreate.email,
       group: userCreate.group,
       token: generateToken(userCreate._id),

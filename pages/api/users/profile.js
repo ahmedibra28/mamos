@@ -14,6 +14,7 @@ handler.get(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      mobile: user.mobile,
       group: user.group,
     })
   } else {
@@ -28,6 +29,7 @@ handler.put(async (req, res) => {
 
   if (user) {
     user.name = req.body.name || user.name
+    user.mobile = req.body.mobile || user.mobile
     user.email = req.body.email.toLowerCase() || user.email
     if (req.body.password) {
       user.password = req.body.password
@@ -38,6 +40,7 @@ handler.put(async (req, res) => {
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
+      mobile: updatedUser.mobile,
       email: updatedUser.email,
       group: updatedUser.group,
       token: generateToken(updatedUser._id),

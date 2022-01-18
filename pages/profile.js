@@ -10,7 +10,12 @@ import { getUserDetails, updateUserProfile } from '../api/users'
 import { useQuery, useMutation } from 'react-query'
 import { customLocalStorage } from '../utils/customLocalStorage'
 import Head from 'next/head'
-import { inputEmail, inputPassword, inputText } from '../utils/dynamicForm'
+import {
+  inputEmail,
+  inputNumber,
+  inputPassword,
+  inputText,
+} from '../utils/dynamicForm'
 
 const Profile = () => {
   const {
@@ -64,6 +69,7 @@ const Profile = () => {
 
   useEffect(() => {
     setValue('name', !isLoading ? data && data.name : '')
+    setValue('mobile', !isLoading ? data && data.mobile : '')
     setValue('email', !isLoading ? data && data.email : '')
   }, [isLoading, setValue, data])
 
@@ -97,33 +103,46 @@ const Profile = () => {
         </div>
       )}
       <form onSubmit={handleSubmit(submitHandler)}>
-        {inputText({ register, errors, label: 'Name', name: 'name' })}
+        <div className='row'>
+          <div className='col-12'>
+            {inputText({ register, errors, label: 'Name', name: 'name' })}
+          </div>
 
-        {inputEmail({
-          register,
-          errors,
-          label: 'Email',
-          name: 'email',
-        })}
-        {inputPassword({
-          register,
-          errors,
-          label: 'Password',
-          name: 'password',
-          minLength: true,
-          isRequired: false,
-        })}
+          <div className='col-md-6 col-12'>
+            {inputEmail({ register, errors, label: 'Email', name: 'email' })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputNumber({
+              register,
+              errors,
+              label: 'Mobile Number',
+              name: 'mobile',
+            })}
+          </div>
 
-        {inputPassword({
-          register,
-          errors,
-          watch,
-          name: 'confirmPassword',
-          label: 'Confirm Password',
-          validate: true,
-          minLength: true,
-          isRequired: false,
-        })}
+          <div className='col-md-6 col-12'>
+            {inputPassword({
+              register,
+              errors,
+              label: 'Password',
+              name: 'password',
+              minLength: true,
+              isRequired: false,
+            })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputPassword({
+              register,
+              errors,
+              watch,
+              name: 'confirmPassword',
+              label: 'Confirm Password',
+              validate: true,
+              minLength: true,
+              isRequired: false,
+            })}
+          </div>
+        </div>
         <button
           type='submit'
           className='btn btn-primary form-control'

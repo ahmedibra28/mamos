@@ -10,7 +10,12 @@ import { useMutation } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { customLocalStorage } from '../utils/customLocalStorage'
 import Head from 'next/head'
-import { inputEmail, inputPassword, inputText } from '../utils/dynamicForm'
+import {
+  inputEmail,
+  inputNumber,
+  inputPassword,
+  inputText,
+} from '../utils/dynamicForm'
 
 const Register = () => {
   const router = useRouter()
@@ -21,10 +26,7 @@ const Register = () => {
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      admin: false,
-      user: false,
-    },
+    defaultValues: {},
   })
 
   const { isLoading, isError, error, isSuccess, mutateAsync } = useMutation(
@@ -58,27 +60,48 @@ const Register = () => {
       )}
 
       {isError && <Message variant='danger'>{error}</Message>}
-      <form onSubmit={handleSubmit(submitHandler)}>
-        {inputText({ register, errors, label: 'Name', name: 'name' })}
-        {inputEmail({ register, errors, label: 'Email', name: 'email' })}
-        {inputPassword({
-          register,
-          errors,
-          label: 'Password',
-          name: 'password',
-          isRequired: true,
-          minLength: true,
-        })}
 
-        {inputPassword({
-          register,
-          errors,
-          watch,
-          name: 'confirmPassword',
-          label: 'Confirm Password',
-          validate: true,
-          minLength: true,
-        })}
+      <p className='text-center'>
+        Create an account to start shipping and tracking you shipments easily.
+      </p>
+      <form onSubmit={handleSubmit(submitHandler)}>
+        <div className='row'>
+          <div className='col-12'>
+            {inputText({ register, errors, label: 'Name', name: 'name' })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputEmail({ register, errors, label: 'Email', name: 'email' })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputNumber({
+              register,
+              errors,
+              label: 'Mobile Number',
+              name: 'mobile',
+            })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputPassword({
+              register,
+              errors,
+              label: 'Password',
+              name: 'password',
+              isRequired: true,
+              minLength: true,
+            })}
+          </div>
+          <div className='col-md-6 col-12'>
+            {inputPassword({
+              register,
+              errors,
+              watch,
+              name: 'confirmPassword',
+              label: 'Confirm Password',
+              validate: true,
+              minLength: true,
+            })}
+          </div>
+        </div>
 
         <button
           type='submit'
