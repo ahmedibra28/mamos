@@ -13,13 +13,13 @@ const constants = {
   existed: `New ${modelName} was already existed`,
 }
 
-handler.use(isAuth)
 handler.get(async (req, res) => {
   await dbConnect()
   const obj = await constants.model.find({}).lean().sort({ createdAt: -1 })
   res.send(obj)
 })
 
+handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
