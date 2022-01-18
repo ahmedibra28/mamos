@@ -5,11 +5,13 @@ import useAirports from '../../api/airports'
 import useCountries from '../../api/countries'
 import useSeaports from '../../api/seaports'
 import useContainers from '../../api/containers'
+import useShippers from '../../api/shippers'
 import {
   staticInputSelect,
   dynamicInputSelect,
   inputText,
 } from '../../utils/dynamicForm'
+import Image from 'next/image'
 
 const RequestQuote = () => {
   const {
@@ -19,23 +21,19 @@ const RequestQuote = () => {
     watch,
     formState: { errors },
   } = useForm()
+  const [shippers, setShippers] = useState([])
 
   const { getCountries } = useCountries()
   const { getSeaports } = useSeaports()
   const { getAirports } = useAirports()
   const { getContainers } = useContainers()
+  const { getShippers } = useShippers()
 
   const { data: countriesData } = getCountries
   const { data: seaportsData } = getSeaports
   const { data: airportsData } = getAirports
   const { data: containersData } = getContainers
-
-  const ContainerType = [
-    { _id: '1', name: '20 FT' },
-    { _id: '2', name: '40 FT' },
-    { _id: '3', name: '40 FT Hig' },
-    { _id: '4', name: '45 Hig' },
-  ]
+  const { data: shippersData } = getShippers
 
   const [inputFields, setInputFields] = useState([
     {
@@ -81,10 +79,6 @@ const RequestQuote = () => {
     setInputFields(list)
   }
 
-  const submitHandler = (data) => {
-    console.log({ data, inputFields })
-  }
-
   const TotalCBM =
     inputFields &&
     inputFields.reduce(
@@ -95,12 +89,32 @@ const RequestQuote = () => {
   const TotalKG =
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
+
+  const submitHandler = (data) => {
+    console.log({ data, inputFields })
+    const filterShippers =
+      shippersData &&
+      shippersData.filter((ship) => ship.type === data.transportationType)
+    console.log({ TotalKG })
+    if (filterShippers && filterShippers.length > 0) {
+      const shippers = filterShippers.map((ship) => ({
+        _id: ship._id,
+        name: ship.name,
+        price: ship.price.toFixed(2),
+        deliveryTime: ship.deliveryTime,
+        total: (ship.price * TotalKG).toFixed(2),
+      }))
+      setShippers(shippers ? shippers : [])
+    }
+  }
+
   return (
     <div className='mt-1'>
-      <p className='font-monospace text-center shadow-sm p-2'>
+      <p className='font-monospace text-center p-2'>
         Please complete as much of the rate enquiry form as possible in order
         for your MSC team to provide an accurate freight rate quotation.
       </p>
+      <hr />
 
       <form onSubmit={handleSubmit(submitHandler)}>
         <div className='row'>
@@ -470,6 +484,44 @@ const RequestQuote = () => {
           </button>
         </div>
       </form>
+
+      <hr />
+
+      <div className='table-responsive '>
+        <table className='table table-sm hover table-borderless table-striped caption-top '>
+          <caption>{shippers ? shippers.length : 0} records found</caption>
+          <thead>
+            <tr>
+              <th>Logo</th>
+              <th>Shipper</th>
+              <th>Price per KG</th>
+              <th>Delivery Time</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {shippers &&
+              shippers.map((ship) => (
+                <tr key={ship._id}>
+                  <td>
+                    <Image
+                      priority
+                      width='50'
+                      height='22'
+                      src='/dark-logo.png'
+                      className='img-fluid brand-logos'
+                      alt='logo'
+                    />
+                  </td>
+                  <td>{ship.name}</td>
+                  <td>${ship.price}</td>
+                  <td>{ship.deliveryTime} days</td>
+                  <td>${ship.total}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
