@@ -1,17 +1,17 @@
 const Footer = () => {
-  const date = new Date()
-  const currentYear = date.getFullYear()
+  // const date = new Date()
+  // const currentYear = date.getFullYear()
 
   return (
     <footer>
-      <hr />
+      {/* <hr />
       <div className='container'>
         <div className='row'>
           <div className='col text-center custom-custom-text-primary py-2 footer font-monospace'>
             Copyright {currentYear} &copy; All Rights Reserved
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div id='watermark'></div>
     </footer>

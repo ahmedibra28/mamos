@@ -110,9 +110,12 @@ const RequestQuote = () => {
 
   return (
     <div className='mt-1'>
-      <p className='font-monospace text-center p-2'>
+      <h1 className='display-6 text-center font-monospace'>
+        Get Quotation Report
+      </h1>
+      <p className='text-center'>
         Please complete as much of the rate enquiry form as possible in order
-        for your MSC team to provide an accurate freight rate quotation.
+        for your MAMOS team to provide an accurate freight rate quotation.
       </p>
       <hr />
 
@@ -289,9 +292,7 @@ const RequestQuote = () => {
           )}
         </div>
 
-        <h5 className='font-monospace text-decoration-underline text-center'>
-          Cargo Details
-        </h5>
+        <h5 className='mt-2'>CARGO DETAILS</h5>
 
         {inputFields.map((inputField, index) => (
           <div key={index}>
@@ -434,7 +435,7 @@ const RequestQuote = () => {
                   onChange={(e) => handleInputChange(e, index)}
                 />
               </div>
-              <div className='col-md-3 col-12 text-center my-auto'>
+              <div className='col-md-3 col-12 text-center my-auto mt-2'>
                 <div className='bg-secondary text-light p-2'>
                   <button
                     type='button'
