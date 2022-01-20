@@ -23,7 +23,7 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, height, width, length } = req.body
+  const { isActive, name, height, width, length, payloadCapacity } = req.body
   const createdBy = req.user.id
 
   const exist = await constants.model.exists({ name, height, width, length })
@@ -37,6 +37,7 @@ handler.post(async (req, res) => {
     width,
     length,
     isActive,
+    payloadCapacity,
     createdBy,
   })
 

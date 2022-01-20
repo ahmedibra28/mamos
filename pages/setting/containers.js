@@ -89,6 +89,7 @@ const Container = () => {
           width: data.width,
           length: data.length,
           isActive: data.isActive,
+          payloadCapacity: data.payloadCapacity,
         })
       : addMutateAsync(data)
   }
@@ -102,6 +103,7 @@ const Container = () => {
     setValue('length', container.length)
     setValue('name', container.name)
     setValue('isActive', container.isActive)
+    setValue('payloadCapacity', container.payloadCapacity)
   }
 
   const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
@@ -203,6 +205,14 @@ const Container = () => {
                       })}
                     </div>
                     <div className='col-12'>
+                      {inputNumber({
+                        register,
+                        label: 'Payload Capacity',
+                        errors,
+                        name: 'payloadCapacity',
+                      })}
+                    </div>
+                    <div className='col-12'>
                       {inputCheckBox({
                         register,
                         errors,
@@ -292,9 +302,8 @@ const Container = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Length</th>
-                  <th>Width</th>
-                  <th>Height</th>
+                  <th>CBM</th>
+                  <th>Payload Capacity</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
@@ -304,9 +313,25 @@ const Container = () => {
                   data.map((container) => (
                     <tr key={container._id}>
                       <td>{toUpper(container.name)}</td>
-                      <td>{container.length}</td>
-                      <td>{container.width}</td>
-                      <td>{container.height}</td>
+                      <td>
+                        {(
+                          container.length *
+                          container.width *
+                          container.height *
+                          0.000001
+                        ).toFixed(0)}{' '}
+                        CBM<sup>3</sup>
+                      </td>
+                      <td>
+                        Fits up to {container.payloadCapacity} &{' '}
+                        {(
+                          container.length *
+                          container.width *
+                          container.height *
+                          0.000001
+                        ).toFixed(0)}{' '}
+                        CBM<sup>3</sup>
+                      </td>
                       <td>
                         {container.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />

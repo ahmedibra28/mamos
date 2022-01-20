@@ -139,7 +139,14 @@ export const dynamicInputSelect = (args) => {
         {data &&
           data.map((d) => (
             <option key={d._id} value={name === 'group' ? d.name : d._id}>
-              {d[value]}
+              {name === 'containerType'
+                ? `Fits up to ${d.payloadCapacity} kg & ${(
+                    d.length *
+                    d.width *
+                    d.height *
+                    0.000001
+                  ).toFixed(0)} cubic meter`
+                : d[value]}
             </option>
           ))}
       </select>

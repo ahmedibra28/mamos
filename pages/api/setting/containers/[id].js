@@ -17,7 +17,7 @@ handler.use(isAuth)
 handler.put(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, height, width, length } = req.body
+  const { isActive, name, height, width, length, payloadCapacity } = req.body
   const _id = req.query.id
   const updatedBy = req.user.id
 
@@ -33,6 +33,7 @@ handler.put(async (req, res) => {
     })
     if (!exist) {
       obj.name = name
+      obj.payloadCapacity = payloadCapacity
       obj.height = height
       obj.width = width
       obj.length = length
