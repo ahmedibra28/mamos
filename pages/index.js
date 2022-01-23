@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Link from 'next/link'
-// import dynamic from 'next/dynamic'
-// import withAuth from '../HOC/withAuth'
+import dynamic from 'next/dynamic'
+import withAuth from '../HOC/withAuth'
 import {
   FaBook,
   FaHandHoldingUsd,
@@ -80,5 +80,4 @@ function Home() {
   )
 }
 
-// export default dynamic(() => Promise.resolve(withAuth(Home)), { ssr: false })
-export default Home
+export default dynamic(() => Promise.resolve(withAuth(Home)), { ssr: false })

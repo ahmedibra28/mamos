@@ -191,7 +191,7 @@ export const inputCheckBox = (args) => {
     <div className='mb-3'>
       <div className='form-check form-switch'>
         <input
-          className='form-check-input'
+          className='form-check-input mt-0'
           type='checkbox'
           id={name}
           {...register(
@@ -225,7 +225,7 @@ export const inputMultipleCheckBox = (args) => {
                     name,
                     isRequired && { required: `${label} is required` }
                   )}
-                  className='form-check-input'
+                  className='form-check-input mt-0'
                   type='checkbox'
                   value={d._id}
                   id={`flexCheck${d._id}`}

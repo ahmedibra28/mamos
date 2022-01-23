@@ -7,7 +7,6 @@ import {
   FaCheckCircle,
   FaPlusCircle,
   FaSearch,
-  FaMinusCircle,
   FaTrash,
 } from 'react-icons/fa'
 import useAirports from '../../api/airports'
@@ -131,42 +130,6 @@ const Booking = () => {
     },
   ]
 
-  const [selectContainer, setSelectContainer] = useState([])
-  const addContainer = (container) => {
-    const existed = selectContainer.find((c) => c._id === container._id)
-    console.log(existed)
-    if (existed) {
-      const newSelectContainer = selectContainer.map((c) => {
-        if (c._id === container._id) {
-          return {
-            ...container,
-            quantity: c.quantity + 1,
-          }
-        }
-        return c
-      })
-      setSelectContainer(newSelectContainer)
-    } else {
-      setSelectContainer([...selectContainer, { ...container, quantity: 1 }])
-    }
-  }
-  console.log(selectContainer)
-  const removeContainer = (container) => {
-    // if existed subtract quantity one else remove it
-    const newSelectContainer = selectContainer.map((c) => {
-      if (c._id === container._id && c.quantity > 1) {
-        return {
-          ...container,
-          quantity: c.quantity - 1,
-        }
-      } else if (c._id === container._id && c.quantity === 1) {
-        return null
-      }
-      return c
-    })
-    setSelectContainer(newSelectContainer)
-  }
-
   return (
     <div className='mt-1'>
       <h1 className='display-6 text-center font-monospace'>
@@ -208,8 +171,8 @@ const Booking = () => {
               {staticInputSelect({
                 register,
                 errors,
-                label: 'Cargo Type*',
-                name: 'cargoType',
+                label: 'Shipment Type *',
+                name: 'shipmentType',
                 data:
                   watch().transportationType === 'Ship'
                     ? [{ name: 'FCL' }, { name: 'LCL' }]
@@ -218,46 +181,7 @@ const Booking = () => {
             </div>
           )}
 
-          {watch().transportationType === 'Ship' &&
-            watch().cargoType === 'FCL' && (
-              <div className='col-md-6 col-6'>
-                {containersData &&
-                  containersData.map((container) => (
-                    <>
-                      <div key={container._d} className='btn-group mt-1'>
-                        <button
-                          onClick={() => removeContainer(container)}
-                          type='button'
-                          className='btn btn-danger btn-sm'
-                        >
-                          <FaMinusCircle className='mb-1' />
-                        </button>
-                        <button
-                          onClick={() => addContainer(container)}
-                          type='button'
-                          className='btn btn-success btn-sm'
-                        >
-                          <FaPlusCircle className='mb-1' />
-                        </button>
-                        <button type='button' className='btn btn-light btn-sm'>
-                          {container.name} - Fits up to{' '}
-                          {container.payloadCapacity} &{' '}
-                          {(
-                            container.length *
-                            container.width *
-                            container.height *
-                            0.000001
-                          ).toFixed(0)}{' '}
-                          CBM<sup>3</sup>
-                        </button>
-                      </div>
-                      <br />
-                    </>
-                  ))}
-              </div>
-            )}
-
-          {watch().transportationType === 'Ships' && (
+          {watch().transportationType === 'Ship' && (
             <div className='col-md-3 col-6'>
               {dynamicInputSelect({
                 register,
@@ -333,33 +257,34 @@ const Booking = () => {
             </div>
           )}
 
-          {watch().transportationType === 'Plane' && watch().cargoType !== '' && (
-            <>
-              <div className='col-12'>
-                <div className='progress'>
-                  <div
-                    className={`progress-bar ${
-                      '76%' === '100%' && 'bg-danger'
-                    } `}
-                    role='progressbar'
-                    style={{
-                      width: '76%',
-                    }}
-                    aria-valuenow='76'
-                    aria-valuemin='0'
-                    aria-valuemax='100'
-                  >
-                    76%
+          {watch().transportationType === 'Plane' &&
+            watch().shipmentType !== '' && (
+              <>
+                <div className='col-12'>
+                  <div className='progress'>
+                    <div
+                      className={`progress-bar ${
+                        '76%' === '100%' && 'bg-danger'
+                      } `}
+                      role='progressbar'
+                      style={{
+                        width: '76%',
+                      }}
+                      aria-valuenow='76'
+                      aria-valuemin='0'
+                      aria-valuemax='100'
+                    >
+                      76%
+                    </div>
                   </div>
                 </div>
-              </div>
-              {'76%' === '100%' && (
-                <span className='text-danger fw-lighter text-center'>
-                  Sorry, this plane is full
-                </span>
-              )}
-            </>
-          )}
+                {'76%' === '100%' && (
+                  <span className='text-danger fw-lighter text-center'>
+                    Sorry, this plane is full
+                  </span>
+                )}
+              </>
+            )}
         </div>
         <div className='row gx-2 my-2'>
           <div className='col-md-3 col-6'>
@@ -377,7 +302,7 @@ const Booking = () => {
                 ),
             })}
           </div>
-          {watch().cargoType === 'AIR' ? (
+          {watch().shipmentType === 'AIR' ? (
             <div className='col-md-3 col-6'>
               {dynamicInputSelect({
                 register,
@@ -428,7 +353,7 @@ const Booking = () => {
                 ),
             })}
           </div>
-          {watch().cargoType === 'AIR' ? (
+          {watch().shipmentType === 'AIR' ? (
             <div className='col-md-3 col-6'>
               {dynamicInputSelect({
                 register,
