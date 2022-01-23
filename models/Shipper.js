@@ -1,12 +1,17 @@
 import mongoose from 'mongoose'
 import User from './User'
+import Seaport from './Seaport'
 
 const shipperScheme = mongoose.Schema(
   {
     name: { type: String, required: true },
-    type: { type: String, required: true },
+    transportationType: { type: String, required: true },
     price: { type: Number, required: true },
-    deliveryTime: { type: Number, required: true },
+    cargoType: { type: String, required: true },
+    departureSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    arrivalSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    departureDate: { type: Date, required: true },
+    arrivalDate: { type: Date, required: true },
     isActive: { type: Boolean, default: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

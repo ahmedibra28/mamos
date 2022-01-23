@@ -17,7 +17,17 @@ handler.use(isAuth)
 handler.put(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, type, price, deliveryTime } = req.body
+  const {
+    isActive,
+    name,
+    price,
+    transportationType,
+    departureSeaport,
+    arrivalSeaport,
+    departureDate,
+    arrivalDate,
+    cargoType,
+  } = req.body
   const _id = req.query.id
   const updatedBy = req.user.id
 
@@ -27,15 +37,23 @@ handler.put(async (req, res) => {
     const exist = await constants.model.exists({
       _id: { $ne: _id },
       name,
-      type,
       price,
-      deliveryTime,
+      transportationType,
+      departureSeaport,
+      arrivalSeaport,
+      departureDate,
+      arrivalDate,
+      cargoType,
     })
     if (!exist) {
       obj.name = name
-      obj.type = type
+      obj.transportationType = transportationType
       obj.price = price
-      obj.deliveryTime = deliveryTime
+      obj.departureSeaport = departureSeaport
+      obj.arrivalSeaport = arrivalSeaport
+      obj.departureDate = departureDate
+      obj.arrivalDate = arrivalDate
+      obj.cargoType = cargoType
       obj.isActive = isActive
       obj.updatedBy = updatedBy
       await obj.save()

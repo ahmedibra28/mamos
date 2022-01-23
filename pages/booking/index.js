@@ -103,11 +103,9 @@ const Booking = () => {
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
   const submitHandler = (data) => {
-    console.log({ data, inputFields })
     const filterShippers =
       shippersData &&
       shippersData.filter((ship) => ship.type === data.transportationType)
-    console.log({ TotalKG })
     if (filterShippers && filterShippers.length > 0) {
       const shippers = filterShippers.map((ship) => ({
         _id: ship._id,
@@ -134,7 +132,6 @@ const Booking = () => {
   const [selectContainer, setSelectContainer] = useState([])
   const addContainer = (container) => {
     const existed = selectContainer.find((c) => c._id === container._id)
-    console.log(existed)
     if (existed) {
       const newSelectContainer = selectContainer.map((c) => {
         if (c._id === container._id) {
@@ -150,21 +147,21 @@ const Booking = () => {
       setSelectContainer([...selectContainer, { ...container, quantity: 1 }])
     }
   }
-  console.log(selectContainer)
   const removeContainer = (container) => {
-    // if existed subtract quantity one else remove it
     const newSelectContainer = selectContainer.map((c) => {
       if (c._id === container._id && c.quantity > 1) {
         return {
           ...container,
           quantity: c.quantity - 1,
         }
-      } else if (c._id === container._id && c.quantity === 1) {
+      }
+      if (c._id === container._id && c.quantity === 1) {
         return null
       }
       return c
     })
-    setSelectContainer(newSelectContainer)
+
+    setSelectContainer(newSelectContainer.filter((f) => f !== null))
   }
 
   return (
@@ -217,21 +214,50 @@ const Booking = () => {
               })}
             </div>
           )}
+          {watch().transportationType === 'Ship' && (
+            <div className='col-md-3 col-6'>
+              {staticInputSelect({
+                register,
+                errors,
+                label: 'Movement Type *',
+                name: 'movementType',
+                data: [
+                  { name: 'Transport to location' },
+                  { name: 'Pickup at port' },
+                ],
+              })}
+            </div>
+          )}
 
           {watch().transportationType === 'Ship' &&
             watch().cargoType === 'FCL' && (
-              <div className='col-md-6 col-6'>
+              <div className='col-md-6 col-12'>
                 {containersData &&
                   containersData.map((container) => (
-                    <>
-                      <div key={container._d} className='btn-group mt-1'>
+                    <div key={container._d}>
+                      <div className='btn-group mt-1'>
                         <button
+                          disabled={
+                            !selectContainer.find(
+                              (c) => c._id === container._id
+                            )
+                          }
                           onClick={() => removeContainer(container)}
                           type='button'
                           className='btn btn-danger btn-sm'
                         >
                           <FaMinusCircle className='mb-1' />
                         </button>
+
+                        <button type='button' className='btn btn-light btn-sm'>
+                          {selectContainer.map(
+                            (c) => c._id === container._id && c.quantity
+                          )}
+                          {!selectContainer.find(
+                            (c) => c._id === container._id
+                          ) && 0}
+                        </button>
+
                         <button
                           onClick={() => addContainer(container)}
                           type='button'
@@ -248,11 +274,11 @@ const Booking = () => {
                             container.height *
                             0.000001
                           ).toFixed(0)}{' '}
-                          CBM<sup>3</sup>
+                          M<sup>3</sup>
                         </button>
                       </div>
                       <br />
-                    </>
+                    </div>
                   ))}
               </div>
             )}
@@ -277,10 +303,6 @@ const Booking = () => {
             watch().containerType !== '' && (
               <>
                 <div className='col-12'>
-                  {console.log(
-                    containers.find((c) => c._id === watch().containerType)
-                      .available
-                  )}
                   <div className='progress'>
                     <div
                       className={`progress-bar ${
@@ -316,22 +338,6 @@ const Booking = () => {
                 )}
               </>
             )}
-
-          {watch().transportationType === 'Plane' && (
-            <div className='col-md-3 col-6'>
-              {staticInputSelect({
-                register,
-                errors,
-                label: 'Movement Type *',
-                name: 'movementType',
-                data: [
-                  { name: 'door to door' },
-                  { name: 'airport to airport' },
-                  { name: 'store to store' },
-                ],
-              })}
-            </div>
-          )}
 
           {watch().transportationType === 'Plane' && watch().cargoType !== '' && (
             <>

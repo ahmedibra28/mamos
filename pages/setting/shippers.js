@@ -16,19 +16,30 @@ import {
 import useShippers from '../../api/shippers'
 
 import { CSVLink } from 'react-csv'
-
+import useSeaports from '../../api/seaports'
 import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
-import { inputCheckBox, inputText, inputNumber } from '../../utils/dynamicForm'
+import {
+  inputCheckBox,
+  inputText,
+  inputNumber,
+  staticInputSelect,
+  InputAutoCompleteSelect,
+  inputDate,
+  dynamicInputSelectNumber,
+  dynamicInputSelect,
+} from '../../utils/dynamicForm'
 
 const Shipper = () => {
   const { getShippers, updateShipper, addShipper, deleteShipper } =
     useShippers()
+  const { getSeaports } = useSeaports()
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm({
@@ -38,6 +49,7 @@ const Shipper = () => {
   })
 
   const { data, isLoading, isError, error } = getShippers
+  const { data: seaportsData } = getSeaports
 
   const {
     isLoading: isLoadingUpdate,
@@ -85,9 +97,13 @@ const Shipper = () => {
       ? updateMutateAsync({
           _id: id,
           name: data.name,
-          type: data.type,
+          transportationType: data.transportationType,
           price: data.price,
-          deliveryTime: data.deliveryTime,
+          departureSeaport: data.departureSeaport,
+          arrivalSeaport: data.arrivalSeaport,
+          departureDate: data.departureDate,
+          arrivalDate: data.arrivalDate,
+          cargoType: data.cargoType,
           isActive: data.isActive,
         })
       : addMutateAsync(data)
@@ -97,10 +113,13 @@ const Shipper = () => {
     setId(shipper._id)
     setEdit(true)
     setValue('name', shipper.name)
-    setValue('type', shipper.type)
+    setValue('transportationType', shipper.transportationType)
     setValue('price', shipper.price)
-    setValue('deliveryTime', shipper.deliveryTime)
-    setValue('name', shipper.name)
+    setValue('departureSeaport', shipper.departureSeaport._id)
+    setValue('arrivalSeaport', shipper.arrivalSeaport._id)
+    setValue('departureDate', shipper.departureDate.slice(0, 10))
+    setValue('arrivalDate', shipper.arrivalDate.slice(0, 10))
+    setValue('cargoType', shipper.cargoType)
     setValue('isActive', shipper.isActive)
   }
 
@@ -140,7 +159,7 @@ const Shipper = () => {
         aria-labelledby='editShipperModalLabel'
         aria-hidden='true'
       >
-        <div className='modal-dialog'>
+        <div className='modal-dialog modal-lg'>
           <div className='modal-content modal-background'>
             <div className='modal-header'>
               <h3 className='modal-title ' id='editShipperModalLabel'>
@@ -179,11 +198,26 @@ const Shipper = () => {
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
-                      {inputNumber({
+                      {staticInputSelect({
                         register,
-                        label: 'Delivery Time (day)',
+                        label: 'Transportation Type',
                         errors,
-                        name: 'deliveryTime',
+                        name: 'transportationType',
+                        data: [
+                          { name: 'Ocean' },
+                          { name: 'Plane' },
+                          { name: 'Train' },
+                          { name: 'Land' },
+                        ],
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        label: 'Cargo Type',
+                        errors,
+                        name: 'cargoType',
+                        data: [{ name: 'FCL' }, { name: 'LCL' }],
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
@@ -194,14 +228,57 @@ const Shipper = () => {
                         name: 'price',
                       })}
                     </div>
+
                     <div className='col-md-6 col-12'>
-                      {inputText({
+                      {dynamicInputSelect({
+                        value: 'name',
                         register,
-                        label: 'Transportation Type',
+                        label: 'Departure Port',
                         errors,
-                        name: 'type',
+                        name: 'departureSeaport',
+                        data:
+                          seaportsData &&
+                          seaportsData.filter(
+                            (seaport) =>
+                              seaport.isActive &&
+                              seaport._id !== watch().arrivalSeaport
+                          ),
                       })}
                     </div>
+                    <div className='col-md-6 col-12'>
+                      {dynamicInputSelect({
+                        value: 'name',
+                        register,
+                        label: 'Arrival Port',
+                        errors,
+                        name: 'arrivalSeaport',
+                        data:
+                          seaportsData &&
+                          seaportsData.filter(
+                            (seaport) =>
+                              seaport.isActive &&
+                              seaport._id !== watch().departureSeaport
+                          ),
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {inputDate({
+                        register,
+                        label: 'Departure Date',
+                        errors,
+                        name: 'departureDate',
+                      })}
+                    </div>
+
+                    <div className='col-md-6 col-12'>
+                      {inputDate({
+                        register,
+                        label: 'Arrival Date',
+                        errors,
+                        name: 'arrivalDate',
+                      })}
+                    </div>
+
                     <div className='col-12'>
                       {inputCheckBox({
                         register,
@@ -291,9 +368,12 @@ const Shipper = () => {
               <caption>{data && data.length} records were found</caption>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Transportation Type</th>
-                  <th>Delivery Time (day)</th>
+                  <th>Shipper</th>
+                  <th>Cargo Type</th>
+                  <th>D. Port</th>
+                  <th>A. Port</th>
+                  <th>D. Date</th>
+                  <th>A. Date</th>
                   <th>Price Per KG</th>
                   <th>Active</th>
                   <th>Actions</th>
@@ -304,8 +384,11 @@ const Shipper = () => {
                   data.map((shipper) => (
                     <tr key={shipper._id}>
                       <td>{toUpper(shipper.name)}</td>
-                      <td>{shipper.type}</td>
-                      <td>{shipper.deliveryTime}</td>
+                      <td>{shipper.cargoType}</td>
+                      <td>{shipper.departureSeaport.name}</td>
+                      <td>{shipper.arrivalSeaport.name}</td>
+                      <td>{shipper.departureDate.slice(0, 10)}</td>
+                      <td>{shipper.arrivalDate.slice(0, 10)}</td>
                       <td>${shipper.price.toFixed(2)}</td>
                       <td>
                         {shipper.isActive ? (

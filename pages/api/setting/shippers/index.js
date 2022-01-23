@@ -15,7 +15,12 @@ const constants = {
 
 handler.get(async (req, res) => {
   await dbConnect()
-  const obj = await constants.model.find({}).lean().sort({ createdAt: -1 })
+  const obj = await constants.model
+    .find({})
+    .lean()
+    .sort({ createdAt: -1 })
+    .populate('departureSeaport', 'name')
+    .populate('arrivalSeaport', 'name')
   res.send(obj)
 })
 
@@ -23,14 +28,28 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, type, price, deliveryTime } = req.body
+  const {
+    isActive,
+    name,
+    price,
+    transportationType,
+    departureSeaport,
+    arrivalSeaport,
+    departureDate,
+    arrivalDate,
+    cargoType,
+  } = req.body
   const createdBy = req.user.id
 
   const exist = await constants.model.exists({
     name,
-    type,
     price,
-    deliveryTime,
+    transportationType,
+    departureSeaport,
+    arrivalSeaport,
+    departureDate,
+    arrivalDate,
+    cargoType,
   })
 
   if (exist) {
@@ -38,9 +57,13 @@ handler.post(async (req, res) => {
   }
   const createObj = await constants.model.create({
     name,
-    type,
     price,
-    deliveryTime,
+    transportationType,
+    departureSeaport,
+    arrivalSeaport,
+    departureDate,
+    arrivalDate,
+    cargoType,
     isActive,
     createdBy,
   })
