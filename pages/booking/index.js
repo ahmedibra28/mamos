@@ -29,6 +29,8 @@ import {
   inputNumber,
   inputTextArea,
   inputFile,
+  inputCheckBox,
+  inputEmail,
 } from '../../utils/dynamicForm'
 import Image from 'next/image'
 import moment from 'moment'
@@ -42,6 +44,7 @@ const Booking = () => {
     formState: { errors },
   } = useForm()
   const [shippers, setShippers] = useState([])
+  const [selectedShipment, setSelectedShipment] = useState(null)
 
   const { getCountries } = useCountries()
   const { getSeaports } = useSeaports()
@@ -498,8 +501,11 @@ const Booking = () => {
                     </div>
                   </div>
                   <div className='card-footer'>
-                    <button className='btn btn-primary btn-sm form-control'>
-                      <FaCheckCircle className='mb-1' /> Choose
+                    <button
+                      onClick={() => setSelectedShipment(shipper)}
+                      className='btn btn-primary btn-sm form-control'
+                    >
+                      <FaCheckCircle className='mb-1' /> Select Shipment
                     </button>
                   </div>
                 </div>
@@ -510,6 +516,107 @@ const Booking = () => {
               No Shipper Available
             </span>
           )}
+        </div>
+      )}
+
+      {/* Display if shipment is selected */}
+      {selectedShipment && (
+        <div className='row gx-2 my-2'>
+          <div className='col-12'>
+            <h5>CARGO DETAILS</h5>
+            <p>Tel us a bit more about your cargo.</p>
+          </div>
+
+          <div className='col-6'>
+            {inputText({
+              register,
+              name: 'cargoDescription',
+              label: 'Cargo Description',
+            })}
+          </div>
+          <div className='col-6'>
+            {staticInputSelect({
+              register,
+              name: 'commodity',
+              label: 'Commodity',
+              data: [
+                { name: 'Furniture' },
+                { name: 'Electronics' },
+                { name: 'Food' },
+                { name: 'Clothes' },
+                { name: 'Others' },
+              ],
+            })}
+          </div>
+          <div className='col-6'>
+            {inputNumber({
+              register,
+              name: 'noOfPackages',
+              label: 'No. of Packages',
+            })}
+          </div>
+          <div className='col-6'>
+            {inputNumber({
+              register,
+              name: 'grossWeight',
+              label: 'Gross Weight as KG',
+              max: totalContainerKG,
+            })}
+          </div>
+          <div className='col-6'>
+            {inputCheckBox({
+              register,
+              name: 'isTemperatureControlled',
+              label:
+                'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Buyer details */}
+      {selectedShipment && watch().importExport === 'export' && (
+        <div className='row gx-2 my-2'>
+          <div className='col-12'>
+            <h5>BUYER DETAILS</h5>
+            <p>
+              Your booking for export, which means you supply this shipment to
+              your buyer (or consignee). Enter your buyers details to they can
+              be notified about you shipment and track the process
+            </p>
+          </div>
+          <div className='col-12'>
+            <label>Person who will receive package</label>
+          </div>
+          <div className='col-6'>
+            {inputText({
+              register,
+              name: 'buyerName',
+              label: 'Who is your buyer?',
+            })}
+          </div>
+          <div className='col-6'>
+            {inputNumber({
+              register,
+              name: 'buyerMobileNumber',
+              label: 'Buyer mobile number',
+            })}
+          </div>
+          <div className='col-6'>
+            {inputEmail({
+              register,
+              name: 'buyerEmail',
+              label: 'Buyer email',
+            })}
+          </div>
+
+          <div className='col-7'>
+            {inputCheckBox({
+              register,
+              name: 'isIdentityNotConfirmed',
+              label: 'I dont not know my buyer yet',
+            })}
+          </div>
         </div>
       )}
 
