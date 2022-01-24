@@ -9,6 +9,13 @@ import {
   FaSearch,
   FaMinusCircle,
   FaTrash,
+  FaShip,
+  FaExchangeAlt,
+  FaAngleDoubleRight,
+  FaLongArrowAltRight,
+  FaClock,
+  FaBook,
+  FaDollarSign,
 } from 'react-icons/fa'
 import useAirports from '../../api/airports'
 import useCountries from '../../api/countries'
@@ -24,6 +31,7 @@ import {
   inputFile,
 } from '../../utils/dynamicForm'
 import Image from 'next/image'
+import moment from 'moment'
 
 const Booking = () => {
   const {
@@ -47,6 +55,26 @@ const Booking = () => {
   const { data: containersData } = getContainers
   const { data: shippersData } = getShippers
 
+  const availableTransportationType = shippersData && [
+    ...new Set(
+      shippersData.map(
+        (shipper) => shipper.isActive && shipper.transportationType
+      )
+    ),
+  ]
+  const availableCargoType = shippersData && [
+    ...new Set(
+      shippersData.map((shipper) => shipper.isActive && shipper.cargoType)
+    ),
+  ]
+  const availableMovementType = shippersData && [
+    ...new Set(
+      shippersData.map((shipper) => shipper.isActive && shipper.movementType)
+    ),
+  ]
+
+  const [selectContainer, setSelectContainer] = useState([])
+  const [availableShippers, setAvailableShippers] = useState([])
   const [inputFields, setInputFields] = useState([
     {
       qty: 0,
@@ -102,20 +130,40 @@ const Booking = () => {
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
+  const totalContainerKG =
+    selectContainer &&
+    selectContainer.reduce(
+      (acc, curr) => acc + curr.payloadCapacity * curr.quantity,
+      0
+    )
+
   const submitHandler = (data) => {
-    const filterShippers =
+    const availableShippers =
       shippersData &&
-      shippersData.filter((ship) => ship.type === data.transportationType)
-    if (filterShippers && filterShippers.length > 0) {
-      const shippers = filterShippers.map((ship) => ({
-        _id: ship._id,
-        name: ship.name,
-        price: ship.price.toFixed(2),
-        deliveryTime: ship.deliveryTime,
-        total: (ship.price * TotalKG).toFixed(2),
-      }))
-      setShippers(shippers ? shippers : [])
-    }
+      shippersData.filter(
+        (shipper) =>
+          shipper.isActive &&
+          shipper.transportationType === data.transportationType &&
+          shipper.cargoType === data.cargoType &&
+          // shipper.movementType === data.movementType &&
+          shipper.departureSeaport._id === data.pickupPort &&
+          shipper.arrivalSeaport._id === data.destPort
+      )
+
+    setAvailableShippers(availableShippers)
+    // const filterShippers =
+    //   shippersData &&
+    //   shippersData.filter((ship) => ship.type === data.transportationType)
+    // if (filterShippers && filterShippers.length > 0) {
+    //   const shippers = filterShippers.map((ship) => ({
+    //     _id: ship._id,
+    //     name: ship.name,
+    //     price: ship.price.toFixed(2),
+    //     deliveryTime: ship.deliveryTime,
+    //     total: (ship.price * TotalKG).toFixed(2),
+    //   }))
+    //   setShippers(shippers ? shippers : [])
+    // }
   }
 
   const containers = [
@@ -129,7 +177,6 @@ const Booking = () => {
     },
   ]
 
-  const [selectContainer, setSelectContainer] = useState([])
   const addContainer = (container) => {
     const existed = selectContainer.find((c) => c._id === container._id)
     if (existed) {
@@ -192,97 +239,283 @@ const Booking = () => {
               errors,
               label: 'Transportation Type *',
               name: 'transportationType',
-              data: [
-                { name: 'Ship' },
-                // { name: 'Track' },
-                // { name: 'Train' },
-                { name: 'Plane' },
-              ],
+              data:
+                availableTransportationType &&
+                availableTransportationType.map((type) => ({ name: type })),
             })}
           </div>
-          {watch().transportationType !== '' && (
-            <div className='col-md-3 col-6'>
-              {staticInputSelect({
-                register,
-                errors,
-                label: 'Cargo Type*',
-                name: 'cargoType',
-                data:
-                  watch().transportationType === 'Ship'
-                    ? [{ name: 'FCL' }, { name: 'LCL' }]
-                    : [{ name: 'KG' }],
-              })}
-            </div>
-          )}
-          {watch().transportationType === 'Ship' && (
-            <div className='col-md-3 col-6'>
-              {staticInputSelect({
-                register,
-                errors,
-                label: 'Movement Type *',
-                name: 'movementType',
-                data: [
-                  { name: 'Transport to location' },
-                  { name: 'Pickup at port' },
-                ],
-              })}
-            </div>
-          )}
 
-          {watch().transportationType === 'Ship' &&
-            watch().cargoType === 'FCL' && (
-              <div className='col-md-6 col-12'>
-                {containersData &&
-                  containersData.map((container) => (
-                    <div key={container._d}>
-                      <div className='btn-group mt-1'>
-                        <button
-                          disabled={
-                            !selectContainer.find(
-                              (c) => c._id === container._id
-                            )
-                          }
-                          onClick={() => removeContainer(container)}
-                          type='button'
-                          className='btn btn-danger btn-sm'
-                        >
-                          <FaMinusCircle className='mb-1' />
-                        </button>
+          <div className='col-md-3 col-6'>
+            {staticInputSelect({
+              register,
+              errors,
+              label: 'Cargo Type*',
+              name: 'cargoType',
+              data:
+                availableCargoType &&
+                availableCargoType.map((type) => ({ name: type })),
+            })}
+          </div>
 
-                        <button type='button' className='btn btn-light btn-sm'>
-                          {selectContainer.map(
-                            (c) => c._id === container._id && c.quantity
-                          )}
-                          {!selectContainer.find(
-                            (c) => c._id === container._id
-                          ) && 0}
-                        </button>
+          <div className='col-md-3 col-6'>
+            {staticInputSelect({
+              register,
+              errors,
+              label: 'Movement Type *',
+              name: 'movementType',
+              data:
+                availableMovementType &&
+                availableMovementType.map((type) => ({ name: type })),
+            })}
+          </div>
 
-                        <button
-                          onClick={() => addContainer(container)}
-                          type='button'
-                          className='btn btn-success btn-sm'
-                        >
-                          <FaPlusCircle className='mb-1' />
-                        </button>
-                        <button type='button' className='btn btn-light btn-sm'>
-                          {container.name} - Fits up to{' '}
-                          {container.payloadCapacity} &{' '}
-                          {(
-                            container.length *
-                            container.width *
-                            container.height *
-                            0.000001
-                          ).toFixed(0)}{' '}
-                          M<sup>3</sup>
-                        </button>
-                      </div>
-                      <br />
+          {watch().cargoType === 'FCL' && (
+            <div className='col-md-6 col-12'>
+              {containersData &&
+                containersData.map((container) => (
+                  <div key={container._d}>
+                    <div className='btn-group mt-1'>
+                      <button
+                        disabled={
+                          !selectContainer.find((c) => c._id === container._id)
+                        }
+                        onClick={() => removeContainer(container)}
+                        type='button'
+                        className='btn btn-danger btn-sm'
+                      >
+                        <FaMinusCircle className='mb-1' />
+                      </button>
+
+                      <button type='button' className='btn btn-light btn-sm'>
+                        {selectContainer.map(
+                          (c) => c._id === container._id && c.quantity
+                        )}
+                        {!selectContainer.find(
+                          (c) => c._id === container._id
+                        ) && 0}
+                      </button>
+
+                      <button
+                        onClick={() => addContainer(container)}
+                        type='button'
+                        className='btn btn-success btn-sm'
+                      >
+                        <FaPlusCircle className='mb-1' />
+                      </button>
+                      <button type='button' className='btn btn-light btn-sm'>
+                        {container.name} - Fits up to{' '}
+                        {container.payloadCapacity} &{' '}
+                        {(
+                          container.length *
+                          container.width *
+                          container.height *
+                          0.000001
+                        ).toFixed(0)}{' '}
+                        M<sup>3</sup>
+                      </button>
                     </div>
-                  ))}
+                    <br />
+                  </div>
+                ))}
+            </div>
+          )}
+          <div className='row gx-2 my-2'>
+            <div className='col-md-3 col-6'>
+              {dynamicInputSelect({
+                register,
+                errors,
+                label: 'Pickup Country *',
+                name: 'pickupCountry',
+                value: 'name',
+                data:
+                  countriesData &&
+                  countriesData.filter(
+                    (country) =>
+                      country.isActive && country._id !== watch().destCountry
+                  ),
+              })}
+            </div>
+            {watch().cargoType === 'AIR' ? (
+              <div className='col-md-3 col-6'>
+                {dynamicInputSelect({
+                  register,
+                  errors,
+                  label: 'Pickup Airport *',
+                  name: 'pickupAirport',
+                  value: 'name',
+                  data:
+                    airportsData &&
+                    airportsData.filter(
+                      (airport) =>
+                        airport.country._id === watch().pickupCountry &&
+                        airport.isActive
+                    ),
+                })}
+              </div>
+            ) : (
+              <div className='col-md-3 col-6'>
+                {dynamicInputSelect({
+                  register,
+                  errors,
+                  label: 'Pickup Port *',
+                  name: 'pickupPort',
+                  value: 'name',
+                  data:
+                    seaportsData &&
+                    seaportsData.filter(
+                      (seaport) =>
+                        seaport.country._id === watch().pickupCountry &&
+                        seaport.isActive
+                    ),
+                })}
               </div>
             )}
 
+            <div className='col-md-3 col-6'>
+              {dynamicInputSelect({
+                register,
+                errors,
+                label: 'Dest Country *',
+                name: 'destCountry',
+                value: 'name',
+                data:
+                  countriesData &&
+                  countriesData.filter(
+                    (country) =>
+                      country.isActive && country._id !== watch().pickupCountry
+                  ),
+              })}
+            </div>
+            {watch().cargoType === 'AIR' ? (
+              <div className='col-md-3 col-6'>
+                {dynamicInputSelect({
+                  register,
+                  errors,
+                  label: 'Dest Airport *',
+                  name: 'destAirport',
+                  value: 'name',
+                  data:
+                    airportsData &&
+                    airportsData.filter(
+                      (airport) =>
+                        airport.country._id === watch().destCountry &&
+                        airport.isActive
+                    ),
+                })}
+              </div>
+            ) : (
+              <div className='col-md-3 col-6'>
+                {dynamicInputSelect({
+                  register,
+                  errors,
+                  label: 'Dest Port *',
+                  name: 'destPort',
+                  value: 'name',
+                  data:
+                    seaportsData &&
+                    seaportsData.filter(
+                      (seaport) =>
+                        seaport.country._id === watch().destCountry &&
+                        seaport.isActive
+                    ),
+                })}
+              </div>
+            )}
+          </div>
+
+          <button className='btn btn-primary btn-sm'>
+            <FaSearch className='mb-1' /> Search Available Vessels
+          </button>
+        </div>
+      </form>
+      {availableShippers && availableShippers.length > 0 && (
+        <div className='row gy-2'>
+          {availableShippers ? (
+            availableShippers.map((shipper) => (
+              <div key={shipper._id} className='col-lg-4 col-md-6 col-12'>
+                <div className='card'>
+                  <div className='card-header text-center'>
+                    <h4 className='text-center'>{shipper.name}</h4>
+                  </div>
+                  <div className='card-body'>
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <button
+                        type='button'
+                        className='btn btn-light btn-sm float-start'
+                      >
+                        <FaShip className='mb-1 fs-4' /> <br />
+                        {shipper.departureSeaport.name} <br />
+                        <span
+                          className='fw-lighter'
+                          style={{ fontSize: '12px' }}
+                        >
+                          {moment(shipper.departureDate).format('DD MMM')}
+                        </span>
+                      </button>
+                      <button
+                        type='button'
+                        className='btn btn-light btn-sm my-auto'
+                      >
+                        <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
+                      </button>
+                      <button
+                        type='button'
+                        className='btn btn-light btn-sm float-end'
+                      >
+                        <FaShip className='mb-1 fs-4' /> <br />{' '}
+                        {shipper.arrivalSeaport.name} <br />
+                        <span
+                          className='fw-lighter'
+                          style={{ fontSize: '12px' }}
+                        >
+                          {moment(shipper.arrivalDate).format('DD MMM')}
+                        </span>
+                      </button>
+                    </div>
+                    <hr />
+
+                    <div className='d-flex justify-content-between align-items-center'>
+                      <button type='button' className='btn btn-light btn-sm'>
+                        <FaClock className='mb-1 fs-6' />{' '}
+                        <span className='fw-bold fs-6'>
+                          {moment(new Date(shipper.arrivalDate))
+                            .diff(
+                              moment(new Date(shipper.departureDate)),
+                              'days'
+                            )
+                            .toLocaleString()}{' '}
+                          days
+                        </span>
+                      </button>
+                      <button type='button' className='btn btn-light btn-sm'>
+                        <span className='fw-bold fs-6'>
+                          <FaDollarSign className='mb-1 fs-6' />
+                          {(
+                            Number(totalContainerKG) * shipper.price
+                          ).toLocaleString()}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <div className='card-footer'>
+                    <button className='btn btn-primary btn-sm form-control'>
+                      <FaCheckCircle className='mb-1' /> Choose
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <span className='text-center text-danger'>
+              No Shipper Available
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* phase one end ++++++++++++++++++++++++++++++++++++++++++ */}
+      <form>
+        <div>
           {watch().transportationType === 'Ships' && (
             <div className='col-md-3 col-6'>
               {dynamicInputSelect({
@@ -367,111 +600,8 @@ const Booking = () => {
             </>
           )}
         </div>
-        <div className='row gx-2 my-2'>
-          <div className='col-md-3 col-6'>
-            {dynamicInputSelect({
-              register,
-              errors,
-              label: 'Pickup Country *',
-              name: 'pickupCountry',
-              value: 'name',
-              data:
-                countriesData &&
-                countriesData.filter(
-                  (country) =>
-                    country.isActive && country._id !== watch().destCountry
-                ),
-            })}
-          </div>
-          {watch().cargoType === 'AIR' ? (
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Pickup Airport *',
-                name: 'pickupAirport',
-                value: 'name',
-                data:
-                  airportsData &&
-                  airportsData.filter(
-                    (airport) =>
-                      airport.country._id === watch().pickupCountry &&
-                      airport.isActive
-                  ),
-              })}
-            </div>
-          ) : (
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Pickup Port *',
-                name: 'pickupPort',
-                value: 'name',
-                data:
-                  seaportsData &&
-                  seaportsData.filter(
-                    (seaport) =>
-                      seaport.country._id === watch().pickupCountry &&
-                      seaport.isActive
-                  ),
-              })}
-            </div>
-          )}
 
-          <div className='col-md-3 col-6'>
-            {dynamicInputSelect({
-              register,
-              errors,
-              label: 'Dest Country *',
-              name: 'destCountry',
-              value: 'name',
-              data:
-                countriesData &&
-                countriesData.filter(
-                  (country) =>
-                    country.isActive && country._id !== watch().pickupCountry
-                ),
-            })}
-          </div>
-          {watch().cargoType === 'AIR' ? (
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Dest Airport *',
-                name: 'destAirport',
-                value: 'name',
-                data:
-                  airportsData &&
-                  airportsData.filter(
-                    (airport) =>
-                      airport.country._id === watch().destCountry &&
-                      airport.isActive
-                  ),
-              })}
-            </div>
-          ) : (
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Dest Port *',
-                name: 'destPort',
-                value: 'name',
-                data:
-                  seaportsData &&
-                  seaportsData.filter(
-                    (seaport) =>
-                      seaport.country._id === watch().destCountry &&
-                      seaport.isActive
-                  ),
-              })}
-            </div>
-          )}
-        </div>
-
-        <h5 className='mt-2'>CARGO DETAILS</h5>
+        {/* <h5 className='mt-2'>CARGO DETAILS</h5>
 
         {inputFields.map((inputField, index) => (
           <div key={index}>
@@ -854,7 +984,7 @@ const Booking = () => {
               <h6>Uploaded Photos</h6>
             </div>
           </div>
-        </div>
+        </div> */}
       </form>
     </div>
   )

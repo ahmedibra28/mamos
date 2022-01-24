@@ -38,6 +38,7 @@ handler.post(async (req, res) => {
     departureDate,
     arrivalDate,
     cargoType,
+    movementType,
   } = req.body
   const createdBy = req.user.id
 
@@ -50,6 +51,7 @@ handler.post(async (req, res) => {
     departureDate,
     arrivalDate,
     cargoType,
+    movementType,
   })
 
   if (exist) {
@@ -64,6 +66,7 @@ handler.post(async (req, res) => {
     departureDate,
     arrivalDate,
     cargoType,
+    movementType,
     isActive,
     createdBy,
   })

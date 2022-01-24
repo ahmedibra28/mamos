@@ -26,6 +26,7 @@ handler.put(async (req, res) => {
     arrivalSeaport,
     departureDate,
     arrivalDate,
+    movementType,
     cargoType,
   } = req.body
   const _id = req.query.id
@@ -43,12 +44,14 @@ handler.put(async (req, res) => {
       arrivalSeaport,
       departureDate,
       arrivalDate,
+      movementType,
       cargoType,
     })
     if (!exist) {
       obj.name = name
       obj.transportationType = transportationType
       obj.price = price
+      obj.movementType = movementType
       obj.departureSeaport = departureSeaport
       obj.arrivalSeaport = arrivalSeaport
       obj.departureDate = departureDate

@@ -105,6 +105,7 @@ const Shipper = () => {
           arrivalDate: data.arrivalDate,
           cargoType: data.cargoType,
           isActive: data.isActive,
+          movementType: data.movementType,
         })
       : addMutateAsync(data)
   }
@@ -121,6 +122,7 @@ const Shipper = () => {
     setValue('arrivalDate', shipper.arrivalDate.slice(0, 10))
     setValue('cargoType', shipper.cargoType)
     setValue('isActive', shipper.isActive)
+    setValue('movementType', shipper.movementType)
   }
 
   const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
@@ -218,6 +220,19 @@ const Shipper = () => {
                         errors,
                         name: 'cargoType',
                         data: [{ name: 'FCL' }, { name: 'LCL' }],
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        label: 'Movement Type',
+                        errors,
+                        name: 'movementType',
+                        data: [
+                          { name: 'Port to Port' },
+                          { name: 'Door to Door' },
+                          { name: 'Door to Port' },
+                        ],
                       })}
                     </div>
                     <div className='col-md-6 col-12'>

@@ -8,6 +8,7 @@ const shipperScheme = mongoose.Schema(
     transportationType: { type: String, required: true },
     price: { type: Number, required: true },
     cargoType: { type: String, required: true },
+    movementType: { type: String, required: true },
     departureSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     arrivalSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     departureDate: { type: Date, required: true },
