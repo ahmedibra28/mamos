@@ -149,6 +149,9 @@ const Booking = () => {
       0
     )
 
+  const TotalRunningCost =
+    selectedShipment && selectedShipment.price * totalContainerKG
+
   const submitHandler = (data) => {
     const availableShippers =
       shippersData &&
@@ -163,31 +166,7 @@ const Booking = () => {
       )
 
     setAvailableShippers(availableShippers)
-    // const filterShippers =
-    //   shippersData &&
-    //   shippersData.filter((ship) => ship.type === data.transportationType)
-    // if (filterShippers && filterShippers.length > 0) {
-    //   const shippers = filterShippers.map((ship) => ({
-    //     _id: ship._id,
-    //     name: ship.name,
-    //     price: ship.price.toFixed(2),
-    //     deliveryTime: ship.deliveryTime,
-    //     total: (ship.price * TotalKG).toFixed(2),
-    //   }))
-    //   setShippers(shippers ? shippers : [])
-    // }
   }
-
-  const containers = [
-    { _id: '61e649f6733d4c2930b6f202', container: '45 High', available: '86%' },
-    { _id: '61e64967733d4c2930b6f1e0', container: '40 FT', available: '0%' },
-    { _id: '61e64931733d4c2930b6f1d2', container: '20 FT', available: '13%' },
-    {
-      _id: '61e648a2733d4c2930b6f1c0',
-      container: '40 FT High',
-      available: '100%',
-    },
-  ]
 
   const addContainer = (container) => {
     const existed = selectContainer.find((c) => c._id === container._id)
@@ -241,6 +220,14 @@ const Booking = () => {
           <div className='text-center my-2'>
             <button type='button' className='btn btn-light shadow rounded-pill'>
               Step {formStep} of {MAX_STEP}
+            </button>{' '}
+            <br />
+            <button
+              type='button'
+              className='btn btn-success shadow rounded-pills mt-1'
+            >
+              <FaDollarSign className='mb-1' />{' '}
+              {TotalRunningCost ? TotalRunningCost.toLocaleString() : '0.00'}
             </button>
           </div>
         )}
@@ -778,15 +765,13 @@ const Booking = () => {
                   }
                 >
                   <div className='row gx-2 my-2'>
-                    {selectedShipment && watch().importExport === 'export' && (
+                    {selectedShipment && (
                       <div className='row gx-2 my-2'>
                         <div className='col-12'>
                           <h5>BUYER DETAILS</h5>
                           <p>
-                            Your booking for export, which means you supply this
-                            shipment to your buyer (or consignee). Enter your
-                            buyers details to they can be notified about you
-                            shipment and track the process
+                            Enter the buyers details so they can be notified
+                            about the shipment and track the process
                           </p>
                         </div>
                         <div className='col-12'>
@@ -814,6 +799,14 @@ const Booking = () => {
                             errors,
                             name: 'buyerEmail',
                             label: 'Buyer email',
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputText({
+                            register,
+                            errors,
+                            name: 'buyerAddress',
+                            label: 'Buyer address',
                           })}
                         </div>
                       </div>
@@ -846,7 +839,7 @@ const Booking = () => {
                   }
                 >
                   <div className='row gx-2 my-2'>
-                    {selectedShipment && watch().importExport === 'export' && (
+                    {selectedShipment && (
                       <div className='row gx-2 my-2'>
                         <div className='col-12'>
                           <h5>LOCATION DETAILS</h5>
@@ -945,8 +938,9 @@ const Booking = () => {
                           </>
                         )}
 
-                        {(watch().movementType === 'Port to Port' ||
-                          watch().movementType === 'Port to Port') && <></>}
+                        {watch().movementType === 'Port to Port' && (
+                          <>Port to Port Information</>
+                        )}
                       </div>
                     )}
                     <div className='text-center btn-groups'>
