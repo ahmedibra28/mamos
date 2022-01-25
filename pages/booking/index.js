@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import { useForm } from 'react-hook-form'
@@ -16,9 +16,11 @@ import {
   FaClock,
   FaBook,
   FaDollarSign,
+  FaArrowAltCircleLeft,
 } from 'react-icons/fa'
 import useAirports from '../../api/airports'
 import useCountries from '../../api/countries'
+import useCommodities from '../../api/commodities'
 import useSeaports from '../../api/seaports'
 import useContainers from '../../api/containers'
 import useShippers from '../../api/shippers'
@@ -32,7 +34,6 @@ import {
   inputCheckBox,
   inputEmail,
 } from '../../utils/dynamicForm'
-import Image from 'next/image'
 import moment from 'moment'
 
 const Booking = () => {
@@ -41,18 +42,26 @@ const Booking = () => {
     handleSubmit,
     reset,
     watch,
-    formState: { errors },
-  } = useForm()
+    formState: { errors, isValid },
+  } = useForm({
+    mode: 'all',
+    defaultValues: {
+      isTemperatureControlled: false,
+    },
+  })
+
   const [shippers, setShippers] = useState([])
   const [selectedShipment, setSelectedShipment] = useState(null)
 
   const { getCountries } = useCountries()
+  const { getCommodities } = useCommodities()
   const { getSeaports } = useSeaports()
   const { getAirports } = useAirports()
   const { getContainers } = useContainers()
   const { getShippers } = useShippers()
 
   const { data: countriesData } = getCountries
+  const { data: commoditiesData } = getCommodities
   const { data: seaportsData } = getSeaports
   const { data: airportsData } = getAirports
   const { data: containersData } = getContainers
@@ -214,885 +223,756 @@ const Booking = () => {
     setSelectContainer(newSelectContainer.filter((f) => f !== null))
   }
 
+  const [formStep, setFormStep] = useState(1)
+  const MAX_STEP = 10
   return (
     <div className='mt-1'>
-      <h1 className='display-6 text-center font-monospace'>
-        Book New Shipment
-      </h1>
-      <p className='text-center'>
-        Please complete as much of the rate enquiry form as possible in order
-        for your MAMOS team to provide an accurate freight rate quotation.
-      </p>
-      <hr />
+      <div className='p-2 shadow-sm'>
+        <h1 className='display-6 text-center font-monospace'>
+          Book New Shipment
+        </h1>
 
-      <form onSubmit={handleSubmit(submitHandler)}>
-        <div className='row gx-2 my-2 my-2'>
-          <div className='col-md-3 col-6'>
-            {staticInputSelect({
-              register,
-              errors,
-              label: 'Import/Export *',
-              name: 'importExport',
-              data: [{ name: 'import' }, { name: 'export' }],
-            })}
+        <p className='text-center'>
+          Please complete as much of the rate enquiry form as possible in order
+          for your MAMOS team to provide an accurate freight rate quotation.
+        </p>
+        <hr />
+        {formStep < MAX_STEP && (
+          <div className='text-center my-2'>
+            <button type='button' className='btn btn-light shadow rounded-pill'>
+              Step {formStep} of {MAX_STEP}
+            </button>
           </div>
-          <div className='col-md-3 col-6'>
-            {staticInputSelect({
-              register,
-              errors,
-              label: 'Transportation Type *',
-              name: 'transportationType',
-              data:
-                availableTransportationType &&
-                availableTransportationType.map((type) => ({ name: type })),
-            })}
-          </div>
-
-          <div className='col-md-3 col-6'>
-            {staticInputSelect({
-              register,
-              errors,
-              label: 'Cargo Type*',
-              name: 'cargoType',
-              data:
-                availableCargoType &&
-                availableCargoType.map((type) => ({ name: type })),
-            })}
-          </div>
-
-          <div className='col-md-3 col-6'>
-            {staticInputSelect({
-              register,
-              errors,
-              label: 'Movement Type *',
-              name: 'movementType',
-              data:
-                availableMovementType &&
-                availableMovementType.map((type) => ({ name: type })),
-            })}
-          </div>
-
-          {watch().cargoType === 'FCL' && (
-            <div className='col-md-6 col-12'>
-              {containersData &&
-                containersData.map((container) => (
-                  <div key={container._d}>
-                    <div className='btn-group mt-1'>
-                      <button
-                        disabled={
-                          !selectContainer.find((c) => c._id === container._id)
-                        }
-                        onClick={() => removeContainer(container)}
-                        type='button'
-                        className='btn btn-danger btn-sm'
-                      >
-                        <FaMinusCircle className='mb-1' />
-                      </button>
-
-                      <button type='button' className='btn btn-light btn-sm'>
-                        {selectContainer.map(
-                          (c) => c._id === container._id && c.quantity
-                        )}
-                        {!selectContainer.find(
-                          (c) => c._id === container._id
-                        ) && 0}
-                      </button>
-
-                      <button
-                        onClick={() => addContainer(container)}
-                        type='button'
-                        className='btn btn-success btn-sm'
-                      >
-                        <FaPlusCircle className='mb-1' />
-                      </button>
-                      <button type='button' className='btn btn-light btn-sm'>
-                        {container.name} - Fits up to{' '}
-                        {container.payloadCapacity} &{' '}
-                        {(
-                          container.length *
-                          container.width *
-                          container.height *
-                          0.000001
-                        ).toFixed(0)}{' '}
-                        M<sup>3</sup>
-                      </button>
+        )}
+        <form onSubmit={handleSubmit(submitHandler)}>
+          <div className='row'>
+            <div className='col-md-10 col-12 mx-auto'>
+              {formStep > 0 && (
+                <section
+                  style={
+                    formStep !== 1 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        errors,
+                        label: 'Import/Export *',
+                        name: 'importExport',
+                        data: [{ name: 'import' }, { name: 'export' }],
+                      })}
                     </div>
-                    <br />
-                  </div>
-                ))}
-            </div>
-          )}
-          <div className='row gx-2 my-2'>
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Pickup Country *',
-                name: 'pickupCountry',
-                value: 'name',
-                data:
-                  countriesData &&
-                  countriesData.filter(
-                    (country) =>
-                      country.isActive && country._id !== watch().destCountry
-                  ),
-              })}
-            </div>
-            {watch().cargoType === 'AIR' ? (
-              <div className='col-md-3 col-6'>
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Pickup Airport *',
-                  name: 'pickupAirport',
-                  value: 'name',
-                  data:
-                    airportsData &&
-                    airportsData.filter(
-                      (airport) =>
-                        airport.country._id === watch().pickupCountry &&
-                        airport.isActive
-                    ),
-                })}
-              </div>
-            ) : (
-              <div className='col-md-3 col-6'>
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Pickup Port *',
-                  name: 'pickupPort',
-                  value: 'name',
-                  data:
-                    seaportsData &&
-                    seaportsData.filter(
-                      (seaport) =>
-                        seaport.country._id === watch().pickupCountry &&
-                        seaport.isActive
-                    ),
-                })}
-              </div>
-            )}
-
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Dest Country *',
-                name: 'destCountry',
-                value: 'name',
-                data:
-                  countriesData &&
-                  countriesData.filter(
-                    (country) =>
-                      country.isActive && country._id !== watch().pickupCountry
-                  ),
-              })}
-            </div>
-            {watch().cargoType === 'AIR' ? (
-              <div className='col-md-3 col-6'>
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Dest Airport *',
-                  name: 'destAirport',
-                  value: 'name',
-                  data:
-                    airportsData &&
-                    airportsData.filter(
-                      (airport) =>
-                        airport.country._id === watch().destCountry &&
-                        airport.isActive
-                    ),
-                })}
-              </div>
-            ) : (
-              <div className='col-md-3 col-6'>
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Dest Port *',
-                  name: 'destPort',
-                  value: 'name',
-                  data:
-                    seaportsData &&
-                    seaportsData.filter(
-                      (seaport) =>
-                        seaport.country._id === watch().destCountry &&
-                        seaport.isActive
-                    ),
-                })}
-              </div>
-            )}
-          </div>
-
-          <button className='btn btn-primary btn-sm'>
-            <FaSearch className='mb-1' /> Search Available Vessels
-          </button>
-        </div>
-      </form>
-      {availableShippers && availableShippers.length > 0 && (
-        <div className='row gy-2'>
-          {availableShippers ? (
-            availableShippers.map((shipper) => (
-              <div key={shipper._id} className='col-lg-4 col-md-6 col-12'>
-                <div className='card'>
-                  <div className='card-header text-center'>
-                    <h4 className='text-center'>{shipper.name}</h4>
-                  </div>
-                  <div className='card-body'>
-                    <div className='d-flex justify-content-between align-items-center'>
-                      <button
-                        type='button'
-                        className='btn btn-light btn-sm float-start'
-                      >
-                        <FaShip className='mb-1 fs-4' /> <br />
-                        {shipper.departureSeaport.name} <br />
-                        <span
-                          className='fw-lighter'
-                          style={{ fontSize: '12px' }}
-                        >
-                          {moment(shipper.departureDate).format('DD MMM')}
-                        </span>
-                      </button>
-                      <button
-                        type='button'
-                        className='btn btn-light btn-sm my-auto'
-                      >
-                        <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
-                      </button>
-                      <button
-                        type='button'
-                        className='btn btn-light btn-sm float-end'
-                      >
-                        <FaShip className='mb-1 fs-4' /> <br />{' '}
-                        {shipper.arrivalSeaport.name} <br />
-                        <span
-                          className='fw-lighter'
-                          style={{ fontSize: '12px' }}
-                        >
-                          {moment(shipper.arrivalDate).format('DD MMM')}
-                        </span>
-                      </button>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        errors,
+                        label: 'Transportation Type *',
+                        name: 'transportationType',
+                        data:
+                          availableTransportationType &&
+                          availableTransportationType.map((type) => ({
+                            name: type,
+                          })),
+                      })}
                     </div>
-                    <hr />
-
-                    <div className='d-flex justify-content-between align-items-center'>
-                      <button type='button' className='btn btn-light btn-sm'>
-                        <FaClock className='mb-1 fs-6' />{' '}
-                        <span className='fw-bold fs-6'>
-                          {moment(new Date(shipper.arrivalDate))
-                            .diff(
-                              moment(new Date(shipper.departureDate)),
-                              'days'
-                            )
-                            .toLocaleString()}{' '}
-                          days
-                        </span>
-                      </button>
-                      <button type='button' className='btn btn-light btn-sm'>
-                        <span className='fw-bold fs-6'>
-                          <FaDollarSign className='mb-1 fs-6' />
-                          {(
-                            Number(totalContainerKG) * shipper.price
-                          ).toLocaleString()}
-                        </span>
-                      </button>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        errors,
+                        label: 'Cargo Type*',
+                        name: 'cargoType',
+                        data:
+                          availableCargoType &&
+                          availableCargoType.map((type) => ({ name: type })),
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {staticInputSelect({
+                        register,
+                        errors,
+                        label: 'Movement Type *',
+                        name: 'movementType',
+                        data:
+                          availableMovementType &&
+                          availableMovementType.map((type) => ({ name: type })),
+                      })}
                     </div>
                   </div>
-                  <div className='card-footer'>
+                  <div className='text-center'>
                     <button
-                      onClick={() => setSelectedShipment(shipper)}
-                      className='btn btn-primary btn-sm form-control'
+                      disabled={!isValid}
+                      onClick={() => setFormStep((curr) => curr + 1)}
+                      type='button'
+                      className='btn btn-primary btn-sm'
                     >
-                      <FaCheckCircle className='mb-1' /> Select Shipment
+                      <FaArrowAltCircleRight className='mb-1' /> Next
                     </button>
                   </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <span className='text-center text-danger'>
-              No Shipper Available
-            </span>
-          )}
-        </div>
-      )}
+                </section>
+              )}
 
-      {/* Display if shipment is selected */}
-      {selectedShipment && (
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>CARGO DETAILS</h5>
-            <p>Tel us a bit more about your cargo.</p>
-          </div>
+              {formStep > 1 && (
+                <section
+                  style={
+                    formStep !== 2 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    {watch().cargoType === 'FCL' && (
+                      <div className='col-md-6 col-12 mx-auto'>
+                        {containersData &&
+                          containersData.map((container) => (
+                            <div key={container._id}>
+                              <div className='mt-1'>
+                                <div className='text-center'>
+                                  <button
+                                    disabled={
+                                      !selectContainer.find(
+                                        (c) => c._id === container._id
+                                      )
+                                    }
+                                    onClick={() => removeContainer(container)}
+                                    type='button'
+                                    className='btn btn-danger btn-sm'
+                                  >
+                                    <FaMinusCircle className='mb-1' />
+                                  </button>
 
-          <div className='col-6'>
-            {inputText({
-              register,
-              name: 'cargoDescription',
-              label: 'Cargo Description',
-            })}
-          </div>
-          <div className='col-6'>
-            {staticInputSelect({
-              register,
-              name: 'commodity',
-              label: 'Commodity',
-              data: [
-                { name: 'Furniture' },
-                { name: 'Electronics' },
-                { name: 'Food' },
-                { name: 'Clothes' },
-                { name: 'Others' },
-              ],
-            })}
-          </div>
-          <div className='col-6'>
-            {inputNumber({
-              register,
-              name: 'noOfPackages',
-              label: 'No. of Packages',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputNumber({
-              register,
-              name: 'grossWeight',
-              label: 'Gross Weight as KG',
-              max: totalContainerKG,
-            })}
-          </div>
-          <div className='col-6'>
-            {inputCheckBox({
-              register,
-              name: 'isTemperatureControlled',
-              label:
-                'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
-            })}
-          </div>
-        </div>
-      )}
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm'
+                                  >
+                                    {selectContainer.map(
+                                      (c) =>
+                                        c._id === container._id && c.quantity
+                                    )}
+                                    {!selectContainer.find(
+                                      (c) => c._id === container._id
+                                    ) && 0}
+                                  </button>
 
-      {/* Buyer details */}
-      {selectedShipment && watch().importExport === 'export' && (
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>BUYER DETAILS</h5>
-            <p>
-              Your booking for export, which means you supply this shipment to
-              your buyer (or consignee). Enter your buyers details to they can
-              be notified about you shipment and track the process
-            </p>
-          </div>
-          <div className='col-12'>
-            <label>Person who will receive package</label>
-          </div>
-          <div className='col-6'>
-            {inputText({
-              register,
-              name: 'buyerName',
-              label: 'Who is your buyer?',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputNumber({
-              register,
-              name: 'buyerMobileNumber',
-              label: 'Buyer mobile number',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputEmail({
-              register,
-              name: 'buyerEmail',
-              label: 'Buyer email',
-            })}
-          </div>
+                                  <button
+                                    onClick={() => addContainer(container)}
+                                    type='button'
+                                    className='btn btn-success btn-sm'
+                                  >
+                                    <FaPlusCircle className='mb-1' />
+                                  </button>
+                                </div>
+                                <div className='d-grid mt-2'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm '
+                                  >
+                                    {container.name} - Fits up to{' '}
+                                    {container.payloadCapacity} &{' '}
+                                    {(
+                                      container.length *
+                                      container.width *
+                                      container.height *
+                                      0.000001
+                                    ).toFixed(0)}{' '}
+                                    M<sup>3</sup>
+                                  </button>
+                                </div>
+                              </div>
+                              <br />
+                            </div>
+                          ))}
 
-          <div className='col-7'>
-            {inputCheckBox({
-              register,
-              name: 'isIdentityNotConfirmed',
-              label: 'I dont not know my buyer yet',
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* phase one end ++++++++++++++++++++++++++++++++++++++++++ */}
-      <form>
-        <div>
-          {watch().transportationType === 'Ships' && (
-            <div className='col-md-3 col-6'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Container Type *',
-                name: 'containerType',
-                value: 'name',
-                data:
-                  containersData &&
-                  containersData.filter((item) => item.isActive),
-              })}
-            </div>
-          )}
-
-          {watch().containerType &&
-            watch().transportationType === 'Ship' &&
-            watch().containerType !== '' && (
-              <>
-                <div className='col-12'>
-                  <div className='progress'>
-                    <div
-                      className={`progress-bar ${
-                        containers.find((c) => c._id === watch().containerType)
-                          .available === '100%' && 'bg-danger'
-                      } `}
-                      role='progressbar'
-                      style={{
-                        width: containers.find(
-                          (c) => c._id === watch().containerType
-                        ).available,
-                      }}
-                      aria-valuenow={
-                        containers.find((c) => c._id === watch().containerType)
-                          .available
-                      }
-                      aria-valuemin='0'
-                      aria-valuemax='100'
+                        <div className='text-center text-danger'>
+                          {selectContainer.length === 0 && (
+                            <span>Please, select at leas one container</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className='text-center btn-groups'>
+                    <button
+                      onClick={() => setFormStep((curr) => curr - 1)}
+                      type='button'
+                      className='btn btn-primary btn-sm'
                     >
-                      {
-                        containers.find((c) => c._id === watch().containerType)
-                          .available
-                      }
+                      <FaArrowAltCircleLeft className='mb-1' /> Previous
+                    </button>
+                    <button
+                      disabled={selectContainer.length === 0 ? true : false}
+                      onClick={() => setFormStep((curr) => curr + 1)}
+                      type='button'
+                      className='btn btn-primary btn-sm text-end  ms-1'
+                    >
+                      <FaArrowAltCircleRight className='mb-1' /> Next
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 2 && (
+                <section
+                  style={
+                    formStep !== 3 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    <div className='row gx-2 my-2'>
+                      <div className='col-md-6 col-12'>
+                        {dynamicInputSelect({
+                          register,
+                          errors,
+                          label: 'Pickup Country *',
+                          name: 'pickupCountry',
+                          value: 'name',
+                          data:
+                            countriesData &&
+                            countriesData.filter(
+                              (country) =>
+                                country.isActive &&
+                                country._id !== watch().destCountry
+                            ),
+                        })}
+                      </div>
+                      {watch().cargoType === 'AIR' ? (
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            register,
+                            errors,
+                            label: 'Pickup Airport *',
+                            name: 'pickupAirport',
+                            value: 'name',
+                            data:
+                              airportsData &&
+                              airportsData.filter(
+                                (airport) =>
+                                  airport.country._id ===
+                                    watch().pickupCountry && airport.isActive
+                              ),
+                          })}
+                        </div>
+                      ) : (
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            register,
+                            errors,
+                            label: 'Pickup Port *',
+                            name: 'pickupPort',
+                            value: 'name',
+                            data:
+                              seaportsData &&
+                              seaportsData.filter(
+                                (seaport) =>
+                                  seaport.country._id ===
+                                    watch().pickupCountry && seaport.isActive
+                              ),
+                          })}
+                        </div>
+                      )}
+
+                      <div className='col-md-6 col-12'>
+                        {dynamicInputSelect({
+                          register,
+                          errors,
+                          label: 'Dest Country *',
+                          name: 'destCountry',
+                          value: 'name',
+                          data:
+                            countriesData &&
+                            countriesData.filter(
+                              (country) =>
+                                country.isActive &&
+                                country._id !== watch().pickupCountry
+                            ),
+                        })}
+                      </div>
+                      {watch().cargoType === 'AIR' ? (
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            register,
+                            errors,
+                            label: 'Dest Airport *',
+                            name: 'destAirport',
+                            value: 'name',
+                            data:
+                              airportsData &&
+                              airportsData.filter(
+                                (airport) =>
+                                  airport.country._id === watch().destCountry &&
+                                  airport.isActive
+                              ),
+                          })}
+                        </div>
+                      ) : (
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            register,
+                            errors,
+                            label: 'Dest Port *',
+                            name: 'destPort',
+                            value: 'name',
+                            data:
+                              seaportsData &&
+                              seaportsData.filter(
+                                (seaport) =>
+                                  seaport.country._id === watch().destCountry &&
+                                  seaport.isActive
+                              ),
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      disabled={!isValid}
+                      className='btn btn-primary btn-sm my-2'
+                    >
+                      <FaSearch className='mb-1' /> Search Available Vessels
+                    </button>
+
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      {availableShippers && availableShippers.length > 0 && (
+                        <button
+                          disabled={!isValid}
+                          onClick={() => setFormStep((curr) => curr + 1)}
+                          type='button'
+                          className='btn btn-primary btn-sm text-end  ms-1'
+                        >
+                          <FaArrowAltCircleRight className='mb-1' /> Next
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-                {containers.find((c) => c._id === watch().containerType)
-                  .available === '100%' && (
-                  <span className='text-danger fw-lighter text-center'>
-                    This container is full. Please select other available
-                    containers
-                  </span>
-                )}
-              </>
-            )}
 
-          {watch().transportationType === 'Plane' && watch().cargoType !== '' && (
-            <>
-              <div className='col-12'>
-                <div className='progress'>
-                  <div
-                    className={`progress-bar ${
-                      '76%' === '100%' && 'bg-danger'
-                    } `}
-                    role='progressbar'
-                    style={{
-                      width: '76%',
-                    }}
-                    aria-valuenow='76'
-                    aria-valuemin='0'
-                    aria-valuemax='100'
-                  >
-                    76%
-                  </div>
-                </div>
-              </div>
-              {'76%' === '100%' && (
-                <span className='text-danger fw-lighter text-center'>
-                  Sorry, this plane is full
-                </span>
+                  {isValid &&
+                    availableShippers &&
+                    availableShippers.length === 0 && (
+                      <p className='text-center text-danger'>
+                        <span className='fw-bold'>Sorry! </span> There is no
+                        available shipments. Please click
+                        <span className='fw-bold'> SEARCH BUTTON </span> to
+                        filter your search.
+                      </p>
+                    )}
+                </section>
               )}
-            </>
-          )}
-        </div>
 
-        {/* <h5 className='mt-2'>CARGO DETAILS</h5>
-
-        {inputFields.map((inputField, index) => (
-          <div key={index}>
-            <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
-            <div className='row gx-1 shadow p-2'>
-              <div className='col-md-2 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  Package Quantity
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Package quantity'
-                  name='qty'
-                  id='qty'
-                  value={inputField.qty}
-                  required
-                  onChange={(e) => handleInputChange(e, index)}
-                />
-              </div>
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  P. Unit
-                </label>
-                <select
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Unit'
-                  name='packageUnit'
-                  id='packageUnit'
-                  value={inputField.packageUnit}
-                  required
-                  onChange={(e) => handleInputChange(e, index)}
+              {formStep > 3 && (
+                <section
+                  style={
+                    formStep !== 4 ? { display: 'none' } : { display: 'block' }
+                  }
                 >
-                  <option value='boxes'>Boxes</option>
-                  <option value='pieces'>Pieces</option>
-                  <option value='pallets'>Pallets</option>
-                  <option value='bags'>Bags</option>
-                </select>
-              </div>
+                  <div className='row gx-2 my-2'>
+                    {availableShippers &&
+                      availableShippers.map((shipper) => (
+                        <div
+                          key={shipper._id}
+                          className='col-lg-4 col-md-6 col-12 mb-2'
+                        >
+                          <div className='card borer-0'>
+                            <div className='card-header text-center'>
+                              <h4 className='text-center'>{shipper.name}</h4>
+                            </div>
+                            <div className='card-body'>
+                              <div className='d-flex justify-content-between align-items-center'>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm float-start'
+                                >
+                                  <FaShip className='mb-1 fs-4' /> <br />
+                                  {shipper.departureSeaport.name} <br />
+                                  <span
+                                    className='fw-lighter'
+                                    style={{ fontSize: '12px' }}
+                                  >
+                                    {moment(shipper.departureDate).format(
+                                      'DD MMM'
+                                    )}
+                                  </span>
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm my-auto'
+                                >
+                                  <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm float-end'
+                                >
+                                  <FaShip className='mb-1 fs-4' /> <br />{' '}
+                                  {shipper.arrivalSeaport.name} <br />
+                                  <span
+                                    className='fw-lighter'
+                                    style={{ fontSize: '12px' }}
+                                  >
+                                    {moment(shipper.arrivalDate).format(
+                                      'DD MMM'
+                                    )}
+                                  </span>
+                                </button>
+                              </div>
+                              <hr />
 
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  Weight
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Weight'
-                  name='weight'
-                  id='weight'
-                  value={inputField.weight}
-                  required
-                  onChange={(e) => handleInputChange(e, index)}
-                />
-              </div>
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  W. Unit
-                </label>
-                <select
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Unit'
-                  name='weightUnit'
-                  id='weightUnit'
-                  value={inputField.weightUnit}
-                  required
-                  onChange={(e) => handleInputChange(e, index)}
+                              <div className='d-flex justify-content-between align-items-center'>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm'
+                                >
+                                  <FaClock className='mb-1 fs-6' />{' '}
+                                  <span className='fw-bold fs-6'>
+                                    {moment(new Date(shipper.arrivalDate))
+                                      .diff(
+                                        moment(new Date(shipper.departureDate)),
+                                        'days'
+                                      )
+                                      .toLocaleString()}{' '}
+                                    days
+                                  </span>
+                                </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm'
+                                >
+                                  <span className='fw-bold fs-6'>
+                                    <FaDollarSign className='mb-1 fs-6' />
+                                    {(
+                                      Number(totalContainerKG) * shipper.price
+                                    ).toLocaleString()}
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+                            <div className='card-footer'>
+                              <button
+                                onClick={() => setSelectedShipment(shipper)}
+                                className='btn btn-primary btn-sm form-control'
+                              >
+                                <FaCheckCircle className='mb-1' /> Select
+                                Shipment
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <button
+                        disabled={selectedShipment ? false : true}
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm text-end  ms-1'
+                      >
+                        <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 4 && (
+                <section
+                  style={
+                    formStep !== 5 ? { display: 'none' } : { display: 'block' }
+                  }
                 >
-                  <option value='kg'>Kg</option>
-                </select>
-              </div>
+                  <div className='row gx-2 my-2'>
+                    {selectedShipment && watch().cargoType === 'FCL' && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>CARGO DETAILS</h5>
+                          <p>Tel us a bit more about your cargo.</p>
+                        </div>
 
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  CBM Unit
-                </label>
-                <select
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Unit'
-                  name='unit'
-                  id='unit'
-                  value={inputField.unit}
-                  required
-                  onChange={(e) => handleInputChange(e, index)}
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputText({
+                            register,
+                            errors,
+                            name: 'cargoDescription',
+                            label: 'Cargo Description',
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {dynamicInputSelect({
+                            register,
+                            errors,
+                            label: 'Commodity *',
+                            name: 'commodity',
+                            value: 'name',
+                            data:
+                              commoditiesData &&
+                              commoditiesData.filter(
+                                (commodity) => commodity.isActive
+                              ),
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputNumber({
+                            register,
+                            errors,
+                            name: 'noOfPackages',
+                            label: 'No. of Packages',
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputNumber({
+                            register,
+                            errors,
+                            name: 'grossWeight',
+                            label: 'Gross Weight as KG',
+                            max: totalContainerKG,
+                          })}
+                        </div>
+                        <div className='col-12'>
+                          {inputCheckBox({
+                            register,
+                            errors,
+                            name: 'isTemperatureControlled',
+                            isRequired: false,
+                            label:
+                              'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <button
+                        disabled={!isValid}
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm text-end  ms-1'
+                      >
+                        <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 5 && (
+                <section
+                  style={
+                    formStep !== 6 ? { display: 'none' } : { display: 'block' }
+                  }
                 >
-                  <option value='cm'>CM</option>
-                </select>
-              </div>
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  Length
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Length'
-                  name='length'
-                  id='length'
-                  value={inputField.length}
-                  onChange={(e) => handleInputChange(e, index)}
-                />
-              </div>
-
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  Width
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Width'
-                  name='width'
-                  id='width'
-                  value={inputField.width}
-                  onChange={(e) => handleInputChange(e, index)}
-                />
-              </div>
-              <div className='col-md-1 col-6'>
-                <label htmlFor='item' className='form-label'>
-                  Height
-                </label>
-                <input
-                  type='number'
-                  min={0}
-                  className='form-control form-control-sm'
-                  placeholder='Height'
-                  name='height'
-                  id='height'
-                  value={inputField.height}
-                  onChange={(e) => handleInputChange(e, index)}
-                />
-              </div>
-              <div className='col-md-3 col-12 text-center my-auto mt-2'>
-                <div className='bg-secondary text-light p-2'>
-                  <button
-                    type='button'
-                    className='btn btn-light btn-sm form-control form control-sm'
-                  >
-                    Total Weight: {inputField.qty * inputField.weight} KG
-                  </button>
-                  <button
-                    type='button'
-                    className='btn btn-light btn-sm form-control form control-sm  my-1'
-                  >
-                    CBM:{' '}
-                    {inputField.length * inputField.width * inputField.height} M
-                    <sup>3</sup>
-                  </button>
-                  <button
-                    type='button'
-                    onClick={() => handleRemoveField(index)}
-                    className='btn btn-danger btn-sm form-control form-control-sm'
-                  >
-                    <FaTrash className='mb-1' /> Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <div className='col-12 text-center mx-auto'>
-          <button
-            onClick={() => handleAddField()}
-            type='button'
-            className='btn btn-primary btn-sm my-2'
-          >
-            <FaPlusCircle className='mb-1' /> Add New Package
-          </button>
-        </div>
-        <div className='col-12 text-center mx-auto'>
-          <button type='button' className='btn btn-light btn-sm'>
-            Total Weight in KG {TotalKG} | Total Volume in CBM {TotalCBM} M
-            <sup>3</sup>
-          </button>
-        </div>
-
-        <div className='col-12 text-center mx-auto'>
-          <button type='button' className='btn btn-success btn-sm my-2 me-auto'>
-            <FaArrowAltCircleRight className='mb-1' /> Next
-          </button>
-        </div>
-
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>PICKUP DETAILS</h5>
-            <p>
-              Here you can add all information about pickup location and the
-              type of pickup.
-            </p>
-          </div>
-          <div className='col-12'>
-            <label>Person who will deliver the shipment to us</label>
-          </div>
-          <div className='col-6'>
-            {inputText({
-              register,
-              name: 'deliverName',
-              label: 'Deliver Name',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputNumber({
-              register,
-              name: 'deliverMobile',
-              label: 'Delivery Mobile',
-            })}
-          </div>
-        </div>
-
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>DESTINATION DETAILS</h5>
-            <p>
-              Here you can add all information about destination location, this
-              information to get your cargo right.
-            </p>
-          </div>
-          <div className='col-12'>
-            <label>Person who will receive package</label>
-          </div>
-          <div className='col-6'>
-            {inputText({
-              register,
-              name: 'receiverName',
-              label: 'Receiver Name',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputNumber({
-              register,
-              name: 'receiverNumber',
-              label: 'Receiver Mobile',
-            })}
-          </div>
-        </div>
-
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>ADDITIONAL NOTES</h5>
-            <p>
-              Add any notes that would help us to be more accurate and faster
-              with your order, also you can ask any question to the shipping
-              company or their account manager.
-            </p>
-          </div>
-
-          <div className='col-12'>
-            {inputTextArea({
-              register,
-              name: 'note',
-              label: 'Additional Note',
-            })}
-          </div>
-        </div>
-
-        <div className='row gx-2 my-2'>
-          <div className='col-12'>
-            <h5>UPLOAD PHOTOS</h5>
-            <p>
-              If you have selected export shipping Please ask your supplier to
-              create Commercial invoice with name of company "MAMOS logistics
-              international.ltd" and with commercial register number "####" and
-              tax number "XXXX####" then upload a photo of this receipt here.
-            </p>
-          </div>
-
-          <div className='col-12'>
-            {inputFile({
-              register,
-              name: 'commercialInvoice',
-              label: 'Commercial Invoice',
-              Required: false,
-              setFile: [],
-            })}
-          </div>
-
-          <div className='col-12'>
-            <p>
-              Please take photos for the goods in multiple positions to help us
-              get you the best deal.
-            </p>
-          </div>
-
-          <div className='col-12'>
-            {inputFile({
-              register,
-              name: 'goodsPhoto',
-              label: 'Goods Photo',
-              Required: false,
-              setFile: [],
-            })}
-          </div>
-        </div>
-
-        <div className='row gx-2 my-5'>
-          <div className='col-12'>
-            <h4>REVIEW AND CONFIRMATION</h4>
-            <hr />
-            <h6>Order Summary</h6>
-            <p>
-              This is all details about your shipment, please revise carefully.
-            </p>
-            <div className='pickup'>
-              <hr />
-              <h6>Pickup Details</h6>
-              <p>
-                <FaCheckCircle className='text-success mb-1' /> I will deliver
-                my packages to MAMOS warehouses
-              </p>
-              <h6>Person who will deliver the shipment to us</h6>
-              <div className='row'>
-                <div className='col-md-5'>
-                  <div className='deliver'>
-                    <span className='fw-bold'>Deliver Name:</span> <br />
-                    <label>{watch().deliverName}</label>
+                  <div className='row gx-2 my-2'>
+                    {selectedShipment && watch().importExport === 'export' && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>BUYER DETAILS</h5>
+                          <p>
+                            Your booking for export, which means you supply this
+                            shipment to your buyer (or consignee). Enter your
+                            buyers details to they can be notified about you
+                            shipment and track the process
+                          </p>
+                        </div>
+                        <div className='col-12'>
+                          <label>Person who will receive package</label>
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputText({
+                            register,
+                            errors,
+                            name: 'buyerName',
+                            label: 'Who is your buyer?',
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputNumber({
+                            register,
+                            errors,
+                            name: 'buyerMobileNumber',
+                            label: 'Buyer mobile number',
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12 mx-auto'>
+                          {inputEmail({
+                            register,
+                            errors,
+                            name: 'buyerEmail',
+                            label: 'Buyer email',
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <button
+                        disabled={!isValid}
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm text-end  ms-1'
+                      >
+                        <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className='col-md-5'>
-                  <div className='deliver'>
-                    <span className='fw-bold'>Deliver Mobile Number:</span>{' '}
-                    <br />
-                    <label>{watch().deliverMobile}</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='destination'>
-              <hr />
-              <h6>Delivery / Destination Details</h6>
-              <h6>Person who will receive package</h6>
-              <div className='row'>
-                <div className='col-md-5'>
-                  <div className='receiver'>
-                    <span className='fw-bold'>Deliver Name:</span> <br />
-                    <label>{watch().receiverName}</label>
-                  </div>
-                </div>
-                <div className='col-md-5'>
-                  <div className='receiver'>
-                    <span className='fw-bold'>Deliver Mobile Number:</span>{' '}
-                    <br />
-                    <label>{watch().receiverMobile}</label>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </section>
+              )}
 
-            <div className='note'>
-              <hr />
-              <h6>Additional Notes</h6>
-              <p>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam
-                laudantium ad minus ratione facere ducimus animi perspiciatis
-                voluptatibus similique mollitia architecto reprehenderit, iusto
-                perferendis blanditiis asperiores quisquam totam omnis ipsa. Quo
-                consequatur illo deleniti. Dignissimos natus ipsam veniam cum
-                maiores pariatur accusantium itaque, aut nam consequatur velit
-                quidem debitis ullam cumque aliquid vitae, saepe animi eligendi
-                sunt omnis praesentium ipsa! Reiciendis voluptatibus laudantium
-                nihil quaerat cupiditate soluta quo ea voluptate odit, et
-                magnam, dolor est quis. Nesciunt necessitatibus officia nulla!
-                Quam aspernatur pariatur numquam earum ad iste eligendi
-                voluptatibus nemo!
-              </p>
-            </div>
+              {formStep > 6 && (
+                <section
+                  style={
+                    formStep !== 7 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    {selectedShipment && watch().importExport === 'export' && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>LOCATION DETAILS</h5>
+                          <p>
+                            Please make sure to use the correct address(es). We
+                            will pick-up/or deliver the shipment here.
+                          </p>
+                        </div>
+                        {(watch().movementType === 'Port to Door' ||
+                          watch().movementType === 'Door to Door') && (
+                          <>
+                            <div className='col-12'>
+                              <label>
+                                What is the drop-off address of your cargo?
+                              </label>
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'destWarehouseName',
+                                label: 'Warehouse Name',
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'destCity',
+                                label: 'City',
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'destPostalCode',
+                                label: 'Postal Code',
+                                isRequired: false,
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'destAddress',
+                                label: 'Address',
+                              })}
+                            </div>
+                          </>
+                        )}
+                        <span className='mt-1'></span>
+                        <hr />
 
-            <div className='photos'>
-              <hr />
-              <h6>Uploaded Photos</h6>
+                        {(watch().movementType === 'Door to Port' ||
+                          watch().movementType === 'Door to Door') && (
+                          <>
+                            <div className='col-12'>
+                              <label>
+                                What is the pick-up address of your cargo?
+                              </label>
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'pickUpWarehouseName',
+                                label: 'Warehouse Name',
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'pickUpCity',
+                                label: 'City',
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'pickUpPostalCode',
+                                label: 'Postal Code',
+                                isRequired: false,
+                              })}
+                            </div>
+                            <div className='col-md-6 col-12 mx-auto'>
+                              {inputText({
+                                register,
+                                errors,
+                                name: 'pickUpAddress',
+                                label: 'Address',
+                              })}
+                            </div>
+                          </>
+                        )}
+
+                        {(watch().movementType === 'Port to Port' ||
+                          watch().movementType === 'Port to Port') && <></>}
+                      </div>
+                    )}
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <button
+                        disabled={!isValid}
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm text-end  ms-1'
+                      >
+                        <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           </div>
-        </div> */}
-      </form>
+        </form>
+      </div>
     </div>
   )
 }
