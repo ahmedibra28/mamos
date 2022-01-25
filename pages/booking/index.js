@@ -17,6 +17,7 @@ import {
   FaBook,
   FaDollarSign,
   FaArrowAltCircleLeft,
+  FaCheckDouble,
 } from 'react-icons/fa'
 import useAirports from '../../api/airports'
 import useCountries from '../../api/countries'
@@ -47,11 +48,13 @@ const Booking = () => {
     mode: 'all',
     defaultValues: {
       isTemperatureControlled: false,
+      isHasInvoice: true,
     },
   })
 
   const [shippers, setShippers] = useState([])
   const [selectedShipment, setSelectedShipment] = useState(null)
+  const [file, setFile] = useState('')
 
   const { getCountries } = useCountries()
   const { getCommodities } = useCommodities()
@@ -149,8 +152,13 @@ const Booking = () => {
       0
     )
 
-  const TotalRunningCost =
+  const invoiceCharges = 79
+
+  const TotalRunningCost0 =
     selectedShipment && selectedShipment.price * totalContainerKG
+  const TotalRunningCost = !watch().isHasInvoice
+    ? TotalRunningCost0 + invoiceCharges
+    : TotalRunningCost0
 
   const submitHandler = (data) => {
     const availableShippers =
@@ -206,29 +214,40 @@ const Booking = () => {
   const MAX_STEP = 10
   return (
     <div className='mt-1'>
-      <div className='p-2 shadow-sm'>
-        <h1 className='display-6 text-center font-monospace'>
-          Book New Shipment
-        </h1>
+      <div className='px-2'>
+        {formStep === 1 && (
+          <>
+            <h1 className='display-6 text-center font-monospace'>
+              Book A New Shipment
+            </h1>
 
-        <p className='text-center'>
-          Please complete as much of the rate enquiry form as possible in order
-          for your MAMOS team to provide an accurate freight rate quotation.
-        </p>
-        <hr />
+            <p className='text-center'>
+              Please complete as much of the rate enquiry form as possible in
+              order to get the best result for your shipment.
+            </p>
+            <hr />
+          </>
+        )}
         {formStep < MAX_STEP && (
-          <div className='text-center my-2'>
+          <div className='text-center mt-2'>
             <button type='button' className='btn btn-light shadow rounded-pill'>
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            <button
-              type='button'
-              className='btn btn-success shadow rounded-pills mt-1'
-            >
-              <FaDollarSign className='mb-1' />{' '}
-              {TotalRunningCost ? TotalRunningCost.toLocaleString() : '0.00'}
-            </button>
+            {TotalRunningCost && (
+              <button
+                type='button'
+                className='btn btn-success shadow rounded-pills mt-1'
+              >
+                <FaDollarSign className='mb-1' />{' '}
+                {TotalRunningCost && TotalRunningCost.toLocaleString()}
+              </button>
+            )}
+            <p className='text-muted bfw-lighter mt-2'>
+              {watch().importExport &&
+                watch().movementType &&
+                `${watch().importExport} - ${watch().movementType}`}
+            </p>
           </div>
         )}
         <form onSubmit={handleSubmit(submitHandler)}>
@@ -247,7 +266,7 @@ const Booking = () => {
                         errors,
                         label: 'Import/Export *',
                         name: 'importExport',
-                        data: [{ name: 'import' }, { name: 'export' }],
+                        data: [{ name: 'Import' }, { name: 'Export' }],
                       })}
                     </div>
                     <div className='col-md-6 col-12'>
@@ -958,6 +977,195 @@ const Booking = () => {
                         className='btn btn-primary btn-sm text-end  ms-1'
                       >
                         <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 7 && (
+                <section
+                  style={
+                    formStep !== 8 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    {selectedShipment && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>OTHER REQUIRED DETAILS</h5>
+                          <p>Please answer all below asked questions.</p>
+                        </div>
+
+                        <div className=' col-12'>
+                          {inputCheckBox({
+                            register,
+                            errors,
+                            name: 'isHasInvoice',
+                            label: 'Do you have invoice?',
+                            isRequired: false,
+                          })}
+                        </div>
+                        {watch().isHasInvoice ? (
+                          <div className='col-md-6 col-12'>
+                            {inputFile({
+                              register,
+                              errors,
+                              name: 'invoiceFile',
+                              label: 'Upload Invoice',
+                              setFile,
+                            })}
+                          </div>
+                        ) : (
+                          <>
+                            <label>
+                              If you do not have invoice, we will charge you
+                              additional service to creating new invoice for
+                              your cargo?
+                            </label>
+                            <h6>${invoiceCharges.toFixed(2)}</h6>
+                          </>
+                        )}
+
+                        <span className='mt-1'></span>
+                        <hr />
+                      </div>
+                    )}
+                    <div className='text-center btn-groups'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <button
+                        disabled={
+                          watch().isHasInvoice && file === '' ? true : false
+                        }
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm text-end  ms-1'
+                      >
+                        <FaArrowAltCircleRight className='mb-1' /> Next
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 8 && (
+                <section
+                  style={
+                    formStep !== 9 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2'>
+                    {selectedShipment && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>SUMMARY & SHIPMENT DETAILS</h5>
+                          <p>
+                            Please make sure the details below are correct.
+                            Confirm teh booking when you are ready to go!
+                          </p>
+                        </div>
+
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Direction </h6>
+                            <span>{watch().importExport}</span>
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Shipping Movement </h6>
+                            <span>{watch().movementType}</span>
+                          </div>
+                        </div>
+                        {/* Tradeline and Timeline will go here */}
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Tradeline</h6>
+                            {/* <span>{watch().movementType}</span> */}
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Departure Date </h6>
+                            <span>
+                              {moment(selectedShipment.departureDate).format(
+                                'll'
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Transit Time </h6>
+                            <span>
+                              {moment(new Date(selectedShipment.arrivalDate))
+                                .diff(
+                                  moment(
+                                    new Date(selectedShipment.departureDate)
+                                  ),
+                                  'days'
+                                )
+                                .toLocaleString()}{' '}
+                              days
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className='col-md-8 col-12 mt-3'>
+                          <h5>Shipment & Service charges</h5>
+                          <label>To be paid by you</label>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Origin Services </h6>
+                            <span>
+                              $
+                              {!watch().isHasInvoice
+                                ? invoiceCharges.toLocaleString()
+                                : '0.00'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Transportation Services </h6>
+                            <span>${TotalRunningCost0.toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Destination Services </h6>
+                            <span>$0.00</span>
+                          </div>
+                        </div>
+                        <div className='col-md-8 col-12'>
+                          <div className='d-flex justify-content-between'>
+                            <h6>Total Price </h6>
+                            <span>
+                              <FaDollarSign className='mb-1' />{' '}
+                              {TotalRunningCost.toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className='text-center'>
+                      <button
+                        onClick={() => setFormStep((curr) => curr - 1)}
+                        type='button'
+                        className='btn btn-primary btn-sm'
+                      >
+                        <FaArrowAltCircleLeft className='mb-1' /> Previous
+                      </button>
+                      <br />
+                      <button className='btn btn-success text-end mt-2'>
+                        <FaCheckDouble className='mb-1' /> Confirm Booking
                       </button>
                     </div>
                   </div>
