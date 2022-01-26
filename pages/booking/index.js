@@ -207,6 +207,45 @@ const Booking = () => {
 
     setAvailableShippers(availableShippers)
     if (formStep > 8) {
+      // All valid form input data for FCL
+      // TotalRunningCost0 -> Transportation Service
+      // dropOffDoorCost -> Drop off door cost
+      // pickupDoorCost -> Pick up door cost
+      // invoiceCharges -> Invoice Charges, but check if isHasInvoice is false
+      // selectedContainer -> Selected Container for FCL
+      // TotalRunningCost -> Total Running Cost for ALL Service Charges
+      // const {
+      //   buyerAddress,
+      //   buyerEmail,
+      //   buyerMobileNumber,
+      //   buyerName,
+      //   cargoDescription,
+      //   cargoType,
+      //   commodity,
+      //   destAddress,
+      //   destCity,
+      //   destCountry,
+      //   destPort,
+      //   destPostalCode,
+      //   destWarehouseName,
+      //   dropOffTown,
+      //   grossWeight,
+      //   importExport,
+      //   invoiceFile,
+      //   isHasInvoice,
+      //   isTemperatureControlled,
+      //   movementType,
+      //   noOfPackages,
+      //   pickUpAddress,
+      //   pickUpCity,
+      //   pickUpPostalCode,
+      //   pickUpTown,
+      //   pickUpWarehouseName,
+      //   pickupCountry,
+      //   pickupPort,
+      //   transportationType,
+      // } = data
+
       console.log('CONGRATULATIONS: ', data)
     }
   }
@@ -1164,15 +1203,15 @@ const Booking = () => {
                           <table className='table table-sm hover bordered table-striped caption-top '>
                             <tbody>
                               <tr>
-                                <td>Direction</td>{' '}
+                                <td>Direction</td>
                                 <td>{watch().importExport}</td>
                               </tr>
                               <tr>
-                                <td>Shipment Movement</td>{' '}
+                                <td>Shipment Movement</td>
                                 <td>{watch().movementType}</td>
                               </tr>
                               <tr>
-                                <td>Departure Date</td>{' '}
+                                <td>Departure Date</td>
                                 <td>
                                   {moment(
                                     selectedShipment.departureDate
@@ -1180,7 +1219,7 @@ const Booking = () => {
                                 </td>
                               </tr>
                               <tr>
-                                <td>Commodity</td>{' '}
+                                <td>Commodity</td>
                                 <td>
                                   {commoditiesData &&
                                     commoditiesData.find(
@@ -1194,11 +1233,11 @@ const Booking = () => {
                                 </td>
                               </tr>
                               <tr>
-                                <td>Cargo Description</td>{' '}
+                                <td>Cargo Description</td>
                                 <td>{watch().cargoDescription}</td>
                               </tr>
                               <tr>
-                                <td>Containers Details</td>{' '}
+                                <td>Containers Details</td>
                                 <td>
                                   {selectContainer &&
                                     selectContainer.map((s) => (
@@ -1220,7 +1259,7 @@ const Booking = () => {
                           <table className='table table-sm hover bordered table-striped caption-top '>
                             <tbody>
                               <tr>
-                                <td>Invoice Services</td>{' '}
+                                <td>Invoice Services</td>
                                 <td>
                                   $
                                   {!watch().isHasInvoice
@@ -1230,22 +1269,19 @@ const Booking = () => {
                               </tr>
                               {watch().pickUpTown && (
                                 <tr>
-                                  <td>Pickup Door Services</td>{' '}
+                                  <td>Pickup Door Services</td>
                                   <td>${pickupDoorCost.toLocaleString()}</td>
                                 </tr>
                               )}
                               {watch().dropOffTown && (
                                 <tr>
-                                  <td>Drop-Off Door Services</td>{' '}
+                                  <td>Drop-Off Door Services</td>
                                   <td>${dropOffDoorCost.toLocaleString()}</td>
                                 </tr>
                               )}
                               <tr>
-                                <td>Transportation Services</td>{' '}
+                                <td>Transportation Services</td>
                                 <td>${TotalRunningCost0.toLocaleString()}</td>
-                              </tr>
-                              <tr>
-                                <td>Destination Services</td> <td>$0.00</td>
                               </tr>
                             </tbody>
                           </table>
@@ -1255,9 +1291,9 @@ const Booking = () => {
                           <table className='table table-sm hover bordered table-striped caption-top '>
                             <tbody>
                               <tr>
-                                <td className='fw-bold'>Total Price</td>{' '}
+                                <td className='fw-bold'>Total Price</td>
                                 <td className='fw-bold'>
-                                  <FaDollarSign className='mb-1' />{' '}
+                                  <FaDollarSign className='mb-1' />
                                   {TotalRunningCost.toLocaleString()}
                                 </td>
                               </tr>
