@@ -1060,98 +1060,78 @@ const Booking = () => {
                     formStep !== 9 ? { display: 'none' } : { display: 'block' }
                   }
                 >
-                  <div className='row gx-2 my-2'>
+                  <div className='row gx-2 my-2 font-monospace'>
                     {selectedShipment && (
                       <div className='row gx-2 my-2'>
-                        <div className='col-12'>
+                        <div className='col-md-8 col-12 mx-auto'>
                           <h5>SUMMARY & SHIPMENT DETAILS</h5>
                           <p>
                             Please make sure the details below are correct.
                             Confirm teh booking when you are ready to go!
                           </p>
                         </div>
-
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Direction </h6>
-                            <span>{watch().importExport}</span>
-                          </div>
-                        </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Shipping Movement </h6>
-                            <span>{watch().movementType}</span>
-                          </div>
-                        </div>
-                        {/* Tradeline and Timeline will go here */}
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Tradeline</h6>
-                            {/* <span>{watch().movementType}</span> */}
-                          </div>
-                        </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Departure Date </h6>
-                            <span>
-                              {moment(selectedShipment.departureDate).format(
-                                'll'
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Transit Time </h6>
-                            <span>
-                              {moment(new Date(selectedShipment.arrivalDate))
-                                .diff(
-                                  moment(
-                                    new Date(selectedShipment.departureDate)
-                                  ),
-                                  'days'
-                                )
-                                .toLocaleString()}{' '}
-                              days
-                            </span>
-                          </div>
+                        <div className='col-md-8 col-12 mx-auto'>
+                          <table className='table table-sm hover bordered table-striped caption-top '>
+                            <tbody>
+                              <tr>
+                                <td>Direction</td>{' '}
+                                <td>{watch().importExport}</td>
+                              </tr>
+                              <tr>
+                                <td>Shipment Movement</td>{' '}
+                                <td>{watch().movementType}</td>
+                              </tr>
+                              <tr>
+                                <td>Departure Date</td>{' '}
+                                <td>
+                                  {moment(
+                                    selectedShipment.departureDate
+                                  ).format('ll')}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
 
-                        <div className='col-md-8 col-12 mt-3'>
-                          <h5>Shipment & Service charges</h5>
+                        <div className='col-md-8 col-12 mx-auto mt-4'>
+                          <h5>SHIPMENT & SERVICE CHARGES</h5>
                           <label>To be paid by you</label>
                         </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Origin Services </h6>
-                            <span>
-                              $
-                              {!watch().isHasInvoice
-                                ? invoiceCharges.toLocaleString()
-                                : '0.00'}
-                            </span>
-                          </div>
+                        <div className='col-md-8 col-12 mx-auto'>
+                          <table className='table table-sm hover bordered table-striped caption-top '>
+                            <tbody>
+                              <tr>
+                                <td>Origin Services</td>{' '}
+                                <td>
+                                  $
+                                  {!watch().isHasInvoice
+                                    ? invoiceCharges.toLocaleString()
+                                    : '0.00'}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Transportation Services</td>{' '}
+                                <td>${TotalRunningCost0.toLocaleString()}</td>
+                              </tr>
+                              <tr>
+                                <td>Destination Services</td> <td>$0.00</td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Transportation Services </h6>
-                            <span>${TotalRunningCost0.toLocaleString()}</span>
-                          </div>
-                        </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Destination Services </h6>
-                            <span>$0.00</span>
-                          </div>
-                        </div>
-                        <div className='col-md-8 col-12'>
-                          <div className='d-flex justify-content-between'>
-                            <h6>Total Price </h6>
-                            <span>
-                              <FaDollarSign className='mb-1' />{' '}
-                              {TotalRunningCost.toLocaleString()}
-                            </span>
-                          </div>
+
+                        <div className='col-md-8 col-12 mx-auto mt-4'>
+                          <table className='table table-sm hover bordered table-striped caption-top '>
+                            <thead>
+                              <tr>
+                                <td>Total Price</td>{' '}
+                                <td>
+                                  <FaDollarSign className='mb-1' />{' '}
+                                  {TotalRunningCost.toLocaleString()}
+                                </td>
+                              </tr>
+                            </thead>
+                          </table>
                         </div>
                       </div>
                     )}
