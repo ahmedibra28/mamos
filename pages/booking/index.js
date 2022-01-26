@@ -25,6 +25,7 @@ import useCommodities from '../../api/commodities'
 import useSeaports from '../../api/seaports'
 import useContainers from '../../api/containers'
 import useShippers from '../../api/shippers'
+import useTowns from '../../api/towns'
 import {
   staticInputSelect,
   dynamicInputSelect,
@@ -62,6 +63,7 @@ const Booking = () => {
   const { getAirports } = useAirports()
   const { getContainers } = useContainers()
   const { getShippers } = useShippers()
+  const { getTowns } = useTowns()
 
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
@@ -69,6 +71,7 @@ const Booking = () => {
   const { data: airportsData } = getAirports
   const { data: containersData } = getContainers
   const { data: shippersData } = getShippers
+  const { data: townsData } = getTowns
 
   const availableTransportationType = shippersData && [
     ...new Set(
@@ -145,6 +148,30 @@ const Booking = () => {
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
+  const dropOffDoorCost0 =
+    townsData &&
+    townsData.find((town) =>
+      town.isActive &&
+      town._id === watch().dropOffTown &&
+      watch().transportationType !== 'Plane'
+        ? town.seaport && town.seaport._id === watch().destPort
+        : town.airport && town.airport._id === watch().destAirport
+    )
+
+  const dropOffDoorCost = dropOffDoorCost0 ? dropOffDoorCost0.cost : 0
+
+  const pickupDoorCost0 =
+    townsData &&
+    townsData.find((town) =>
+      town.isActive &&
+      town._id === watch().pickUpTown &&
+      watch().transportationType !== 'Plane'
+        ? town.seaport && town.seaport._id === watch().pickupPort
+        : town.airport && town.airport._id === watch().pickupAirport
+    )
+
+  const pickupDoorCost = pickupDoorCost0 ? pickupDoorCost0.cost : 0
+
   const totalContainerKG =
     selectContainer &&
     selectContainer.reduce(
@@ -156,9 +183,14 @@ const Booking = () => {
 
   const TotalRunningCost0 =
     selectedShipment && selectedShipment.price * totalContainerKG
-  const TotalRunningCost = !watch().isHasInvoice
-    ? TotalRunningCost0 + invoiceCharges
-    : TotalRunningCost0
+
+  const TotalRunningCost00 = !watch().isHasInvoice
+    ? TotalRunningCost0 + invoiceCharges + pickupDoorCost + dropOffDoorCost
+    : TotalRunningCost0 + pickupDoorCost + dropOffDoorCost
+  const TotalRunningCost = TotalRunningCost00 > 0 && TotalRunningCost00
+
+  const [formStep, setFormStep] = useState(1)
+  const MAX_STEP = 10
 
   const submitHandler = (data) => {
     const availableShippers =
@@ -174,6 +206,9 @@ const Booking = () => {
       )
 
     setAvailableShippers(availableShippers)
+    if (formStep > 8) {
+      console.log('CONGRATULATIONS: ', data)
+    }
   }
 
   const addContainer = (container) => {
@@ -210,8 +245,6 @@ const Booking = () => {
     setSelectContainer(newSelectContainer.filter((f) => f !== null))
   }
 
-  const [formStep, setFormStep] = useState(1)
-  const MAX_STEP = 10
   return (
     <div className='mt-1'>
       <div className='px-2'>
@@ -234,7 +267,7 @@ const Booking = () => {
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            {TotalRunningCost && (
+            {TotalRunningCost && TotalRunningCost > 0 && (
               <button
                 type='button'
                 className='btn btn-success shadow rounded-pills mt-1'
@@ -875,6 +908,34 @@ const Booking = () => {
                                 What is the drop-off address of your cargo?
                               </label>
                             </div>
+                            <div className='col-12'>
+                              {dynamicInputSelect({
+                                register,
+                                errors,
+                                label: 'Drop-off town',
+                                name: 'dropOffTown',
+                                value: 'name',
+                                data:
+                                  townsData &&
+                                  townsData.filter((town) =>
+                                    town.isActive &&
+                                    watch().transportationType !== 'Plane'
+                                      ? town.seaport._id === watch().destPort
+                                      : town.airport._id === watch().destAirport
+                                  ),
+                              })}
+                              {watch().dropOffTown && (
+                                <label className='mb-3 text-danger'>
+                                  We are charging you{' '}
+                                  <span className='fw-bold'>
+                                    $
+                                    {dropOffDoorCost &&
+                                      dropOffDoorCost.toLocaleString()}
+                                  </span>{' '}
+                                  based on for the drop-off address
+                                </label>
+                              )}
+                            </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
                                 register,
@@ -920,6 +981,35 @@ const Booking = () => {
                               <label>
                                 What is the pick-up address of your cargo?
                               </label>
+                            </div>
+                            <div className='col-12'>
+                              {dynamicInputSelect({
+                                register,
+                                errors,
+                                label: 'Pickup town',
+                                name: 'pickUpTown',
+                                value: 'name',
+                                data:
+                                  townsData &&
+                                  townsData.filter((town) =>
+                                    town.isActive &&
+                                    watch().movementType !== 'Plane'
+                                      ? town.seaport._id === watch().pickupPort
+                                      : town.airport._id ===
+                                        watch().pickupAirport
+                                  ),
+                              })}
+                              {watch().pickUpTown && (
+                                <label className='mb-3 text-danger'>
+                                  We are charging you{' '}
+                                  <span className='fw-bold'>
+                                    $
+                                    {pickupDoorCost &&
+                                      pickupDoorCost.toLocaleString()}
+                                  </span>{' '}
+                                  based on for the pickup address
+                                </label>
+                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
@@ -1089,6 +1179,35 @@ const Booking = () => {
                                   ).format('ll')}
                                 </td>
                               </tr>
+                              <tr>
+                                <td>Commodity</td>{' '}
+                                <td>
+                                  {commoditiesData &&
+                                    commoditiesData.find(
+                                      (c) =>
+                                        c.isActive &&
+                                        c._id === watch().commodity
+                                    )?.name}
+                                  <br />
+                                  {watch().noOfPackages} packages <br />
+                                  {watch().grossWeight} kg
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Cargo Description</td>{' '}
+                                <td>{watch().cargoDescription}</td>
+                              </tr>
+                              <tr>
+                                <td>Containers Details</td>{' '}
+                                <td>
+                                  {selectContainer &&
+                                    selectContainer.map((s) => (
+                                      <div key={s._id}>
+                                        {s.quantity} x {s.name}
+                                      </div>
+                                    ))}
+                                </td>
+                              </tr>
                             </tbody>
                           </table>
                         </div>
@@ -1101,7 +1220,7 @@ const Booking = () => {
                           <table className='table table-sm hover bordered table-striped caption-top '>
                             <tbody>
                               <tr>
-                                <td>Origin Services</td>{' '}
+                                <td>Invoice Services</td>{' '}
                                 <td>
                                   $
                                   {!watch().isHasInvoice
@@ -1109,6 +1228,18 @@ const Booking = () => {
                                     : '0.00'}
                                 </td>
                               </tr>
+                              {watch().pickUpTown && (
+                                <tr>
+                                  <td>Pickup Door Services</td>{' '}
+                                  <td>${pickupDoorCost.toLocaleString()}</td>
+                                </tr>
+                              )}
+                              {watch().dropOffTown && (
+                                <tr>
+                                  <td>Drop-Off Door Services</td>{' '}
+                                  <td>${dropOffDoorCost.toLocaleString()}</td>
+                                </tr>
+                              )}
                               <tr>
                                 <td>Transportation Services</td>{' '}
                                 <td>${TotalRunningCost0.toLocaleString()}</td>
@@ -1122,15 +1253,15 @@ const Booking = () => {
 
                         <div className='col-md-8 col-12 mx-auto mt-4'>
                           <table className='table table-sm hover bordered table-striped caption-top '>
-                            <thead>
+                            <tbody>
                               <tr>
-                                <td>Total Price</td>{' '}
-                                <td>
+                                <td className='fw-bold'>Total Price</td>{' '}
+                                <td className='fw-bold'>
                                   <FaDollarSign className='mb-1' />{' '}
                                   {TotalRunningCost.toLocaleString()}
                                 </td>
                               </tr>
-                            </thead>
+                            </tbody>
                           </table>
                         </div>
                       </div>
@@ -1144,8 +1275,46 @@ const Booking = () => {
                         <FaArrowAltCircleLeft className='mb-1' /> Previous
                       </button>
                       <br />
-                      <button className='btn btn-success text-end mt-2'>
+                      <button
+                        onSubmit={handleSubmit(submitHandler)}
+                        onClick={() => setFormStep((curr) => curr + 1)}
+                        className='btn btn-success text-end mt-2'
+                      >
                         <FaCheckDouble className='mb-1' /> Confirm Booking
+                      </button>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {formStep > 9 && (
+                <section
+                  style={
+                    formStep !== 10 ? { display: 'none' } : { display: 'block' }
+                  }
+                >
+                  <div className='row gx-2 my-2 text-center'>
+                    {selectedShipment && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>THANK YOU FOR BOOKING WITH US!</h5>
+                          <p>
+                            We have received your booking ER454578. The booking
+                            confirmation should be sent to you shortly.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    <div className='text-center'>
+                      <button type='button' className='btn btn-primary btn-lg'>
+                        <FaBook className='mb-1' /> Book another booking
+                      </button>{' '}
+                      <br /> <br />
+                      <button
+                        type='button'
+                        className='btn btn-light shadow btn-lg'
+                      >
+                        <FaSearch className='mb-1' /> Track shipment
                       </button>
                     </div>
                   </div>
