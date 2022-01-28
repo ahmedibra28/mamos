@@ -27,6 +27,7 @@ handler.put(async (req, res) => {
     departureDate,
     arrivalDate,
     movementType,
+    tradelane,
     cargoType,
   } = req.body
   const _id = req.query.id
@@ -57,6 +58,7 @@ handler.put(async (req, res) => {
       obj.departureDate = departureDate
       obj.arrivalDate = arrivalDate
       obj.cargoType = cargoType
+      obj.tradelane = tradelane
       obj.isActive = isActive
       obj.updatedBy = updatedBy
       await obj.save()

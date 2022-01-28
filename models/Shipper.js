@@ -13,6 +13,15 @@ const shipperScheme = mongoose.Schema(
     arrivalSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     departureDate: { type: Date, required: true },
     arrivalDate: { type: Date, required: true },
+    tradelane: [
+      {
+        dateTime: { type: Date },
+        actionType: { type: String },
+        tradeType: { type: String },
+        location: { type: String },
+        description: { type: String },
+      },
+    ],
     isActive: { type: Boolean, default: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

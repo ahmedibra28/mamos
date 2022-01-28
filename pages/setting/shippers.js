@@ -9,6 +9,7 @@ import {
   FaFileDownload,
   FaPenAlt,
   FaPlus,
+  FaPlusCircle,
   FaTimesCircle,
   FaTrash,
 } from 'react-icons/fa'
@@ -30,6 +31,7 @@ import {
   dynamicInputSelectNumber,
   dynamicInputSelect,
 } from '../../utils/dynamicForm'
+import moment from 'moment'
 
 const Shipper = () => {
   const { getShippers, updateShipper, addShipper, deleteShipper } =
@@ -77,10 +79,56 @@ const Shipper = () => {
 
   const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
+  const [inputFields, setInputFields] = useState([
+    {
+      dateTime: '',
+      tradeType: '',
+      actionType: '',
+      location: '',
+      description: '',
+    },
+  ])
+
+  const handleAddField = () => {
+    setInputFields([
+      {
+        dateTime: '',
+        tradeType: '',
+        actionType: '',
+        location: '',
+        description: '',
+      },
+    ])
+  }
+
+  const handleRemoveField = (index) => {
+    const list = [...inputFields]
+    list.splice(index, 1)
+    setInputFields(list)
+  }
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target
+    const old = inputFields[index]
+    const updated = { ...old, [name]: value }
+    var list = [...inputFields]
+    list[index] = updated
+    setInputFields(list)
+  }
 
   const formCleanHandler = () => {
     setEdit(false)
     reset()
+    setInputFields([
+      ...inputFields,
+      {
+        dateTime: '',
+        tradeType: '',
+        actionType: '',
+        location: '',
+        description: '',
+      },
+    ])
   }
 
   useEffect(() => {
@@ -106,6 +154,7 @@ const Shipper = () => {
           cargoType: data.cargoType,
           isActive: data.isActive,
           movementType: data.movementType,
+          tradelane: inputFields,
         })
       : addMutateAsync(data)
   }
@@ -123,6 +172,25 @@ const Shipper = () => {
     setValue('cargoType', shipper.cargoType)
     setValue('isActive', shipper.isActive)
     setValue('movementType', shipper.movementType)
+    setInputFields(
+      shipper.tradelane
+        ? shipper.tradelane.map((fields) => ({
+            dateTime: moment(fields.dateTime).format('YYYY-MM-DDTHH:mm:ss'),
+            tradeType: fields.tradeType,
+            actionType: fields.actionType,
+            location: fields.location,
+            description: fields.description,
+          }))
+        : [
+            {
+              dateTime: '',
+              tradeType: '',
+              actionType: '',
+              location: '',
+              description: '',
+            },
+          ]
+    )
   }
 
   const toUpper = (str) => str.charAt(0).toUpperCase() + str.slice(1)
@@ -292,6 +360,109 @@ const Shipper = () => {
                         errors,
                         name: 'arrivalDate',
                       })}
+                    </div>
+
+                    <hr />
+                    {inputFields.map((inputField, index) => (
+                      <div key={index}>
+                        <div className='row gx-1 p-2'>
+                          <div className='col-md-3 col-6'>
+                            <label htmlFor='item' className='form-label'>
+                              DateTime
+                            </label>
+                            <input
+                              type='datetime-local'
+                              className='form-control form-control-sm'
+                              placeholder='DateTime'
+                              name='dateTime'
+                              id='dateTime'
+                              value={inputField.dateTime}
+                              onChange={(e) => handleInputChange(e, index)}
+                            />
+                          </div>
+                          <div className='col-md-3 col-6'>
+                            <label htmlFor='item' className='form-label'>
+                              Trade Type
+                            </label>
+                            <select
+                              className='form-control form-control-sm'
+                              name='tradeType'
+                              id='tradeType'
+                              value={inputField.tradeType}
+                              onChange={(e) => handleInputChange(e, index)}
+                            >
+                              <option value=''>Select Trade Type</option>
+                              <option value='Ocean'>Ocean</option>
+                              <option value='Plane'>Plane</option>
+                              <option value='Land'>Land</option>
+                              <option value='Train'>Train</option>
+                            </select>
+                          </div>
+                          <div className='col-md-3 col-6'>
+                            <label htmlFor='item' className='form-label'>
+                              Location Name
+                            </label>
+                            <input
+                              type='text'
+                              className='form-control form-control-sm'
+                              placeholder='Location Name'
+                              name='location'
+                              id='location'
+                              value={inputField.location}
+                              onChange={(e) => handleInputChange(e, index)}
+                            />
+                          </div>
+                          <div className='col-md-3 col-6'>
+                            <label htmlFor='item' className='form-label'>
+                              Action Type
+                            </label>
+                            <select
+                              className='form-control form-control-sm'
+                              name='actionType'
+                              id='actionType'
+                              value={inputField.actionType}
+                              onChange={(e) => handleInputChange(e, index)}
+                            >
+                              <option value=''>Select Action Type</option>
+                              <option value='Departs At'>Departs At</option>
+                              <option value='Arrives At'>Arrives At</option>
+                            </select>
+                          </div>
+                          <div className='col-12'>
+                            <label htmlFor='item' className='form-label'>
+                              Description
+                            </label>
+                            <textarea
+                              cols={30}
+                              rows={5}
+                              type='text'
+                              className='form-control form-control-sm'
+                              placeholder='Description'
+                              name='description'
+                              id='description'
+                              value={inputField.description}
+                              onChange={(e) => handleInputChange(e, index)}
+                            />
+                            <button
+                              type='button'
+                              onClick={() => handleRemoveField(index)}
+                              className='btn btn-danger float-end btn-sm mt-1'
+                            >
+                              <FaTrash className='mb-1' /> Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className='col-12 text-end'>
+                      <button
+                        onClick={() => handleAddField()}
+                        type='button'
+                        className='btn btn-primary btn-sm my-2'
+                      >
+                        <FaPlusCircle className='mb-1' /> Add New Package
+                      </button>
                     </div>
 
                     <div className='col-12'>

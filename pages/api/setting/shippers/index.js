@@ -39,6 +39,7 @@ handler.post(async (req, res) => {
     arrivalDate,
     cargoType,
     movementType,
+    tradelane,
   } = req.body
   const createdBy = req.user.id
 
@@ -67,6 +68,7 @@ handler.post(async (req, res) => {
     arrivalDate,
     cargoType,
     movementType,
+    tradelane,
     isActive,
     createdBy,
   })
