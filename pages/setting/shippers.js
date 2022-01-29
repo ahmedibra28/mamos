@@ -91,6 +91,7 @@ const Shipper = () => {
 
   const handleAddField = () => {
     setInputFields([
+      ...inputFields,
       {
         dateTime: '',
         tradeType: '',
@@ -120,7 +121,6 @@ const Shipper = () => {
     setEdit(false)
     reset()
     setInputFields([
-      ...inputFields,
       {
         dateTime: '',
         tradeType: '',
@@ -461,7 +461,7 @@ const Shipper = () => {
                         type='button'
                         className='btn btn-primary btn-sm my-2'
                       >
-                        <FaPlusCircle className='mb-1' /> Add New Package
+                        <FaPlusCircle className='mb-1' /> Add New Event
                       </button>
                     </div>
 

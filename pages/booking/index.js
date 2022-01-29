@@ -1344,55 +1344,61 @@ const Booking = () => {
                         <div className='col-md-8 col-12 mx-auto mt-4'>
                           <h5>TRADELANE DETAILS</h5>
                           <div className='timeline mb-5'>
-                            {events.map((event) => (
-                              <div
-                                key={event._id}
-                                className='card font-monospace bg-transparent border-0 '
-                              >
-                                <div className='card-body'>
-                                  <div
-                                    className='row'
-                                    style={{ marginBottom: '-32px' }}
-                                  >
-                                    <div className='col-3 text-end'>
-                                      <div className='left'>
-                                        <h6 className='fw-light text-muted'>
-                                          {event.date}
-                                        </h6>
-                                        <h6 className='fw-light text-muted'>
-                                          {event.time}
-                                        </h6>
-                                      </div>
-                                    </div>
-                                    <div className='col-9 border border-success border-bottom-0 border-end-0 border-top-0 pb-4'>
-                                      <div className='right'>
-                                        <h6 className='card-title fw-light'>
-                                          {event.type}
-                                        </h6>
-                                        <div className='position-relative'>
-                                          <FaCircle
-                                            className='text-light border border-success rounded-pill position-absolute mt-2'
-                                            style={{ marginLeft: '-20' }}
-                                          />
+                            {selectedShipment &&
+                              selectedShipment.tradelane &&
+                              selectedShipment.tradelane.map((event) => (
+                                <div
+                                  key={event._id}
+                                  className='card font-monospace bg-transparent border-0 '
+                                >
+                                  <div className='card-body'>
+                                    <div
+                                      className='row'
+                                      style={{ marginBottom: '-32px' }}
+                                    >
+                                      <div className='col-3 text-end'>
+                                        <div className='left'>
+                                          <h6 className='fw-light text-muted'>
+                                            {moment(event.dateTime).format(
+                                              'MMM Do'
+                                            )}
+                                          </h6>
+                                          <h6 className='fw-light text-muted'>
+                                            {moment(event.dateTime).format(
+                                              'LT'
+                                            )}
+                                          </h6>
                                         </div>
-                                        <h1 className='card-title fs-4'>
-                                          {event.title}
-                                        </h1>
-                                        <div className='card-text'>
-                                          <h6 className='fw-light'>
-                                            <FaShip className='mb-1' />{' '}
-                                            {event.ref}
+                                      </div>
+                                      <div className='col-9 border border-success border-bottom-0 border-end-0 border-top-0 pb-4'>
+                                        <div className='right'>
+                                          <h6 className='card-title fw-light'>
+                                            {event.actionType}
                                           </h6>
-                                          <h6 className='fw-light'>
-                                            {event.description}
-                                          </h6>
+                                          <div className='position-relative'>
+                                            <FaCircle
+                                              className='text-light border border-success rounded-pill position-absolute mt-2'
+                                              style={{ marginLeft: '-20' }}
+                                            />
+                                          </div>
+                                          <h1 className='card-title fs-4'>
+                                            {event.location}
+                                          </h1>
+                                          <div className='card-text'>
+                                            <h6 className='fw-light'>
+                                              <FaShip className='mb-1' />{' '}
+                                              {event.tradeType}
+                                            </h6>
+                                            <h6 className='fw-light'>
+                                              {event.description}
+                                            </h6>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
                           </div>
                         </div>
                       </div>
