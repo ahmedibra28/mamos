@@ -57,6 +57,8 @@ const Booking = () => {
   const [shippers, setShippers] = useState([])
   const [selectedShipment, setSelectedShipment] = useState(null)
   const [file, setFile] = useState('')
+  const [formStep, setFormStep] = useState(1)
+  const MAX_STEP = 10
 
   const { getCountries } = useCountries()
   const { getCommodities } = useCommodities()
@@ -99,7 +101,7 @@ const Booking = () => {
       qty: 0,
       packageUnit: '',
       weight: 0,
-      weightUnit: '',
+      commodity: '',
       unit: '',
       length: '',
       width: '',
@@ -114,7 +116,7 @@ const Booking = () => {
         qty: '',
         packageUnit: '',
         weight: '',
-        weightUnit: '',
+        commodity: '',
         unit: '',
         length: '',
         width: '',
@@ -148,6 +150,20 @@ const Booking = () => {
   const TotalKG =
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
+
+  const LCLCheck = {
+    _id: 1,
+    mixedContainer: 'LCL',
+    used: 25000,
+    available: 3000,
+  }
+
+  const LCLPrice =
+    selectedShipment &&
+    watch().cargoType === 'LCL' &&
+    selectedShipment.price * TotalCBM * 167
+
+  console.log({ selectedShipment, TotalCBM, Cargo: watch().cargoType })
 
   const dropOffDoorCost0 =
     townsData &&
@@ -183,15 +199,14 @@ const Booking = () => {
   const invoiceCharges = 79
 
   const TotalRunningCost0 =
-    selectedShipment && selectedShipment.price * totalContainerKG
+    selectedShipment &&
+    watch().cargoType === 'FCL' &&
+    selectedShipment.price * totalContainerKG
 
   const TotalRunningCost00 = !watch().isHasInvoice
     ? TotalRunningCost0 + invoiceCharges + pickupDoorCost + dropOffDoorCost
     : TotalRunningCost0 + pickupDoorCost + dropOffDoorCost
-  const TotalRunningCost = TotalRunningCost00 > 0 && TotalRunningCost00
-
-  const [formStep, setFormStep] = useState(1)
-  const MAX_STEP = 10
+  const TotalRunningCost = TotalRunningCost00 + LCLPrice
 
   const submitHandler = (data) => {
     const availableShippers =
@@ -285,45 +300,6 @@ const Booking = () => {
     setSelectContainer(newSelectContainer.filter((f) => f !== null))
   }
 
-  const events = [
-    {
-      _id: 1,
-      title: 'Mombasa Port',
-      date: '16 Feb',
-      time: '18:00',
-      type: 'Departs from',
-      ref: 'Ocean',
-      description: 'MAERSK UTAH',
-    },
-    {
-      _id: 2,
-      title: 'Mogadishu Port',
-      date: '18 Jun',
-      time: '10:00',
-      type: 'Arrives at',
-      ref: 'Ocean',
-      description: 'Mogadishu Port Terminal',
-    },
-    {
-      _id: 3,
-      title: 'Mombasa Port',
-      date: '16 Feb',
-      time: '18:00',
-      type: 'Departs from',
-      ref: 'Ocean',
-      description: 'MAERSK UTAH',
-    },
-    {
-      _id: 4,
-      title: 'Mogadishu Port',
-      date: '18 Jun',
-      time: '10:00',
-      type: 'Arrives at',
-      ref: 'Ocean',
-      description: 'Mogadishu Port Terminal',
-    },
-  ]
-
   return (
     <div className='mt-1'>
       <div className='px-2'>
@@ -340,6 +316,7 @@ const Booking = () => {
             <hr />
           </>
         )}
+
         {formStep < MAX_STEP && (
           <div className='text-center mt-2'>
             <button type='button' className='btn btn-light shadow rounded-pill'>
@@ -352,7 +329,9 @@ const Booking = () => {
                 className='btn btn-success shadow rounded-pills mt-1'
               >
                 <FaDollarSign className='mb-1' />{' '}
-                {TotalRunningCost && TotalRunningCost.toLocaleString()}
+                {TotalRunningCost &&
+                  TotalRunningCost > 0 &&
+                  TotalRunningCost.toLocaleString()}
               </button>
             )}
             <p className='text-muted bfw-lighter mt-2'>
@@ -506,6 +485,12 @@ const Booking = () => {
                         </div>
                       </div>
                     )}
+                    {watch().cargoType === 'LCL' && (
+                      <label className='text-center'>
+                        You have selected Less than Container-Load. Please click
+                        next
+                      </label>
+                    )}
                   </div>
                   <div className='text-center btn-groups'>
                     <button
@@ -516,7 +501,12 @@ const Booking = () => {
                       <FaArrowAltCircleLeft className='mb-1' /> Previous
                     </button>
                     <button
-                      disabled={selectContainer.length === 0 ? true : false}
+                      disabled={
+                        watch().cargoType === 'FCL' &&
+                        selectContainer.length === 0
+                          ? true
+                          : false
+                      }
                       onClick={() => setFormStep((curr) => curr + 1)}
                       type='button'
                       className='btn btn-primary btn-sm text-end  ms-1'
@@ -689,98 +679,114 @@ const Booking = () => {
                 >
                   <div className='row gx-2 my-2'>
                     {availableShippers &&
-                      availableShippers.map((shipper) => (
-                        <div
-                          key={shipper._id}
-                          className='col-lg-4 col-md-6 col-12 mb-2'
-                        >
-                          <div className='card borer-0'>
-                            <div className='card-header text-center'>
-                              <h4 className='text-center'>{shipper.name}</h4>
-                            </div>
-                            <div className='card-body'>
-                              <div className='d-flex justify-content-between align-items-center'>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm float-start'
-                                >
-                                  <FaShip className='mb-1 fs-4' /> <br />
-                                  {shipper.departureSeaport.name} <br />
-                                  <span
-                                    className='fw-lighter'
-                                    style={{ fontSize: '12px' }}
-                                  >
-                                    {moment(shipper.departureDate).format(
-                                      'DD MMM'
-                                    )}
-                                  </span>
-                                </button>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm my-auto'
-                                >
-                                  <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
-                                </button>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm float-end'
-                                >
-                                  <FaShip className='mb-1 fs-4' /> <br />{' '}
-                                  {shipper.arrivalSeaport.name} <br />
-                                  <span
-                                    className='fw-lighter'
-                                    style={{ fontSize: '12px' }}
-                                  >
-                                    {moment(shipper.arrivalDate).format(
-                                      'DD MMM'
-                                    )}
-                                  </span>
-                                </button>
-                              </div>
-                              <hr />
+                      availableShippers.filter(
+                        (a) => a.cargoType === watch().cargoType
+                      )?.length === 0 && (
+                        <label className='text-center text-danger mb-2'>
+                          Please go back and click search available vessels
+                        </label>
+                      )}
 
-                              <div className='d-flex justify-content-between align-items-center'>
+                    {availableShippers &&
+                      availableShippers &&
+                      availableShippers
+                        .filter((a) => a.cargoType === watch().cargoType)
+                        .map((shipper) => (
+                          <div
+                            key={shipper._id}
+                            className='col-lg-4 col-md-6 col-12 mb-2'
+                          >
+                            <div className='card borer-0'>
+                              <div className='card-header text-center'>
+                                <h4 className='text-center'>{shipper.name}</h4>
+                              </div>
+                              <div className='card-body'>
+                                <div className='d-flex justify-content-between align-items-center'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm float-start'
+                                  >
+                                    <FaShip className='mb-1 fs-4' /> <br />
+                                    {shipper.departureSeaport.name} <br />
+                                    <span
+                                      className='fw-lighter'
+                                      style={{ fontSize: '12px' }}
+                                    >
+                                      {moment(shipper.departureDate).format(
+                                        'DD MMM'
+                                      )}
+                                    </span>
+                                  </button>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm my-auto'
+                                  >
+                                    <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
+                                  </button>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm float-end'
+                                  >
+                                    <FaShip className='mb-1 fs-4' /> <br />{' '}
+                                    {shipper.arrivalSeaport.name} <br />
+                                    <span
+                                      className='fw-lighter'
+                                      style={{ fontSize: '12px' }}
+                                    >
+                                      {moment(shipper.arrivalDate).format(
+                                        'DD MMM'
+                                      )}
+                                    </span>
+                                  </button>
+                                </div>
+                                <hr />
+
+                                <div className='d-flex justify-content-between align-items-center'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm'
+                                  >
+                                    <FaClock className='mb-1 fs-6' />{' '}
+                                    <span className='fw-bold fs-6'>
+                                      {moment(new Date(shipper.arrivalDate))
+                                        .diff(
+                                          moment(
+                                            new Date(shipper.departureDate)
+                                          ),
+                                          'days'
+                                        )
+                                        .toLocaleString()}{' '}
+                                      days
+                                    </span>
+                                  </button>
+                                  {watch().cargoType === 'FCL' && (
+                                    <button
+                                      type='button'
+                                      className='btn btn-light btn-sm'
+                                    >
+                                      <span className='fw-bold fs-6'>
+                                        <FaDollarSign className='mb-1 fs-6' />
+                                        {(
+                                          Number(totalContainerKG) *
+                                          shipper.price
+                                        ).toLocaleString()}
+                                      </span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              <div className='card-footer'>
                                 <button
-                                  type='button'
-                                  className='btn btn-light btn-sm'
+                                  onClick={() => setSelectedShipment(shipper)}
+                                  className='btn btn-primary btn-sm form-control'
                                 >
-                                  <FaClock className='mb-1 fs-6' />{' '}
-                                  <span className='fw-bold fs-6'>
-                                    {moment(new Date(shipper.arrivalDate))
-                                      .diff(
-                                        moment(new Date(shipper.departureDate)),
-                                        'days'
-                                      )
-                                      .toLocaleString()}{' '}
-                                    days
-                                  </span>
-                                </button>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm'
-                                >
-                                  <span className='fw-bold fs-6'>
-                                    <FaDollarSign className='mb-1 fs-6' />
-                                    {(
-                                      Number(totalContainerKG) * shipper.price
-                                    ).toLocaleString()}
-                                  </span>
+                                  <FaCheckCircle className='mb-1' /> Select
+                                  Shipment
                                 </button>
                               </div>
-                            </div>
-                            <div className='card-footer'>
-                              <button
-                                onClick={() => setSelectedShipment(shipper)}
-                                className='btn btn-primary btn-sm form-control'
-                              >
-                                <FaCheckCircle className='mb-1' /> Select
-                                Shipment
-                              </button>
                             </div>
                           </div>
-                        </div>
-                      ))}
-
+                        ))}
                     <div className='text-center btn-groups'>
                       <button
                         onClick={() => setFormStep((curr) => curr - 1)}
@@ -868,6 +874,259 @@ const Booking = () => {
                       </div>
                     )}
 
+                    {selectedShipment && watch().cargoType === 'LCL' && (
+                      <div className='row gx-2 my-2'>
+                        <div className='col-12'>
+                          <h5>CARGO DETAILS</h5>
+                          <p>Tel us a bit more about your cargo.</p>
+
+                          <div className='col-12'>
+                            <div className='progress'>
+                              <div
+                                className='progress-bar'
+                                role='progressbar'
+                                style={{
+                                  width: `${
+                                    (LCLCheck.used * 100) /
+                                    (LCLCheck.used + LCLCheck.available)
+                                  }%`,
+                                }}
+                                aria-valuenow={
+                                  (LCLCheck.used * 100) /
+                                  (LCLCheck.used + LCLCheck.available)
+                                }
+                                aria-valuemin='0'
+                                aria-valuemax={
+                                  LCLCheck.used + LCLCheck.available
+                                }
+                              >
+                                {`${(
+                                  (LCLCheck.used * 100) /
+                                  (LCLCheck.used + LCLCheck.available)
+                                ).toFixed(2)}%`}
+                              </div>
+                            </div>
+                          </div>
+                          <div className='col-'>
+                            <p className='text-danger text-center'>
+                              {LCLCheck.available < TotalCBM &&
+                                `You can use more than ${LCLCheck.available} CBM in total`}
+                            </p>
+                          </div>
+
+                          {inputFields.map((inputField, index) => (
+                            <div key={index}>
+                              <h6 className='font-monospace'>{`Package #${
+                                index + 1
+                              }`}</h6>
+                              <div className='row gx-1 p-2'>
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Package Quantity
+                                  </label>
+                                  <input
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Package quantity'
+                                    name='qty'
+                                    id='qty'
+                                    value={inputField.qty}
+                                    required
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  />
+                                </div>
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    P. Unit
+                                  </label>
+                                  <select
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Unit'
+                                    name='packageUnit'
+                                    id='packageUnit'
+                                    value={inputField.packageUnit}
+                                    required
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  >
+                                    <option value='boxes'>Boxes</option>
+                                    <option value='pieces'>Pieces</option>
+                                    <option value='pallets'>Pallets</option>
+                                    <option value='bags'>Bags</option>
+                                  </select>
+                                </div>
+
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Weight as KG
+                                  </label>
+                                  <input
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Weight'
+                                    name='weight'
+                                    id='weight'
+                                    value={inputField.weight}
+                                    required
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  />
+                                </div>
+
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Commodity
+                                  </label>
+                                  <select
+                                    className='form-control form-control-sm'
+                                    placeholder='Commodity'
+                                    name='commodity'
+                                    id='commodity'
+                                    value={inputField.commodity}
+                                    required
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  >
+                                    <option value=''>-------</option>
+                                    {commoditiesData &&
+                                      commoditiesData.map(
+                                        (c) =>
+                                          c.isActive && (
+                                            <option value={c._id} key={c._id}>
+                                              {c.name}
+                                            </option>
+                                          )
+                                      )}
+                                  </select>
+                                </div>
+
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    CBM Unit
+                                  </label>
+                                  <select
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Unit'
+                                    name='unit'
+                                    id='unit'
+                                    value={inputField.unit}
+                                    required
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  >
+                                    <option value='cm'>CM</option>
+                                  </select>
+                                </div>
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Length
+                                  </label>
+                                  <input
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Length'
+                                    name='length'
+                                    id='length'
+                                    value={inputField.length}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  />
+                                </div>
+
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Width
+                                  </label>
+                                  <input
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Width'
+                                    name='width'
+                                    id='width'
+                                    value={inputField.width}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  />
+                                </div>
+                                <div className='col-md-3 col-6'>
+                                  <label htmlFor='item' className='form-label'>
+                                    Height
+                                  </label>
+                                  <input
+                                    type='number'
+                                    min={0}
+                                    className='form-control form-control-sm'
+                                    placeholder='Height'
+                                    name='height'
+                                    id='height'
+                                    value={inputField.height}
+                                    onChange={(e) =>
+                                      handleInputChange(e, index)
+                                    }
+                                  />
+                                </div>
+                                <div className='col-12 mt-3'></div>
+                                <div className='col-md-4 col-12'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm form-control form control-sm'
+                                  >
+                                    Total Weight:{' '}
+                                    {inputField.qty * inputField.weight} KG
+                                  </button>
+                                </div>
+                                <div className='col-md-4 col-12'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm form-control form control-sm'
+                                  >
+                                    CBM:{' '}
+                                    {inputField.length *
+                                      inputField.width *
+                                      inputField.height}{' '}
+                                    M<sup>3</sup>
+                                  </button>
+                                </div>
+                                <div className='col-md-4 col-12'>
+                                  <button
+                                    type='button'
+                                    onClick={() => handleRemoveField(index)}
+                                    className='btn btn-danger btn-sm form-control form-control-sm'
+                                  >
+                                    <FaTrash className='mb-1' /> Remove
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className='text-center my-3'>
+                      <button
+                        onClick={() => handleAddField()}
+                        type='button'
+                        className='btn btn-primary btn-sm my-2'
+                      >
+                        <FaPlusCircle className='mb-1' /> Add New Package
+                      </button>
+                    </div>
                     <div className='text-center btn-groups'>
                       <button
                         onClick={() => setFormStep((curr) => curr - 1)}
@@ -877,7 +1136,14 @@ const Booking = () => {
                         <FaArrowAltCircleLeft className='mb-1' /> Previous
                       </button>
                       <button
-                        disabled={!isValid}
+                        disabled={
+                          watch().cargoType === 'FCL'
+                            ? !isValid
+                            : LCLCheck.available < TotalCBM || TotalCBM === 0
+                            ? true
+                            : false
+                        }
+                        // disabled={!isValid}
                         onClick={() => setFormStep((curr) => curr + 1)}
                         type='button'
                         className='btn btn-primary btn-sm text-end  ms-1'
@@ -1246,6 +1512,7 @@ const Booking = () => {
                                 <td>Direction</td>
                                 <td>{watch().importExport}</td>
                               </tr>
+
                               <tr>
                                 <td>Shipment Movement</td>
                                 <td>{watch().movementType}</td>
@@ -1258,35 +1525,40 @@ const Booking = () => {
                                   ).format('ll')}
                                 </td>
                               </tr>
-                              <tr>
-                                <td>Commodity</td>
-                                <td>
-                                  {commoditiesData &&
-                                    commoditiesData.find(
-                                      (c) =>
-                                        c.isActive &&
-                                        c._id === watch().commodity
-                                    )?.name}
-                                  <br />
-                                  {watch().noOfPackages} packages <br />
-                                  {watch().grossWeight} kg
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Cargo Description</td>
-                                <td>{watch().cargoDescription}</td>
-                              </tr>
-                              <tr>
-                                <td>Containers Details</td>
-                                <td>
-                                  {selectContainer &&
-                                    selectContainer.map((s) => (
-                                      <div key={s._id}>
-                                        {s.quantity} x {s.name}
-                                      </div>
-                                    ))}
-                                </td>
-                              </tr>
+                              {watch().cargoType !== 'LCL' && (
+                                <>
+                                  <tr>
+                                    <td>Commodity</td>
+                                    <td>
+                                      {commoditiesData &&
+                                        commoditiesData.find(
+                                          (c) =>
+                                            c.isActive &&
+                                            c._id === watch().commodity
+                                        )?.name}
+                                      <br />
+                                      {watch().noOfPackages} packages <br />
+                                      {watch().grossWeight} kg
+                                    </td>
+                                  </tr>
+
+                                  <tr>
+                                    <td>Cargo Description</td>
+                                    <td>{watch().cargoDescription}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Containers Details</td>
+                                    <td>
+                                      {selectContainer &&
+                                        selectContainer.map((s) => (
+                                          <div key={s._id}>
+                                            {s.quantity} x {s.name}
+                                          </div>
+                                        ))}
+                                    </td>
+                                  </tr>
+                                </>
+                              )}
                             </tbody>
                           </table>
                         </div>
@@ -1321,7 +1593,12 @@ const Booking = () => {
                               )}
                               <tr>
                                 <td>Transportation Services</td>
-                                <td>${TotalRunningCost0.toLocaleString()}</td>
+                                <td>
+                                  $
+                                  {watch().cargoType === 'FCL'
+                                    ? TotalRunningCost0.toLocaleString()
+                                    : LCLPrice.toLocaleString()}
+                                </td>
                               </tr>
                             </tbody>
                           </table>
