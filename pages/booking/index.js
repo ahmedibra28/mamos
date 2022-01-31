@@ -27,6 +27,7 @@ import useSeaports from '../../api/seaports'
 import useContainers from '../../api/containers'
 import useShippers from '../../api/shippers'
 import useTowns from '../../api/towns'
+import useBooking from '../../api/booking'
 import {
   staticInputSelect,
   dynamicInputSelect,
@@ -67,6 +68,7 @@ const Booking = () => {
   const { getContainers } = useContainers()
   const { getShippers } = useShippers()
   const { getTowns } = useTowns()
+  const { addBooking } = useBooking()
 
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
@@ -75,6 +77,14 @@ const Booking = () => {
   const { data: containersData } = getContainers
   const { data: shippersData } = getShippers
   const { data: townsData } = getTowns
+
+  const {
+    isLoading: isLoadingAdd,
+    isError: isErrorAdd,
+    error: errorAdd,
+    isSuccess: isSuccessAdd,
+    mutateAsync: addMutateAsync,
+  } = addBooking
 
   const availableTransportationType = shippersData && [
     ...new Set(
@@ -163,8 +173,6 @@ const Booking = () => {
     watch().cargoType === 'LCL' &&
     selectedShipment.price * TotalCBM * 167
 
-  console.log({ selectedShipment, TotalCBM, Cargo: watch().cargoType })
-
   const dropOffDoorCost0 =
     townsData &&
     townsData.find((town) =>
@@ -207,6 +215,12 @@ const Booking = () => {
     ? TotalRunningCost0 + invoiceCharges + pickupDoorCost + dropOffDoorCost
     : TotalRunningCost0 + pickupDoorCost + dropOffDoorCost
   const TotalRunningCost = TotalRunningCost00 + LCLPrice
+
+  console.log({
+    TotalRunningCost,
+    TotalRunningCost00,
+    LCLPrice,
+  })
 
   const submitHandler = (data) => {
     const availableShippers =
@@ -261,6 +275,40 @@ const Booking = () => {
       //   pickupPort,
       //   transportationType,
       // } = data
+
+      const formData = new FormData()
+      formData.append('invoiceFile', data.invoiceFile[0])
+      formData.append('buyerAddress', data.buyerAddress)
+      formData.append('buyerEmail', data.buyerEmail)
+      formData.append('buyerMobileNumber', data.buyerMobileNumber)
+      formData.append('buyerName', data.buyerName)
+      formData.append('cargoDescription', data.cargoDescription)
+      formData.append('cargoType', data.cargoType)
+      formData.append('commodity', data.commodity)
+      formData.append('destAddress', data.destAddress)
+      formData.append('destCity', data.destCity)
+      formData.append('destCountry', data.destCountry)
+      formData.append('destPort', data.destPort)
+      formData.append('destPostalCode', data.destPostalCode)
+      formData.append('destWarehouseName', data.destWarehouseName)
+      formData.append('dropOffTown', data.dropOffTown)
+      formData.append('grossWeight', data.grossWeight)
+      formData.append('importExport', data.importExport)
+      formData.append('invoiceFile', data.invoiceFile)
+      formData.append('isHasInvoice', data.isHasInvoice)
+      formData.append('isTemperatureControlled', data.isTemperatureControlled)
+      formData.append('movementType', data.movementType)
+      formData.append('noOfPackages', data.noOfPackages)
+      formData.append('pickUpAddress', data.pickUpAddress)
+      formData.append('pickUpCity', data.pickUpCity)
+      formData.append('pickUpPostalCode', data.pickUpPostalCode)
+      formData.append('pickUpTown', data.pickUpTown)
+      formData.append('pickUpWarehouseName', data.pickUpWarehouseName)
+      formData.append('pickupCountry', data.pickupCountry)
+      formData.append('pickupPort', data.pickupPort)
+      formData.append('transportationType', data.transportationType)
+
+      addMutateAsync(formData)
 
       console.log('CONGRATULATIONS: ', data)
     }
@@ -323,15 +371,13 @@ const Booking = () => {
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            {TotalRunningCost && TotalRunningCost > 0 && (
+            {TotalRunningCost && TotalRunningCost !== 0 && (
               <button
                 type='button'
                 className='btn btn-success shadow rounded-pills mt-1'
               >
                 <FaDollarSign className='mb-1' />{' '}
-                {TotalRunningCost &&
-                  TotalRunningCost > 0 &&
-                  TotalRunningCost.toLocaleString()}
+                {TotalRunningCost.toLocaleString()}
               </button>
             )}
             <p className='text-muted bfw-lighter mt-2'>
@@ -1118,15 +1164,18 @@ const Booking = () => {
                         </div>
                       </div>
                     )}
-                    <div className='text-center my-3'>
-                      <button
-                        onClick={() => handleAddField()}
-                        type='button'
-                        className='btn btn-primary btn-sm my-2'
-                      >
-                        <FaPlusCircle className='mb-1' /> Add New Package
-                      </button>
-                    </div>
+
+                    {selectedShipment && watch().cargoType === 'LCL' && (
+                      <div className='text-center my-3'>
+                        <button
+                          onClick={() => handleAddField()}
+                          type='button'
+                          className='btn btn-primary btn-sm my-2'
+                        >
+                          <FaPlusCircle className='mb-1' /> Add New Package
+                        </button>
+                      </div>
+                    )}
                     <div className='text-center btn-groups'>
                       <button
                         onClick={() => setFormStep((curr) => curr - 1)}
