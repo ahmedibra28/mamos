@@ -27,7 +27,7 @@ import useSeaports from '../../api/seaports'
 import useContainers from '../../api/containers'
 import useShippers from '../../api/shippers'
 import useTowns from '../../api/towns'
-import useBooking from '../../api/booking'
+import useOrders from '../../api/orders'
 import {
   staticInputSelect,
   dynamicInputSelect,
@@ -68,7 +68,7 @@ const Booking = () => {
   const { getContainers } = useContainers()
   const { getShippers } = useShippers()
   const { getTowns } = useTowns()
-  const { addBooking } = useBooking()
+  const { addOrder } = useOrders()
 
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
@@ -84,7 +84,7 @@ const Booking = () => {
     error: errorAdd,
     isSuccess: isSuccessAdd,
     mutateAsync: addMutateAsync,
-  } = addBooking
+  } = addOrder
 
   const availableTransportationType = shippersData && [
     ...new Set(

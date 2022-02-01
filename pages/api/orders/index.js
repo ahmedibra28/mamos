@@ -73,6 +73,22 @@ handler.post(async (req, res) => {
   }
 
   if (cargoType === 'FCL') {
+    const FCLData = {
+      destination,
+      pickup,
+      buyer,
+      grossWeight,
+      importExport,
+      isHasInvoice,
+      isTemperatureControlled,
+      movementType,
+      noOfPackages,
+      transportationType,
+      commodity,
+      cargoDescription,
+      cargoType,
+      createdBy,
+    }
   }
 
   //   const name = req.body.name.toLowerCase()
