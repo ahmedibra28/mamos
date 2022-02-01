@@ -5,6 +5,8 @@ import { isAuth } from '../../../utils/auth'
 import fileUpload from 'express-fileupload'
 import { upload } from '../../../utils/fileManager'
 export const config = { api: { bodyParser: false } }
+import autoIncrement from '../../../utils/autoIncrement'
+import Order from '../../../models/Order'
 
 const handler = nc()
 handler.use(fileUpload())
@@ -72,43 +74,81 @@ handler.post(async (req, res) => {
     pickupPort,
   }
 
-  if (cargoType === 'FCL') {
-    const FCLData = {
-      destination,
-      pickup,
-      buyer,
-      grossWeight,
-      importExport,
-      isHasInvoice,
-      isTemperatureControlled,
-      movementType,
-      noOfPackages,
-      transportationType,
-      commodity,
-      cargoDescription,
-      cargoType,
-      createdBy,
+  const lastRecord = await Order.findOne(
+    {},
+    { trackingNo: 1 },
+    { sort: { createdAt: -1 } }
+  )
+
+  const trackingNo = lastRecord
+    ? autoIncrement(lastRecord.trackingNo)
+    : autoIncrement('MB000000')
+
+  if (invoiceFile) {
+    const invoice = await upload({
+      fileName: invoiceFile,
+      fileType: 'image',
+      pathName: 'invoice',
+    })
+
+    if (invoice) {
+      if (cargoType === 'FCL') {
+        const FCLData = {
+          destination,
+          pickup,
+          buyer,
+          grossWeight,
+          importExport,
+          isHasInvoice,
+          isTemperatureControlled,
+          movementType,
+          noOfPackages,
+          transportationType,
+          commodity,
+          cargoDescription,
+          cargoType,
+          createdBy,
+          trackingNo,
+          invoiceFile: {
+            invoiceFileName: invoice.fullFileName,
+            invoiceFilePath: invoice.filePath,
+          },
+        }
+        const createObj = await Order.create(FCLData)
+        if (createObj) {
+          res.status(201).json({ status: 'success' })
+        } else {
+          return res.status(400).send('Invalid data')
+        }
+      }
     }
   }
-
-  //   const name = req.body.name.toLowerCase()
-
-  //   const exist = await Group.findOne({ name })
-  //   if (exist) {
-  //     return res.status(400).send('Group already exist')
-  //   }
-  //   const createObj = await Group.create({
-  //     name,
-  //     isActive,
-  //     createdBy,
-  //     route,
-  //   })
-  const createObj = 'Hello'
-
-  if (createObj) {
-    res.status(201).json({ status: 'success' })
-  } else {
-    return res.status(400).send('Invalid data')
+  if (!invoiceFile) {
+    if (cargoType === 'FCL') {
+      const FCLData = {
+        destination,
+        pickup,
+        buyer,
+        grossWeight,
+        importExport,
+        isHasInvoice,
+        isTemperatureControlled,
+        movementType,
+        noOfPackages,
+        transportationType,
+        commodity,
+        cargoDescription,
+        cargoType,
+        createdBy,
+        trackingNo,
+      }
+      const createObj = await Order.create(FCLData)
+      if (createObj) {
+        res.status(201).json({ status: 'success' })
+      } else {
+        return res.status(400).send('Invalid data')
+      }
+    }
   }
 })
 

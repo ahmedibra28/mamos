@@ -4,6 +4,7 @@ import Airport from './Airport'
 import Seaport from './Country'
 import Town from './Country'
 import User from './User'
+import Commodity from './Commodity'
 
 const orderScheme = mongoose.Schema(
   {
@@ -29,8 +30,23 @@ const orderScheme = mongoose.Schema(
     pickUpWarehouseName: String,
     pickupCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
     pickupPort: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    invoiceFile: {
+      invoiceFileName: String,
+      invoiceFilePath: String,
+    },
+    trackingNo: String,
+    cargoDescription: String,
+    cargoType: String,
+    grossWeight: Number,
+    importExport: String,
+    isHasInvoice: Boolean,
+    isTemperatureControlled: Boolean,
+    movementType: String,
+    noOfPackages: Number,
+    transportationType: String,
+    commodity: { type: mongoose.Schema.Types.ObjectId, ref: Commodity },
 
-    status: { type: Boolean, default: 'Pending' },
+    status: { type: String, default: 'Pending' },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,

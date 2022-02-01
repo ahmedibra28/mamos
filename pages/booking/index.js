@@ -86,6 +86,13 @@ const Booking = () => {
     mutateAsync: addMutateAsync,
   } = addOrder
 
+  if (isSuccessAdd) {
+    console.log('Success')
+  }
+  if (isErrorAdd) {
+    console.log('Error: ', errorAdd)
+  }
+
   const availableTransportationType = shippersData && [
     ...new Set(
       shippersData.map(
@@ -307,6 +314,8 @@ const Booking = () => {
       formData.append('pickupCountry', data.pickupCountry)
       formData.append('pickupPort', data.pickupPort)
       formData.append('transportationType', data.transportationType)
+      formData.append('selectedShipment', selectedShipment)
+      formData.append('selectContainer', selectContainer)
 
       addMutateAsync(formData)
 
@@ -1740,7 +1749,7 @@ const Booking = () => {
                       <br />
                       <button
                         onSubmit={handleSubmit(submitHandler)}
-                        onClick={() => setFormStep((curr) => curr + 1)}
+                        // onClick={() => setFormStep((curr) => curr + 1)}
                         className='btn btn-success text-end mt-2'
                       >
                         <FaCheckDouble className='mb-1' /> Confirm Booking

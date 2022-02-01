@@ -1,7 +1,7 @@
 import dynamicAPI from './dynamicAPI'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 
-const url = '/api/order'
+const url = '/api/orders'
 
 export default function useOrders() {
   const queryClient = useQueryClient()
@@ -18,7 +18,7 @@ export default function useOrders() {
     async (obj) => await dynamicAPI('put', `${url}/${obj._id}`, obj),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries(['order']),
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
     }
   )
 
@@ -27,7 +27,7 @@ export default function useOrders() {
     async (id) => await dynamicAPI('delete', `${url}/${id}`, {}),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries(['order']),
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
     }
   )
 
@@ -36,7 +36,7 @@ export default function useOrders() {
     async (obj) => await dynamicAPI('post', url, obj),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries(['order']),
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
     }
   )
 
