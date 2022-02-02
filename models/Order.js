@@ -5,6 +5,8 @@ import Seaport from './Country'
 import Town from './Country'
 import User from './User'
 import Commodity from './Commodity'
+import Shipper from './Shipper'
+import Container from './Container'
 
 const orderScheme = mongoose.Schema(
   {
@@ -23,17 +25,25 @@ const orderScheme = mongoose.Schema(
       destWarehouseName: String,
       dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
     },
-    pickUpAddress: String,
-    pickUpCity: String,
-    pickUpPostalCode: String,
-    pickUpTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
-    pickUpWarehouseName: String,
-    pickupCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
-    pickupPort: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    pickup: {
+      pickUpAddress: String,
+      pickUpCity: String,
+      pickUpPostalCode: String,
+      pickUpTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
+      pickUpWarehouseName: String,
+      pickupCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
+      pickupPort: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    },
     invoiceFile: {
       invoiceFileName: String,
       invoiceFilePath: String,
     },
+    containers: [
+      {
+        _id: { type: mongoose.Schema.Types.ObjectId, ref: Container },
+        quantity: { type: Number },
+      },
+    ],
     trackingNo: String,
     cargoDescription: String,
     cargoType: String,
@@ -45,6 +55,7 @@ const orderScheme = mongoose.Schema(
     noOfPackages: Number,
     transportationType: String,
     commodity: { type: mongoose.Schema.Types.ObjectId, ref: Commodity },
+    shipment: { type: mongoose.Schema.Types.ObjectId, ref: Shipper },
 
     status: { type: String, default: 'Pending' },
     createdBy: {

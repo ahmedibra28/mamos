@@ -223,12 +223,6 @@ const Booking = () => {
     : TotalRunningCost0 + pickupDoorCost + dropOffDoorCost
   const TotalRunningCost = TotalRunningCost00 + LCLPrice
 
-  console.log({
-    TotalRunningCost,
-    TotalRunningCost00,
-    LCLPrice,
-  })
-
   const submitHandler = (data) => {
     const availableShippers =
       shippersData &&
@@ -314,10 +308,11 @@ const Booking = () => {
       formData.append('pickupCountry', data.pickupCountry)
       formData.append('pickupPort', data.pickupPort)
       formData.append('transportationType', data.transportationType)
-      formData.append('selectedShipment', selectedShipment)
-      formData.append('selectContainer', selectContainer)
+      formData.append('selectedShipment', selectedShipment._id)
+      formData.append('selectContainer', JSON.stringify(selectContainer))
 
       addMutateAsync(formData)
+      console.log({ selectContainer, selectedShipment })
 
       console.log('CONGRATULATIONS: ', data)
     }

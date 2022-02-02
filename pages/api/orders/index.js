@@ -15,7 +15,18 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
-  console.log(req.body)
+
+  // console.log(req.body)
+  // console.log(req.body.selectContainer)
+
+  const selectedContainer = JSON.parse(req.body.selectContainer)
+  const containers =
+    selectedContainer &&
+    selectedContainer.length > 0 &&
+    selectedContainer.map((item) => ({
+      _id: item._id,
+      quantity: item.quantity,
+    }))
 
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
@@ -47,6 +58,7 @@ handler.post(async (req, res) => {
     noOfPackages,
     transportationType,
     commodity,
+    selectedShipment,
   } = req.body
 
   const buyer = {
@@ -56,20 +68,20 @@ handler.post(async (req, res) => {
     buyerName,
   }
   const destination = {
-    destAddress,
-    destCity,
+    destAddress: destAddress?.destAddress,
+    destCity: destCity?.destCity,
     destCountry,
     destPort,
-    destPostalCode,
-    destWarehouseName,
-    dropOffTown,
+    destPostalCode: destPostalCode?.destPostalCode,
+    destWarehouseName: destWarehouseName?.destWarehouseName,
+    dropOffTown: dropOffTown?.dropOffTown,
   }
   const pickup = {
-    pickUpAddress,
-    pickUpCity,
-    pickUpPostalCode,
-    pickUpTown,
-    pickUpWarehouseName,
+    pickUpAddress: pickUpAddress?.pickUpAddress,
+    pickUpCity: pickUpCity?.pickUpCity,
+    pickUpPostalCode: pickUpPostalCode?.pickUpPostalCode,
+    pickUpTown: pickUpTown?.pickUpTown,
+    pickUpWarehouseName: pickUpWarehouseName?.pickUpWarehouseName,
     pickupCountry,
     pickupPort,
   }
@@ -109,6 +121,8 @@ handler.post(async (req, res) => {
           cargoType,
           createdBy,
           trackingNo,
+          selectedShipment,
+          containers: containers?.containers,
           invoiceFile: {
             invoiceFileName: invoice.fullFileName,
             invoiceFilePath: invoice.filePath,
@@ -141,6 +155,8 @@ handler.post(async (req, res) => {
         cargoType,
         createdBy,
         trackingNo,
+        selectedShipment,
+        containers: containers?.containers,
       }
       const createObj = await Order.create(FCLData)
       if (createObj) {
