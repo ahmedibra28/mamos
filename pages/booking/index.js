@@ -278,6 +278,7 @@ const Booking = () => {
       // } = data
 
       const formData = new FormData()
+      // FCL Cargo
       formData.append('invoiceFile', data.invoiceFile[0])
       formData.append('buyerAddress', data.buyerAddress)
       formData.append('buyerEmail', data.buyerEmail)
@@ -310,6 +311,9 @@ const Booking = () => {
       formData.append('transportationType', data.transportationType)
       formData.append('selectedShipment', selectedShipment._id)
       formData.append('selectContainer', JSON.stringify(selectContainer))
+
+      // LCL Cargo
+      formData.append('inputFields', JSON.stringify(inputFields))
 
       addMutateAsync(formData)
       console.log({ selectContainer, selectedShipment })

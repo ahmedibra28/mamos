@@ -38,10 +38,22 @@ const orderScheme = mongoose.Schema(
       invoiceFileName: String,
       invoiceFilePath: String,
     },
-    containers: [
+    containerFCL: [
       {
-        _id: { type: mongoose.Schema.Types.ObjectId, ref: Container },
+        container: { type: mongoose.Schema.Types.ObjectId, ref: Container },
         quantity: { type: Number },
+      },
+    ],
+    containerLCL: [
+      {
+        qty: Number,
+        packageUnit: String,
+        weight: Number,
+        commodity: { type: mongoose.Schema.Types.ObjectId, ref: Commodity },
+        unit: String,
+        length: Number,
+        width: Number,
+        height: Number,
       },
     ],
     trackingNo: String,

@@ -11,22 +11,15 @@ import Order from '../../../models/Order'
 const handler = nc()
 handler.use(fileUpload())
 
+const undefinedChecker = (property) =>
+  property !== 'undefined' ? property : null
+
 handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
 
-  // console.log(req.body)
-  // console.log(req.body.selectContainer)
-
-  const selectedContainer = JSON.parse(req.body.selectContainer)
-  const containers =
-    selectedContainer &&
-    selectedContainer.length > 0 &&
-    selectedContainer.map((item) => ({
-      _id: item._id,
-      quantity: item.quantity,
-    }))
+  console.log(req.body)
 
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
@@ -68,20 +61,21 @@ handler.post(async (req, res) => {
     buyerName,
   }
   const destination = {
-    destAddress: destAddress?.destAddress,
-    destCity: destCity?.destCity,
+    destAddress: undefinedChecker(destAddress),
+    destCity: undefinedChecker(destCity),
     destCountry,
     destPort,
-    destPostalCode: destPostalCode?.destPostalCode,
-    destWarehouseName: destWarehouseName?.destWarehouseName,
-    dropOffTown: dropOffTown?.dropOffTown,
+    destPostalCode: undefinedChecker(destPostalCode),
+    destWarehouseName: undefinedChecker(destWarehouseName),
+    dropOffTown: undefinedChecker(dropOffTown),
   }
+
   const pickup = {
-    pickUpAddress: pickUpAddress?.pickUpAddress,
-    pickUpCity: pickUpCity?.pickUpCity,
-    pickUpPostalCode: pickUpPostalCode?.pickUpPostalCode,
-    pickUpTown: pickUpTown?.pickUpTown,
-    pickUpWarehouseName: pickUpWarehouseName?.pickUpWarehouseName,
+    pickUpAddress: undefinedChecker(pickUpAddress),
+    pickUpCity: undefinedChecker(pickUpCity),
+    pickUpPostalCode: undefinedChecker(pickUpPostalCode),
+    pickUpTown: undefinedChecker(pickUpTown),
+    pickUpWarehouseName: undefinedChecker(pickUpWarehouseName),
     pickupCountry,
     pickupPort,
   }
@@ -96,6 +90,30 @@ handler.post(async (req, res) => {
     ? autoIncrement(lastRecord.trackingNo)
     : autoIncrement('MB000000')
 
+  let containerFCL = []
+
+  if (cargoType === 'FCL') {
+    if (JSON.parse(req.body.selectContainer).length === 0) {
+      return res.status(400).send('Please select at least one container')
+    }
+    const selectedContainer = JSON.parse(req.body.selectContainer)
+    containerFCL.push(
+      selectedContainer &&
+        selectedContainer.length > 0 &&
+        selectedContainer.map((item) => ({
+          container: item._id,
+          quantity: item.quantity,
+        }))
+    )
+  }
+
+  let containerLCL
+
+  console.log(JSON.parse(req.body.inputFields))
+  if (cargoType === 'LCL') {
+    containerLCL = JSON.parse(req.body.inputFields)
+  }
+
   if (invoiceFile) {
     const invoice = await upload({
       fileName: invoiceFile,
@@ -104,25 +122,26 @@ handler.post(async (req, res) => {
     })
 
     if (invoice) {
-      if (cargoType === 'FCL') {
+      if (cargoType === 'FCL' || cargoType === 'LCL') {
         const FCLData = {
           destination,
           pickup,
           buyer,
-          grossWeight,
+          grossWeight: undefinedChecker(grossWeight),
           importExport,
           isHasInvoice,
           isTemperatureControlled,
           movementType,
-          noOfPackages,
+          noOfPackages: undefinedChecker(noOfPackages),
           transportationType,
-          commodity,
+          commodity: undefinedChecker(commodity),
           cargoDescription,
           cargoType,
           createdBy,
           trackingNo,
           selectedShipment,
-          containers: containers?.containers,
+          containerFCL,
+          containerLCL,
           invoiceFile: {
             invoiceFileName: invoice.fullFileName,
             invoiceFilePath: invoice.filePath,
@@ -137,26 +156,28 @@ handler.post(async (req, res) => {
       }
     }
   }
+
   if (!invoiceFile) {
-    if (cargoType === 'FCL') {
+    if (cargoType === 'FCL' || cargoType === 'LCL') {
       const FCLData = {
         destination,
         pickup,
         buyer,
-        grossWeight,
+        grossWeight: undefinedChecker(grossWeight),
         importExport,
         isHasInvoice,
         isTemperatureControlled,
         movementType,
-        noOfPackages,
+        noOfPackages: undefinedChecker(noOfPackages),
         transportationType,
-        commodity,
+        commodity: undefinedChecker(commodity),
         cargoDescription,
         cargoType,
         createdBy,
         trackingNo,
         selectedShipment,
-        containers: containers?.containers,
+        containerFCL,
+        containerLCL,
       }
       const createObj = await Order.create(FCLData)
       if (createObj) {
