@@ -1,12 +1,11 @@
 import nc from 'next-connect'
 import dbConnect from '../../../utils/db'
-import Group from '../../../models/Group'
+import Order from '../../../models/Order'
 import { isAuth } from '../../../utils/auth'
 import fileUpload from 'express-fileupload'
 import { upload } from '../../../utils/fileManager'
 export const config = { api: { bodyParser: false } }
 import autoIncrement from '../../../utils/autoIncrement'
-import Order from '../../../models/Order'
 
 const handler = nc()
 handler.use(fileUpload())
@@ -15,11 +14,52 @@ const undefinedChecker = (property) =>
   property !== 'undefined' ? property : null
 
 handler.use(isAuth)
+handler.get(async (req, res) => {
+  await dbConnect()
+
+  const trackingNo =
+    req.query && req.query.search && req.query.search.toUpperCase()
+
+  let query = Order.find(trackingNo ? { trackingNo } : {})
+  const total = await Order.countDocuments(trackingNo ? { trackingNo } : {})
+
+  const page = parseInt(req.query.page) || 1
+  const pageSize = parseInt(req.query.limit) || 50
+  const skip = (page - 1) * pageSize
+
+  const pages = Math.ceil(total / pageSize)
+
+  query = query
+    .skip(skip)
+    .limit(pageSize)
+    .sort({ createdAt: -1 })
+    .populate('destination.destCountry')
+    .populate('destination.destPort')
+    .populate('destination.dropOffTown')
+    .populate('pickup.pickUpTown')
+    .populate('pickup.pickupCountry')
+    .populate('pickup.pickupPort')
+    .populate('containerFCL.container')
+    .populate('containerLCL.commodity')
+    .populate('commodity')
+    .populate('shipment')
+
+  const result = await query
+
+  res.send({
+    startIndex: skip + 1,
+    endIndex: skip + result.length,
+    count: result.length,
+    page,
+    pages,
+    total,
+    data: result,
+  })
+})
+
 handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
-
-  console.log(req.body)
 
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
@@ -91,25 +131,22 @@ handler.post(async (req, res) => {
     : autoIncrement('MB000000')
 
   let containerFCL = []
-
   if (cargoType === 'FCL') {
-    if (JSON.parse(req.body.selectContainer).length === 0) {
+    const c = JSON.parse(req.body.selectContainer)
+    if (c.length === 0) {
       return res.status(400).send('Please select at least one container')
     }
-    const selectedContainer = JSON.parse(req.body.selectContainer)
-    containerFCL.push(
-      selectedContainer &&
-        selectedContainer.length > 0 &&
-        selectedContainer.map((item) => ({
-          container: item._id,
-          quantity: item.quantity,
-        }))
-    )
+
+    for (let i = 0; i < c.length; i++) {
+      containerFCL.push({
+        container: c[i]._id,
+        quantity: c[i].quantity,
+      })
+    }
   }
 
   let containerLCL
 
-  console.log(JSON.parse(req.body.inputFields))
   if (cargoType === 'LCL') {
     containerLCL = JSON.parse(req.body.inputFields)
   }

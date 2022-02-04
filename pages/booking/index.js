@@ -316,9 +316,6 @@ const Booking = () => {
       formData.append('inputFields', JSON.stringify(inputFields))
 
       addMutateAsync(formData)
-      console.log({ selectContainer, selectedShipment })
-
-      console.log('CONGRATULATIONS: ', data)
     }
   }
 
@@ -1748,7 +1745,7 @@ const Booking = () => {
                       <br />
                       <button
                         onSubmit={handleSubmit(submitHandler)}
-                        // onClick={() => setFormStep((curr) => curr + 1)}
+                        onClick={() => setFormStep((curr) => curr + 1)}
                         className='btn btn-success text-end mt-2'
                       >
                         <FaCheckDouble className='mb-1' /> Confirm Booking
