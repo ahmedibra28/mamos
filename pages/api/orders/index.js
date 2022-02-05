@@ -120,6 +120,7 @@ handler.post(async (req, res) => {
     pickupPort,
   }
 
+  console.log(req.body)
   const lastRecord = await Order.findOne(
     {},
     { trackingNo: 1 },
@@ -176,7 +177,7 @@ handler.post(async (req, res) => {
           cargoType,
           createdBy,
           trackingNo,
-          selectedShipment,
+          shipment: selectedShipment,
           containerFCL,
           containerLCL,
           invoiceFile: {
@@ -212,7 +213,7 @@ handler.post(async (req, res) => {
         cargoType,
         createdBy,
         trackingNo,
-        selectedShipment,
+        shipment: selectedShipment,
         containerFCL,
         containerLCL,
       }
