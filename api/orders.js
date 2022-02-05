@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 
 const url = '/api/orders'
 
-export default function useOrders(page, search) {
+export default function useOrders(page, search, id) {
   const queryClient = useQueryClient()
 
   // get all order
@@ -12,6 +12,13 @@ export default function useOrders(page, search) {
     async () =>
       await dynamicAPI('get', `${url}?page=${page}&&search=${search}`, {}),
     { retry: 0 }
+  )
+
+  // get order details
+  const getOrderDetails = useQuery(
+    ['order', id],
+    async () => await dynamicAPI('get', `${url}/details/${id}`, {}),
+    { enabled: !!id, retry: 0 }
   )
 
   // update order
@@ -41,5 +48,5 @@ export default function useOrders(page, search) {
     }
   )
 
-  return { getOrders, updateOrder, deleteOrder, addOrder }
+  return { getOrders, updateOrder, deleteOrder, addOrder, getOrderDetails }
 }
