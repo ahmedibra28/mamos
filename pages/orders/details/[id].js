@@ -1,7 +1,13 @@
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
 import withAuth from '../../../HOC/withAuth'
-import { FaArrowAltCircleLeft, FaCircle, FaShip } from 'react-icons/fa'
+import {
+  FaArrowAltCircleLeft,
+  FaCircle,
+  FaShip,
+  FaCheckCircle,
+  FaTimesCircle,
+} from 'react-icons/fa'
 import Head from 'next/head'
 // import useOrders from '../../api/orders'
 
@@ -26,6 +32,39 @@ const Details = () => {
       (acc, curr) => acc + curr.container.payloadCapacity * curr.quantity,
       0
     )
+
+  const TotalCBM =
+    data &&
+    data.containerLCL.length > 0 &&
+    data.containerLCL.reduce(
+      (acc, curr) => acc + curr.length * curr.width * curr.height,
+      0
+    )
+
+  const lclService =
+    data && data.shipment && data.cargoType === 'LCL'
+      ? data.shipment.price * 167 * TotalCBM
+      : 0
+
+  console.log({ TotalCBM })
+
+  const totalCost = () => {
+    const totalContainerKGs = totalContainerKG ? totalContainerKG : 0
+    const tService = data.shipment.price * totalContainerKGs
+    const iService = data.isHasInvoice ? 0 : 79
+    const dropOffService =
+      data.movementType === 'Port to Door' ||
+      data.movementType === 'Door to Door'
+        ? data.destination.dropOffTown.cost
+        : 0
+    const pickupService =
+      data.movementType === 'Door to Port' ||
+      data.movementType === 'Door to Door'
+        ? data.pickup.pickUpTown.cost
+        : 0
+
+    return tService + iService + dropOffService + pickupService + lclService
+  }
 
   return (
     <div className='container py-3 font-monospace'>
@@ -60,294 +99,430 @@ const Details = () => {
       ) : isError ? (
         <Message variant='danger'>{error}</Message>
       ) : (
-        <>
-          <div className='col-12'>
-            <h5 className='bg-secondary py-1 text-light'>
-              Tracking No. {data.trackingNo}
-            </h5>
-          </div>
-          <div className='row bg-light mb-2'>
-            <div className='col border '>
-              <h4>{data.pickup.pickupCountry.name}</h4>
-              <h5>{data.pickup.pickupPort.name}</h5>
-              <span>
-                Departing{' '}
-                {moment(data.shipment.departureDate).format('MM Do YY')}
-              </span>{' '}
-              <br />
-              <span>
-                {' '}
-                Transit time{' '}
-                {moment(new Date(data.shipment.arrivalDate))
-                  .diff(moment(new Date(data.shipment.departureDate)), 'days')
-                  .toLocaleString()}{' '}
-                days
-              </span>
-              {(data.movementType === 'Door to Door' ||
-                data.movementType === 'Door to Port') && (
-                <div className=' mt-3'>
-                  <h5 className='bg-secondary py-1 text-light'>
-                    Pickup Address Info
-                  </h5>
-                  <span>City: {data.pickup.pickUpCity}</span> <br />
-                  <span>Town: **********</span> <br />
-                  <span>Warehouse: {data.pickup.pickUpWarehouseName}</span>{' '}
-                  <br />
-                  <span>Postal Code: {data.pickup.pickUpPostalCode}</span>{' '}
-                  <br />
-                  <span>Address: {data.pickup.pickUpAddress}</span> <br />
-                </div>
-              )}
+        data &&
+        data.trackingNo && (
+          <>
+            <div className='col-12'>
+              <h5 className='bg-secondary py-1 text-light'>
+                Tracking No. {data.trackingNo}
+              </h5>
             </div>
-            <div className='col text-end border'>
-              <h4>{data.destination.destCountry.name}</h4>
-              <h5>{data.destination.destPort.name}</h5>
-              <span>
-                Arriving {moment(data.shipment.arrivedDate).format('MM Do YY')}
-              </span>
 
-              {(data.movementType === 'Door to Door' ||
-                data.movementType === 'Port to Door') && (
-                <div className=' mt-3'>
-                  <h5 className='bg-secondary py-1 text-light'>
-                    Destination Address Info
-                  </h5>
-                  <span>City: {data.destination.destCity}</span> <br />
-                  <span>Town: **********</span> <br />
-                  <span>
-                    Warehouse: {data.destination.destWarehouseName}
-                  </span>{' '}
-                  <br />
-                  <span>
-                    Postal Code: {data.destination.destPostalCode}
-                  </span>{' '}
-                  <br />
-                  <span>Address: {data.destination.destAddress}</span> <br />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className='my-3'>
-            <h5 className='bg-secondary py-1 text-light'>Buyer Info</h5>
-            <table>
-              <tbody>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Name
-                  </th>
-                  <td>{data.buyer.buyerName}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Mobile Number
-                  </th>
-                  <td>{data.buyer.buyerMobileNumber}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Email
-                  </th>
-                  <td>{data.buyer.buyerEmail}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Address
-                  </th>
-                  <td>{data.buyer.buyerAddress}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {data.cargoType === 'FCL' && (
             <div className='my-3'>
-              <h5 className='bg-secondary py-1 text-light'>Containers Info</h5>
+              <h5 className='bg-secondary py-1 text-light'>
+                Pickup Address Info
+              </h5>
               <table>
                 <tbody>
                   <tr>
                     <th scope='row' className='pe-3'>
-                      Containers
+                      Country
+                    </th>
+                    <td>{data.pickup.pickupCountry.name}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Pickup Port
+                    </th>
+                    <td>{data.pickup.pickupPort.name}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Departing
                     </th>
                     <td>
-                      {data.containerFCL.map((s) => (
-                        <div key={s.container._id}>
-                          {s.quantity} x {s.container.name}
-                        </div>
-                      ))}
+                      {moment(data.shipment.departureDate).format('MM Do YY')}
                     </td>
                   </tr>
-                  <th scope='row' className='pe-3'>
-                    Commodity
-                  </th>
-                  <td>{data.commodity.name}</td>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Transit time
+                    </th>
+                    <td>
+                      {' '}
+                      {moment(new Date(data.shipment.arrivalDate))
+                        .diff(
+                          moment(new Date(data.shipment.departureDate)),
+                          'days'
+                        )
+                        .toLocaleString()}{' '}
+                      days
+                    </td>
+                  </tr>
+                  {(data.movementType === 'Door to Door' ||
+                    data.movementType === 'Door to Port') && (
+                    <>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          City
+                        </th>
+                        <td>{data.pickup.pickUpCity}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Town
+                        </th>
+                        <td> {data.pickup.pickUpTown.name} </td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Warehouse
+                        </th>
+                        <td>{data.pickup.pickUpWarehouseName} </td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Postal Code
+                        </th>
+                        <td> {data.pickup.pickUpPostalCode}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Address
+                        </th>
+                        <td> {data.pickup.pickUpAddress}</td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
 
-          <div className='my-3'>
-            <h5 className='bg-secondary py-1 text-light'>Cargo Info</h5>
-            <table>
-              <tbody>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Cargo Description
-                  </th>
-                  <td>{data.cargoDescription}</td>
-                </tr>
-                {data.cargoType === 'FCL' && (
-                  <>
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Cargo Type
-                      </th>
-                      <td>{data.cargoType}</td>
-                    </tr>
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Gross Weight
-                      </th>
-                      <td>{data.grossWeight} KG</td>
-                    </tr>
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        No of Packages
-                      </th>
-                      <td>{data.noOfPackages}</td>
-                    </tr>
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Is Temperature Controlled?
-                      </th>
-                      <td>{data.isTemperatureControlled}</td>
-                    </tr>
-                  </>
-                )}
-                {data.cargoType === 'LCL' && (
-                  <>
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Cargo Type
-                      </th>
-                      <td>{data.cargoType}</td>
-                    </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className='my-3'>
-            <h5 className='bg-secondary py-1 text-light'>Other Info</h5>
-            <table>
-              <tbody>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Trade Type
-                  </th>
-                  <td>{data.importExport}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Movement Type
-                  </th>
-                  <td>{data.movementType}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Transportation Type
-                  </th>
-                  <td>{data.transportationType}</td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Booked Date
-                  </th>
-                  <td>{moment(data.createdAt).format('MMM Do YY')}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className='my-3'>
-            <h5 className='bg-secondary py-1 text-light'>Cost Info</h5>
-            <table>
-              <tbody>
-                {!data.isHasInvoice && (
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>
+                Destination Address Info
+              </h5>
+              <table>
+                <tbody>
                   <tr>
                     <th scope='row' className='pe-3'>
-                      Invoice Cost
+                      Country
                     </th>
-                    <td>${79}.00</td>
+                    <td>{data.destination.destCountry.name}</td>
                   </tr>
-                )}
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Transportation
-                  </th>
-                  <td>
-                    ${(data.shipment.price * totalContainerKG).toLocaleString()}
-                  </td>
-                </tr>
-                <tr>
-                  <th scope='row' className='pe-3'>
-                    Total Cost
-                  </th>
-                  <td>**********</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Pickup Port
+                    </th>
+                    <td>{data.destination.destPort.name}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Arriving
+                    </th>
+                    <td>
+                      {moment(data.shipment.arrivedDate).format('MM Do YY')}
+                    </td>
+                  </tr>
 
-          <div className='my-3'>
-            <h5 className='bg-secondary py-1 text-light'>Tradelane Info</h5>
-            {data &&
-              data.shipment &&
-              data.shipment.tradelane &&
-              data.shipment.tradelane.map((event) => (
-                <div
-                  key={event._id}
-                  className='card font-monospace bg-transparent border-0 '
-                >
-                  <div className='card-body'>
-                    <div className='row' style={{ marginBottom: '-32px' }}>
-                      <div className='col-3 text-end'>
-                        <div className='left'>
-                          <h6 className='fw-light text-muted'>
-                            {moment(event.dateTime).format('MMM Do')}
-                          </h6>
-                          <h6 className='fw-light text-muted'>
-                            {moment(event.dateTime).format('LT')}
-                          </h6>
-                        </div>
-                      </div>
-                      <div className='col-9 border border-success border-bottom-0 border-end-0 border-top-0 pb-4'>
-                        <div className='right'>
-                          <h6 className='card-title fw-light'>
-                            {event.actionType}
-                          </h6>
-                          <div className='position-relative'>
-                            <FaCircle
-                              className='text-light border border-success rounded-pill position-absolute mt-2'
-                              style={{ marginLeft: '-20' }}
-                            />
+                  {(data.movementType === 'Door to Door' ||
+                    data.movementType === 'Port to Door') && (
+                    <>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          City
+                        </th>
+                        <td>{data.destination.destCity}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Town
+                        </th>
+                        <td> {data.destination.dropOffTown.name} </td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Warehouse
+                        </th>
+                        <td>{data.destination.destWarehouseName} </td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Postal Code
+                        </th>
+                        <td> {data.destination.destPostalCode}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Address
+                        </th>
+                        <td> {data.destination.destAddress}</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>Buyer Info</h5>
+              <table>
+                <tbody>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Name
+                    </th>
+                    <td>{data.buyer.buyerName}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Mobile Number
+                    </th>
+                    <td>{data.buyer.buyerMobileNumber}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Email
+                    </th>
+                    <td>{data.buyer.buyerEmail}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Address
+                    </th>
+                    <td>{data.buyer.buyerAddress}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {data.cargoType === 'FCL' && (
+              <div className='my-3'>
+                <h5 className='bg-secondary py-1 text-light'>
+                  Containers Info
+                </h5>
+                <table>
+                  <tbody>
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Containers
+                      </th>
+                      <td>
+                        {data.containerFCL.map((s) => (
+                          <div key={s.container._id}>
+                            {s.quantity} x {s.container.name}
                           </div>
-                          <h1 className='card-title fs-4'>{event.location}</h1>
-                          <div className='card-text'>
-                            <h6 className='fw-light'>
-                              <FaShip className='mb-1' /> {event.tradeType}
+                        ))}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Commodity
+                      </th>
+                      <td>{data.commodity.name}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>Cargo Info</h5>
+              <table>
+                <tbody>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Cargo Description
+                    </th>
+                    <td>{data.cargoDescription}</td>
+                  </tr>
+                  {data.cargoType === 'FCL' && (
+                    <>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Cargo Type
+                        </th>
+                        <td>{data.cargoType}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Gross Weight
+                        </th>
+                        <td>{data.grossWeight} KG</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          No of Packages
+                        </th>
+                        <td>{data.noOfPackages}</td>
+                      </tr>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Is Temperature Controlled?
+                        </th>
+                        <td>
+                          {data.isTemperatureControlled ? (
+                            <FaCheckCircle className='mb-1 text-success' />
+                          ) : (
+                            <FaTimesCircle className='mb-1 text-danger' />
+                          )}
+                        </td>
+                      </tr>
+                    </>
+                  )}
+                  {data.cargoType === 'LCL' && (
+                    <>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Cargo Type
+                        </th>
+                        <td>{data.cargoType}</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>Other Info</h5>
+              <table>
+                <tbody>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Trade Type
+                    </th>
+                    <td>{data.importExport}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Movement Type
+                    </th>
+                    <td>{data.movementType}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Transportation Type
+                    </th>
+                    <td>{data.transportationType}</td>
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Booked Date
+                    </th>
+                    <td>{moment(data.createdAt).format('MMM Do YY')}</td>
+                  </tr>
+                  {data.cargoType === 'LCL' && (
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Total CBM
+                      </th>
+                      <td>{TotalCBM} CBM</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>Cost Info</h5>
+              <table>
+                <tbody>
+                  {!data.isHasInvoice && (
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Invoice Cost
+                      </th>
+                      <td>${79}.00</td>
+                    </tr>
+                  )}
+                  {(data.movementType === 'Door to Port' ||
+                    data.movementType === 'Door to Door') && (
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Pickup Cost
+                      </th>
+                      <td>${data.pickup.pickUpTown.cost.toLocaleString()}</td>
+                    </tr>
+                  )}
+                  {(data.movementType === 'Port to Door' ||
+                    data.movementType === 'Door to Door') && (
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Drop-off Cost
+                      </th>
+                      <td>
+                        ${data.destination.dropOffTown.cost.toLocaleString()}
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Transportation
+                    </th>
+                    {data.cargoType === 'LCL' && (
+                      <td>${lclService.toLocaleString()}</td>
+                    )}
+                    {data.cargoType === 'FCL' && (
+                      <td>
+                        $
+                        {(
+                          data.shipment.price * totalContainerKG
+                        ).toLocaleString()}
+                      </td>
+                    )}
+                  </tr>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Total Cost
+                    </th>
+                    <td>${totalCost().toLocaleString()}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className='my-3'>
+              <h5 className='bg-secondary py-1 text-light'>Tradelane Info</h5>
+              {data &&
+                data.shipment &&
+                data.shipment.tradelane &&
+                data.shipment.tradelane.map((event) => (
+                  <div
+                    key={event._id}
+                    className='card font-monospace bg-transparent border-0 '
+                  >
+                    <div className='card-body'>
+                      <div className='row' style={{ marginBottom: '-32px' }}>
+                        <div className='col-3 text-end'>
+                          <div className='left'>
+                            <h6 className='fw-light text-muted'>
+                              {moment(event.dateTime).format('MMM Do')}
                             </h6>
-                            <h6 className='fw-light'>{event.description}</h6>
+                            <h6 className='fw-light text-muted'>
+                              {moment(event.dateTime).format('LT')}
+                            </h6>
+                          </div>
+                        </div>
+                        <div className='col-9 border border-success border-bottom-0 border-end-0 border-top-0 pb-4'>
+                          <div className='right'>
+                            <h6 className='card-title fw-light'>
+                              {event.actionType}
+                            </h6>
+                            <div className='position-relative'>
+                              <FaCircle
+                                className='text-light border border-success rounded-pill position-absolute mt-2'
+                                style={{ marginLeft: '-20' }}
+                              />
+                            </div>
+                            <h1 className='card-title fs-4'>
+                              {event.location}
+                            </h1>
+                            <div className='card-text'>
+                              <h6 className='fw-light'>
+                                <FaShip className='mb-1' /> {event.tradeType}
+                              </h6>
+                              <h6 className='fw-light'>{event.description}</h6>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-          </div>
-        </>
+                ))}
+            </div>
+          </>
+        )
       )}
     </div>
   )
