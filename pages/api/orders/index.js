@@ -93,7 +93,6 @@ handler.post(async (req, res) => {
     commodity,
     selectedShipment,
   } = req.body
-
   const buyer = {
     buyerAddress,
     buyerEmail,
@@ -120,7 +119,6 @@ handler.post(async (req, res) => {
     pickupPort,
   }
 
-  console.log(req.body)
   const lastRecord = await Order.findOne(
     {},
     { trackingNo: 1 },

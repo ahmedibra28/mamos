@@ -68,7 +68,12 @@ const Booking = () => {
   const { getContainers } = useContainers()
   const { getShippers } = useShippers()
   const { getTowns } = useTowns()
-  const { addOrder } = useOrders()
+  const { addOrder, getSelectedShipment } = useOrders(
+    '',
+    '',
+    '',
+    selectedShipment && selectedShipment._id
+  )
 
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
@@ -77,7 +82,8 @@ const Booking = () => {
   const { data: containersData } = getContainers
   const { data: shippersData } = getShippers
   const { data: townsData } = getTowns
-
+  const { data: getSelectedShipmentData } = getSelectedShipment
+  console.log('G-SELECTED: ', getSelectedShipmentData)
   const {
     isLoading: isLoadingAdd,
     isError: isErrorAdd,
