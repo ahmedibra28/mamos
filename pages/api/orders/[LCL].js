@@ -10,8 +10,6 @@ handler.get(async (req, res) => {
   await dbConnect()
   const { LCL } = req.query
 
-  console.log(req.query)
-
   const shipment = await Order.find({ shipment: LCL }).populate('shipment')
   return res.status(200).json(shipment)
 })

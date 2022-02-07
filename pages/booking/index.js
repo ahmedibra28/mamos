@@ -83,7 +83,7 @@ const Booking = () => {
   const { data: shippersData } = getShippers
   const { data: townsData } = getTowns
   const { data: getSelectedShipmentData } = getSelectedShipment
-  console.log('G-SELECTED: ', getSelectedShipmentData)
+
   const {
     isLoading: isLoadingAdd,
     isError: isErrorAdd,
@@ -162,6 +162,27 @@ const Booking = () => {
     list[index] = updated
     setInputFields(list)
   }
+
+  const DEFAULT_LCL_CAPACITY = 28000
+
+  const USED_LCL_CAPACITY_ARRAY =
+    getSelectedShipmentData &&
+    getSelectedShipmentData.map(
+      (ship) =>
+        ship.containerLCL &&
+        ship.containerLCL.reduce(
+          (acc, curr) => acc + curr.height * curr.width * curr.length,
+          0
+        )
+    )
+
+
+  const USED_LCL_CBM =
+    USED_LCL_CAPACITY_ARRAY &&
+    USED_LCL_CAPACITY_ARRAY.reduce((acc, curr) => acc + curr, 0)
+  const AVAILABLE_LCL_CBM = DEFAULT_LCL_CAPACITY - USED_LCL_CBM
+
+
 
   const TotalCBM =
     inputFields &&
@@ -944,30 +965,26 @@ const Booking = () => {
                                 role='progressbar'
                                 style={{
                                   width: `${
-                                    (LCLCheck.used * 100) /
-                                    (LCLCheck.used + LCLCheck.available)
+                                    (USED_LCL_CBM * 100) / DEFAULT_LCL_CAPACITY
                                   }%`,
                                 }}
                                 aria-valuenow={
-                                  (LCLCheck.used * 100) /
-                                  (LCLCheck.used + LCLCheck.available)
+                                  (USED_LCL_CBM * 100) / DEFAULT_LCL_CAPACITY
                                 }
                                 aria-valuemin='0'
-                                aria-valuemax={
-                                  LCLCheck.used + LCLCheck.available
-                                }
+                                aria-valuemax={DEFAULT_LCL_CAPACITY}
                               >
                                 {`${(
-                                  (LCLCheck.used * 100) /
-                                  (LCLCheck.used + LCLCheck.available)
+                                  (USED_LCL_CBM * 100) /
+                                  DEFAULT_LCL_CAPACITY
                                 ).toFixed(2)}%`}
                               </div>
                             </div>
                           </div>
                           <div className='col-'>
                             <p className='text-danger text-center'>
-                              {LCLCheck.available < TotalCBM &&
-                                `You can use more than ${LCLCheck.available} CBM in total`}
+                              {AVAILABLE_LCL_CBM < TotalCBM &&
+                                `You can use more than ${AVAILABLE_LCL_CBM} CBM in total`}
                             </p>
                           </div>
 
@@ -1199,7 +1216,7 @@ const Booking = () => {
                         disabled={
                           watch().cargoType === 'FCL'
                             ? !isValid
-                            : LCLCheck.available < TotalCBM || TotalCBM === 0
+                            : AVAILABLE_LCL_CBM < TotalCBM || TotalCBM === 0
                             ? true
                             : false
                         }

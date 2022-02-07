@@ -23,8 +23,6 @@ const Details = () => {
 
   const { data, isLoading, isError, error } = getOrderDetails
 
-  console.log(data && data)
-
   const totalContainerKG =
     data &&
     data.cargoType === 'FCL' &&
@@ -45,8 +43,6 @@ const Details = () => {
     data && data.shipment && data.cargoType === 'LCL'
       ? data.shipment.price * 167 * TotalCBM
       : 0
-
-  console.log({ TotalCBM })
 
   const totalCost = () => {
     const totalContainerKGs = totalContainerKG ? totalContainerKG : 0

@@ -102,11 +102,10 @@ const Booking = () => {
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
   const submitHandler = (data) => {
-    console.log({ data, inputFields })
     const filterShippers =
       shippersData &&
       shippersData.filter((ship) => ship.type === data.transportationType)
-    console.log({ TotalKG })
+
     if (filterShippers && filterShippers.length > 0) {
       const shippers = filterShippers.map((ship) => ({
         _id: ship._id,
@@ -201,10 +200,6 @@ const Booking = () => {
             watch().containerType !== '' && (
               <>
                 <div className='col-12'>
-                  {console.log(
-                    containers.find((c) => c._id === watch().containerType)
-                      .available
-                  )}
                   <div className='progress'>
                     <div
                       className={`progress-bar ${
