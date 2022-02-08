@@ -13,6 +13,9 @@ const constants = {
   existed: `New ${modelName} was already existed`,
 }
 
+const undefinedChecker = (property) =>
+  property !== 'undefined' ? property : null
+
 handler.get(async (req, res) => {
   await dbConnect()
   const obj = await constants.model
@@ -21,6 +24,7 @@ handler.get(async (req, res) => {
     .sort({ createdAt: -1 })
     .populate('departureSeaport', 'name')
     .populate('arrivalSeaport', 'name')
+    .populate('container')
   res.send(obj)
 })
 
@@ -40,6 +44,7 @@ handler.post(async (req, res) => {
     cargoType,
     movementType,
     tradelane,
+    container,
   } = req.body
   const createdBy = req.user.id
 
@@ -62,13 +67,14 @@ handler.post(async (req, res) => {
     name,
     price,
     transportationType,
-    departureSeaport,
-    arrivalSeaport,
+    departureSeaport: undefinedChecker(departureSeaport),
+    arrivalSeaport: undefinedChecker(arrivalSeaport),
     departureDate,
     arrivalDate,
     cargoType,
     movementType,
     tradelane,
+    container,
     isActive,
     createdBy,
   })

@@ -15,6 +15,7 @@ import {
 } from 'react-icons/fa'
 
 import useShippers from '../../api/shippers'
+import useContainers from '../../api/containers'
 
 import { CSVLink } from 'react-csv'
 import useSeaports from '../../api/seaports'
@@ -37,6 +38,7 @@ const Shipper = () => {
   const { getShippers, updateShipper, addShipper, deleteShipper } =
     useShippers()
   const { getSeaports } = useSeaports()
+  const { getContainers } = useContainers()
   const {
     register,
     handleSubmit,
@@ -52,6 +54,7 @@ const Shipper = () => {
 
   const { data, isLoading, isError, error } = getShippers
   const { data: seaportsData } = getSeaports
+  const { data: containersData } = getContainers
 
   const {
     isLoading: isLoadingUpdate,
@@ -154,6 +157,7 @@ const Shipper = () => {
           cargoType: data.cargoType,
           isActive: data.isActive,
           movementType: data.movementType,
+          container: data.container,
           tradelane: inputFields,
         })
       : addMutateAsync(data)
@@ -165,8 +169,15 @@ const Shipper = () => {
     setValue('name', shipper.name)
     setValue('transportationType', shipper.transportationType)
     setValue('price', shipper.price)
-    setValue('departureSeaport', shipper.departureSeaport._id)
-    setValue('arrivalSeaport', shipper.arrivalSeaport._id)
+    setValue(
+      'departureSeaport',
+      shipper.departureSeaport && shipper.departureSeaport._id
+    )
+    setValue(
+      'arrivalSeaport',
+      shipper.arrivalSeaport && shipper.arrivalSeaport._id
+    )
+    setValue('container', shipper.container && shipper.container._id)
     setValue('departureDate', shipper.departureDate.slice(0, 10))
     setValue('arrivalDate', shipper.arrivalDate.slice(0, 10))
     setValue('cargoType', shipper.cargoType)
@@ -290,6 +301,20 @@ const Shipper = () => {
                         data: [{ name: 'FCL' }, { name: 'LCL' }],
                       })}
                     </div>
+                    {watch().cargoType === 'LCL' && (
+                      <div className='col-md-6 col-12'>
+                        {dynamicInputSelect({
+                          register,
+                          label: 'Container',
+                          errors,
+                          name: 'container',
+                          value: 'name',
+                          data:
+                            containersData &&
+                            containersData.filter((c) => c.isActive),
+                        })}
+                      </div>
+                    )}
                     <div className='col-md-6 col-12'>
                       {staticInputSelect({
                         register,

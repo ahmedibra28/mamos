@@ -163,7 +163,13 @@ const Booking = () => {
     setInputFields(list)
   }
 
-  const DEFAULT_LCL_CAPACITY = 28000
+  const DEFAULT_LCL_CAPACITY =
+    watch().cargoType === 'LCL' &&
+    selectedShipment &&
+    selectedShipment.container &&
+    selectedShipment.container.payloadCapacity
+
+
 
   const USED_LCL_CAPACITY_ARRAY =
     getSelectedShipmentData &&
@@ -176,13 +182,10 @@ const Booking = () => {
         )
     )
 
-
   const USED_LCL_CBM =
     USED_LCL_CAPACITY_ARRAY &&
     USED_LCL_CAPACITY_ARRAY.reduce((acc, curr) => acc + curr, 0)
   const AVAILABLE_LCL_CBM = DEFAULT_LCL_CAPACITY - USED_LCL_CBM
-
-
 
   const TotalCBM =
     inputFields &&

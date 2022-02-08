@@ -13,6 +13,9 @@ const constants = {
   existed: `${modelName} was already existed`,
 }
 
+const undefinedChecker = (property) =>
+  property !== 'undefined' ? property : null
+
 handler.use(isAuth)
 handler.put(async (req, res) => {
   await dbConnect()
@@ -29,6 +32,7 @@ handler.put(async (req, res) => {
     movementType,
     tradelane,
     cargoType,
+    container,
   } = req.body
   const _id = req.query.id
   const updatedBy = req.user.id
@@ -53,12 +57,13 @@ handler.put(async (req, res) => {
       obj.transportationType = transportationType
       obj.price = price
       obj.movementType = movementType
-      obj.departureSeaport = departureSeaport
-      obj.arrivalSeaport = arrivalSeaport
+      obj.departureSeaport = undefinedChecker(departureSeaport)
+      obj.arrivalSeaport = undefinedChecker(arrivalSeaport)
       obj.departureDate = departureDate
       obj.arrivalDate = arrivalDate
       obj.cargoType = cargoType
       obj.tradelane = tradelane
+      obj.container = undefinedChecker(container)
       obj.isActive = isActive
       obj.updatedBy = updatedBy
       await obj.save()

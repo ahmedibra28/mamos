@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import User from './User'
 import Seaport from './Seaport'
+import Container from './Container'
 
 const shipperScheme = mongoose.Schema(
   {
@@ -11,6 +12,7 @@ const shipperScheme = mongoose.Schema(
     movementType: { type: String, required: true },
     departureSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     arrivalSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+    container: { type: mongoose.Schema.Types.ObjectId, ref: Container },
     departureDate: { type: Date, required: true },
     arrivalDate: { type: Date, required: true },
     tradelane: [
