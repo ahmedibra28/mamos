@@ -13,8 +13,7 @@ const constants = {
   existed: `New ${modelName} was already existed`,
 }
 
-const undefinedChecker = (property) =>
-  property !== 'undefined' ? property : null
+const undefinedChecker = (property) => (property !== '' ? property : null)
 
 handler.get(async (req, res) => {
   await dbConnect()
@@ -24,6 +23,8 @@ handler.get(async (req, res) => {
     .sort({ createdAt: -1 })
     .populate('departureSeaport', 'name')
     .populate('arrivalSeaport', 'name')
+    .populate('departureAirport', 'name')
+    .populate('arrivalAirport', 'name')
     .populate('container')
   res.send(obj)
 })
@@ -39,40 +40,31 @@ handler.post(async (req, res) => {
     transportationType,
     departureSeaport,
     arrivalSeaport,
+    departureAirport,
+    arrivalAirport,
     departureDate,
     arrivalDate,
     cargoType,
     movementType,
-    tradelane,
+    availableCapacity,
     container,
-  } = req.body
+  } = req.body.data
+  const { tradelane } = req.body
   const createdBy = req.user.id
 
-  const exist = await constants.model.exists({
-    name,
-    price,
-    transportationType,
-    departureSeaport,
-    arrivalSeaport,
-    departureDate,
-    arrivalDate,
-    cargoType,
-    movementType,
-  })
-
-  if (exist) {
-    return res.status(400).send(constants.existed)
-  }
   const createObj = await constants.model.create({
     name,
     price,
     transportationType,
     departureSeaport: undefinedChecker(departureSeaport),
     arrivalSeaport: undefinedChecker(arrivalSeaport),
+    departureAirport: undefinedChecker(departureAirport),
+    arrivalAirport: undefinedChecker(arrivalAirport),
     departureDate,
     arrivalDate,
-    cargoType,
+    cargoType: undefinedChecker(cargoType),
     movementType,
+    availableCapacity: undefinedChecker(availableCapacity),
     tradelane,
     container,
     isActive,

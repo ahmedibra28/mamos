@@ -106,11 +106,13 @@ const Booking = () => {
       )
     ),
   ]
-  const availableCargoType = shippersData && [
+  const availableCargoTypeOld = shippersData && [
     ...new Set(
       shippersData.map((shipper) => shipper.isActive && shipper.cargoType)
     ),
   ]
+  const availableCargoType =
+    availableCargoTypeOld && availableCargoTypeOld.filter((a) => a !== null)
   const availableMovementType = shippersData && [
     ...new Set(
       shippersData.map((shipper) => shipper.isActive && shipper.movementType)
@@ -168,8 +170,6 @@ const Booking = () => {
     selectedShipment &&
     selectedShipment.container &&
     selectedShipment.container.payloadCapacity
-
-
 
   const USED_LCL_CAPACITY_ARRAY =
     getSelectedShipmentData &&
@@ -454,18 +454,24 @@ const Booking = () => {
                           })),
                       })}
                     </div>
-                    <div className='col-md-6 col-12'>
-                      {staticInputSelect({
-                        register,
-                        errors,
-                        label: 'Cargo Type*',
-                        name: 'cargoType',
-                        data:
-                          availableCargoType &&
-                          availableCargoType.map((type) => ({ name: type })),
-                      })}
-                    </div>
-                    <div className='col-md-6 col-12'>
+                    {watch().transportationType !== 'Plane' && (
+                      <div className='col-md-6 col-12'>
+                        {staticInputSelect({
+                          register,
+                          errors,
+                          label: 'Cargo Type*',
+                          name: 'cargoType',
+                          data:
+                            availableCargoType &&
+                            availableCargoType.map((type) => ({ name: type })),
+                        })}
+                      </div>
+                    )}
+                    <div
+                      className={`${
+                        watch().transportationType !== 'Plane' && 'col-md-6'
+                      } col-12`}
+                    >
                       {staticInputSelect({
                         register,
                         errors,

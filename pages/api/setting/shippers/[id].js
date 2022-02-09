@@ -13,8 +13,7 @@ const constants = {
   existed: `${modelName} was already existed`,
 }
 
-const undefinedChecker = (property) =>
-  property !== 'undefined' ? property : null
+const undefinedChecker = (property) => (property !== '' ? property : null)
 
 handler.use(isAuth)
 handler.put(async (req, res) => {
@@ -27,9 +26,12 @@ handler.put(async (req, res) => {
     transportationType,
     departureSeaport,
     arrivalSeaport,
+    departureAirport,
+    arrivalAirport,
     departureDate,
     arrivalDate,
     movementType,
+    availableCapacity,
     tradelane,
     cargoType,
     container,
@@ -40,38 +42,25 @@ handler.put(async (req, res) => {
   const obj = await constants.model.findById(_id)
 
   if (obj) {
-    const exist = await constants.model.exists({
-      _id: { $ne: _id },
-      name,
-      price,
-      transportationType,
-      departureSeaport,
-      arrivalSeaport,
-      departureDate,
-      arrivalDate,
-      movementType,
-      cargoType,
-    })
-    if (!exist) {
-      obj.name = name
-      obj.transportationType = transportationType
-      obj.price = price
-      obj.movementType = movementType
-      obj.departureSeaport = undefinedChecker(departureSeaport)
-      obj.arrivalSeaport = undefinedChecker(arrivalSeaport)
-      obj.departureDate = departureDate
-      obj.arrivalDate = arrivalDate
-      obj.cargoType = cargoType
-      obj.tradelane = tradelane
-      obj.container = undefinedChecker(container)
-      obj.isActive = isActive
-      obj.updatedBy = updatedBy
-      await obj.save()
+    obj.name = name
+    obj.transportationType = transportationType
+    obj.price = price
+    obj.movementType = movementType
+    obj.departureSeaport = undefinedChecker(departureSeaport)
+    obj.arrivalSeaport = undefinedChecker(arrivalSeaport)
+    obj.departureAirport = undefinedChecker(departureAirport)
+    obj.arrivalAirport = undefinedChecker(arrivalAirport)
+    obj.availableCapacity = undefinedChecker(availableCapacity)
+    obj.departureDate = departureDate
+    obj.arrivalDate = arrivalDate
+    obj.cargoType = cargoType
+    obj.tradelane = tradelane
+    obj.container = undefinedChecker(container)
+    obj.isActive = isActive
+    obj.updatedBy = updatedBy
+    await obj.save()
 
-      res.json({ status: constants.success })
-    } else {
-      return res.status(400).send(constants.failed)
-    }
+    res.json({ status: constants.success })
   } else {
     return res.status(404).send(constants.failed)
   }

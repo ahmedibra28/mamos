@@ -19,6 +19,7 @@ import useContainers from '../../api/containers'
 
 import { CSVLink } from 'react-csv'
 import useSeaports from '../../api/seaports'
+import useAirports from '../../api/airports'
 import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
@@ -38,6 +39,7 @@ const Shipper = () => {
   const { getShippers, updateShipper, addShipper, deleteShipper } =
     useShippers()
   const { getSeaports } = useSeaports()
+  const { getAirports } = useAirports()
   const { getContainers } = useContainers()
   const {
     register,
@@ -54,6 +56,7 @@ const Shipper = () => {
 
   const { data, isLoading, isError, error } = getShippers
   const { data: seaportsData } = getSeaports
+  const { data: airportsData } = getAirports
   const { data: containersData } = getContainers
 
   const {
@@ -152,6 +155,9 @@ const Shipper = () => {
           price: data.price,
           departureSeaport: data.departureSeaport,
           arrivalSeaport: data.arrivalSeaport,
+          departureAirport: data.departureAirport,
+          arrivalAirport: data.arrivalAirport,
+          availableCapacity: data.availableCapacity,
           departureDate: data.departureDate,
           arrivalDate: data.arrivalDate,
           cargoType: data.cargoType,
@@ -160,7 +166,7 @@ const Shipper = () => {
           container: data.container,
           tradelane: inputFields,
         })
-      : addMutateAsync(data)
+      : addMutateAsync({ tradelane: inputFields, data })
   }
 
   const editHandler = (shipper) => {
@@ -177,12 +183,21 @@ const Shipper = () => {
       'arrivalSeaport',
       shipper.arrivalSeaport && shipper.arrivalSeaport._id
     )
+    setValue(
+      'departureAirport',
+      shipper.departureAirport && shipper.departureAirport._id
+    )
+    setValue(
+      'arrivalAirport',
+      shipper.arrivalAirport && shipper.arrivalAirport._id
+    )
     setValue('container', shipper.container && shipper.container._id)
     setValue('departureDate', shipper.departureDate.slice(0, 10))
     setValue('arrivalDate', shipper.arrivalDate.slice(0, 10))
     setValue('cargoType', shipper.cargoType)
     setValue('isActive', shipper.isActive)
     setValue('movementType', shipper.movementType)
+    setValue('availableCapacity', shipper.availableCapacity)
     setInputFields(
       shipper.tradelane
         ? shipper.tradelane.map((fields) => ({
@@ -292,42 +307,74 @@ const Shipper = () => {
                         ],
                       })}
                     </div>
-                    <div className='col-md-6 col-12'>
-                      {staticInputSelect({
-                        register,
-                        label: 'Cargo Type',
-                        errors,
-                        name: 'cargoType',
-                        data: [{ name: 'FCL' }, { name: 'LCL' }],
-                      })}
-                    </div>
-                    {watch().cargoType === 'LCL' && (
+                    {watch().transportationType === 'Plane' && (
                       <div className='col-md-6 col-12'>
-                        {dynamicInputSelect({
+                        {inputNumber({
                           register,
-                          label: 'Container',
+                          label: 'Available Capacity (KG)',
                           errors,
-                          name: 'container',
-                          value: 'name',
-                          data:
-                            containersData &&
-                            containersData.filter((c) => c.isActive),
+                          name: 'availableCapacity',
                         })}
                       </div>
                     )}
-                    <div className='col-md-6 col-12'>
-                      {staticInputSelect({
-                        register,
-                        label: 'Movement Type',
-                        errors,
-                        name: 'movementType',
-                        data: [
-                          { name: 'Port to Port' },
-                          { name: 'Door to Door' },
-                          { name: 'Door to Port' },
-                        ],
-                      })}
-                    </div>
+                    {watch().transportationType !== 'Plane' && (
+                      <>
+                        <div className='col-md-6 col-12'>
+                          {staticInputSelect({
+                            register,
+                            label: 'Cargo Type',
+                            errors,
+                            name: 'cargoType',
+                            data: [{ name: 'FCL' }, { name: 'LCL' }],
+                          })}
+                        </div>
+                        {watch().cargoType === 'LCL' && (
+                          <div className='col-md-6 col-12'>
+                            {dynamicInputSelect({
+                              register,
+                              label: 'Container',
+                              errors,
+                              name: 'container',
+                              value: 'name',
+                              data:
+                                containersData &&
+                                containersData.filter((c) => c.isActive),
+                            })}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {watch().transportationType === 'Plane' && (
+                      <div className='col-md-6 col-12'>
+                        {staticInputSelect({
+                          register,
+                          label: 'Movement Type',
+                          errors,
+                          name: 'movementType',
+                          data: [
+                            { name: 'Airport to Airport' },
+                            { name: 'Door to Door' },
+                            { name: 'Door to Airport' },
+                          ],
+                        })}
+                      </div>
+                    )}
+                    {watch().transportationType !== 'Plane' && (
+                      <div className='col-md-6 col-12'>
+                        {staticInputSelect({
+                          register,
+                          label: 'Movement Type',
+                          errors,
+                          name: 'movementType',
+                          data: [
+                            { name: 'Port to Port' },
+                            { name: 'Door to Door' },
+                            { name: 'Door to Port' },
+                          ],
+                        })}
+                      </div>
+                    )}
                     <div className='col-md-6 col-12'>
                       {inputNumber({
                         register,
@@ -337,38 +384,79 @@ const Shipper = () => {
                       })}
                     </div>
 
-                    <div className='col-md-6 col-12'>
-                      {dynamicInputSelect({
-                        value: 'name',
-                        register,
-                        label: 'Departure Port',
-                        errors,
-                        name: 'departureSeaport',
-                        data:
-                          seaportsData &&
-                          seaportsData.filter(
-                            (seaport) =>
-                              seaport.isActive &&
-                              seaport._id !== watch().arrivalSeaport
-                          ),
-                      })}
-                    </div>
-                    <div className='col-md-6 col-12'>
-                      {dynamicInputSelect({
-                        value: 'name',
-                        register,
-                        label: 'Arrival Port',
-                        errors,
-                        name: 'arrivalSeaport',
-                        data:
-                          seaportsData &&
-                          seaportsData.filter(
-                            (seaport) =>
-                              seaport.isActive &&
-                              seaport._id !== watch().departureSeaport
-                          ),
-                      })}
-                    </div>
+                    {watch().transportationType === 'Plane' && (
+                      <>
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            value: 'name',
+                            register,
+                            label: 'Departure Airport',
+                            errors,
+                            name: 'departureAirport',
+                            data:
+                              airportsData &&
+                              airportsData.filter(
+                                (airport) =>
+                                  airport.isActive &&
+                                  airport._id !== watch().arrivalAirport
+                              ),
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            value: 'name',
+                            register,
+                            label: 'Arrival Airport',
+                            errors,
+                            name: 'arrivalAirport',
+                            data:
+                              airportsData &&
+                              airportsData.filter(
+                                (airport) =>
+                                  airport.isActive &&
+                                  airport._id !== watch().departureAirport
+                              ),
+                          })}
+                        </div>
+                      </>
+                    )}
+
+                    {watch().transportationType !== 'Plane' && (
+                      <>
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            value: 'name',
+                            register,
+                            label: 'Departure Port',
+                            errors,
+                            name: 'departureSeaport',
+                            data:
+                              seaportsData &&
+                              seaportsData.filter(
+                                (seaport) =>
+                                  seaport.isActive &&
+                                  seaport._id !== watch().arrivalSeaport
+                              ),
+                          })}
+                        </div>
+                        <div className='col-md-6 col-12'>
+                          {dynamicInputSelect({
+                            value: 'name',
+                            register,
+                            label: 'Arrival Port',
+                            errors,
+                            name: 'arrivalSeaport',
+                            data:
+                              seaportsData &&
+                              seaportsData.filter(
+                                (seaport) =>
+                                  seaport.isActive &&
+                                  seaport._id !== watch().departureSeaport
+                              ),
+                          })}
+                        </div>
+                      </>
+                    )}
                     <div className='col-md-6 col-12'>
                       {inputDate({
                         register,
@@ -581,8 +669,8 @@ const Shipper = () => {
                 <tr>
                   <th>Shipper</th>
                   <th>Cargo Type</th>
-                  <th>D. Port</th>
-                  <th>A. Port</th>
+                  <th>Departure</th>
+                  <th>Arrival</th>
                   <th>D. Date</th>
                   <th>A. Date</th>
                   <th>Price Per KG</th>
@@ -596,8 +684,16 @@ const Shipper = () => {
                     <tr key={shipper._id}>
                       <td>{toUpper(shipper.name)}</td>
                       <td>{shipper.cargoType}</td>
-                      <td>{shipper.departureSeaport.name}</td>
-                      <td>{shipper.arrivalSeaport.name}</td>
+                      <td>
+                        {shipper.departureSeaport
+                          ? shipper.departureSeaport.name
+                          : shipper.departureAirport.name}
+                      </td>
+                      <td>
+                        {shipper.arrivalSeaport
+                          ? shipper.arrivalSeaport.name
+                          : shipper.arrivalAirport.name}
+                      </td>
                       <td>{shipper.departureDate.slice(0, 10)}</td>
                       <td>{shipper.arrivalDate.slice(0, 10)}</td>
                       <td>${shipper.price.toFixed(2)}</td>
