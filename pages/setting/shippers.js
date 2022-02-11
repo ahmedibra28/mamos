@@ -146,6 +146,11 @@ const Shipper = () => {
     confirmAlert(Confirm(() => deleteMutateAsync(id)))
   }
 
+  const availableCargoType = {
+    ocean: [{ name: 'FCL' }, { name: 'LCL' }],
+    plane: [{ name: 'AIR' }],
+  }
+
   const submitHandler = async (data) => {
     edit
       ? updateMutateAsync({
@@ -317,33 +322,36 @@ const Shipper = () => {
                         })}
                       </div>
                     )}
-                    {watch().transportationType !== 'Plane' && (
-                      <>
+                    {/* {watch().transportationType !== 'Plane' && ( */}
+                    <>
+                      <div className='col-md-6 col-12'>
+                        {staticInputSelect({
+                          register,
+                          label: 'Cargo Type',
+                          errors,
+                          name: 'cargoType',
+                          data:
+                            watch().transportationType === 'Plane'
+                              ? availableCargoType.plane
+                              : availableCargoType.ocean,
+                        })}
+                      </div>
+                      {watch().cargoType === 'LCL' && (
                         <div className='col-md-6 col-12'>
-                          {staticInputSelect({
+                          {dynamicInputSelect({
                             register,
-                            label: 'Cargo Type',
+                            label: 'Container',
                             errors,
-                            name: 'cargoType',
-                            data: [{ name: 'FCL' }, { name: 'LCL' }],
+                            name: 'container',
+                            value: 'name',
+                            data:
+                              containersData &&
+                              containersData.filter((c) => c.isActive),
                           })}
                         </div>
-                        {watch().cargoType === 'LCL' && (
-                          <div className='col-md-6 col-12'>
-                            {dynamicInputSelect({
-                              register,
-                              label: 'Container',
-                              errors,
-                              name: 'container',
-                              value: 'name',
-                              data:
-                                containersData &&
-                                containersData.filter((c) => c.isActive),
-                            })}
-                          </div>
-                        )}
-                      </>
-                    )}
+                      )}
+                    </>
+                    {/* )} */}
 
                     {watch().transportationType === 'Plane' && (
                       <div className='col-md-6 col-12'>
