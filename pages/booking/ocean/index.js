@@ -25,7 +25,7 @@ const Ocean = () => {
             </Link>
           </div>
           <div className='col-md-4 col-12 mx-auto'>
-            <Link href='/booking/air/lcl'>
+            <Link href='/booking/ocean/lcl'>
               <a className='text-dark text-decoration-none'>
                 <div className='card text-center rounded-0 shadow'>
                   <div className='card-body'>

@@ -61,6 +61,8 @@ handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
 
+  console.log(req.body)
+
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
   const { cargoDescription, cargoType } = req.body
@@ -158,8 +160,9 @@ handler.post(async (req, res) => {
     })
 
     if (invoice) {
-      if (cargoType === 'FCL' || cargoType === 'LCL') {
-        const FCLData = {
+      // FCL
+      if (cargoType === 'FCL') {
+        const FCLDATA = {
           destination,
           pickup,
           buyer,
@@ -177,13 +180,44 @@ handler.post(async (req, res) => {
           trackingNo,
           shipment: selectedShipment,
           containerFCL,
+          invoiceFile: {
+            invoiceFileName: invoice.fullFileName,
+            invoiceFilePath: invoice.filePath,
+          },
+        }
+        const createObj = await Order.create(FCLDATA)
+        if (createObj) {
+          res.status(201).json({ status: 'success' })
+        } else {
+          return res.status(400).send('Invalid data')
+        }
+      }
+      // FCL
+      if (cargoType === 'LCL') {
+        const LCLDATA = {
+          destination,
+          pickup,
+          buyer,
+          grossWeight: undefinedChecker(grossWeight),
+          importExport,
+          isHasInvoice,
+          isTemperatureControlled,
+          movementType,
+          noOfPackages: undefinedChecker(noOfPackages),
+          transportationType,
+          commodity: undefinedChecker(commodity),
+          cargoDescription,
+          cargoType,
+          createdBy,
+          trackingNo,
+          shipment: selectedShipment,
           containerLCL,
           invoiceFile: {
             invoiceFileName: invoice.fullFileName,
             invoiceFilePath: invoice.filePath,
           },
         }
-        const createObj = await Order.create(FCLData)
+        const createObj = await Order.create(LCLDATA)
         if (createObj) {
           res.status(201).json({ status: 'success' })
         } else {
@@ -194,8 +228,9 @@ handler.post(async (req, res) => {
   }
 
   if (!invoiceFile) {
-    if (cargoType === 'FCL' || cargoType === 'LCL') {
-      const FCLData = {
+    // FCL
+    if (cargoType === 'FCL') {
+      const FCLDATA = {
         destination,
         pickup,
         buyer,
@@ -213,9 +248,36 @@ handler.post(async (req, res) => {
         trackingNo,
         shipment: selectedShipment,
         containerFCL,
+      }
+      const createObj = await Order.create(FCLDATA)
+      if (createObj) {
+        res.status(201).json({ status: 'success' })
+      } else {
+        return res.status(400).send('Invalid data')
+      }
+    }
+    // FCL
+    if (cargoType === 'LCL') {
+      const LCLDATA = {
+        destination,
+        pickup,
+        buyer,
+        grossWeight: undefinedChecker(grossWeight),
+        importExport,
+        isHasInvoice,
+        isTemperatureControlled,
+        movementType,
+        noOfPackages: undefinedChecker(noOfPackages),
+        transportationType,
+        commodity: undefinedChecker(commodity),
+        cargoDescription,
+        cargoType,
+        createdBy,
+        trackingNo,
+        shipment: selectedShipment,
         containerLCL,
       }
-      const createObj = await Order.create(FCLData)
+      const createObj = await Order.create(LCLDATA)
       if (createObj) {
         res.status(201).json({ status: 'success' })
       } else {

@@ -163,6 +163,21 @@ const FCL = () => {
     port: ['Port to Port'],
   }
 
+  const {
+    isLoading: isLoadingAdd,
+    isError: isErrorAdd,
+    error: errorAdd,
+    isSuccess: isSuccessAdd,
+    mutateAsync: addMutateAsync,
+  } = addOrder
+
+  if (isSuccessAdd) {
+    console.log('Success')
+  }
+  if (isErrorAdd) {
+    console.log('Error: ', errorAdd)
+  }
+
   const submitHandler = (data) => {
     console.log(data)
     const availableShippers =
@@ -178,21 +193,6 @@ const FCL = () => {
 
     setAvailableShippers(availableShippers)
 
-    const {
-      isLoading: isLoadingAdd,
-      isError: isErrorAdd,
-      error: errorAdd,
-      isSuccess: isSuccessAdd,
-      mutateAsync: addMutateAsync,
-    } = addOrder
-
-    if (isSuccessAdd) {
-      console.log('Success')
-    }
-    if (isErrorAdd) {
-      console.log('Error: ', errorAdd)
-    }
-
     if (formStep > 8) {
       const formData = new FormData()
 
@@ -202,7 +202,7 @@ const FCL = () => {
       formData.append('buyerMobileNumber', data.buyerMobileNumber)
       formData.append('buyerName', data.buyerName)
       formData.append('cargoDescription', data.cargoDescription)
-      formData.append('cargoType', data.cargoType)
+      formData.append('cargoType', 'FCL')
       formData.append('commodity', data.commodity)
       formData.append('destAddress', data.destAddress)
       formData.append('destCity', data.destCity)
@@ -533,106 +533,112 @@ const FCL = () => {
                   }
                 >
                   <div className='row gx-2 my-2'>
-                    {availableShippers && availableShippers.length === 0 && (
-                      <label className='text-center text-danger mb-2'>
-                        Please go back and click search available vessels
-                      </label>
-                    )}
+                    {availableShippers &&
+                      availableShippers.filter((a) => a.cargoType === 'FCL')
+                        ?.length === 0 && (
+                        <label className='text-center text-danger mb-2'>
+                          Please go back and click search available vessels
+                        </label>
+                      )}
 
                     {availableShippers &&
                       availableShippers &&
-                      availableShippers.map((shipper) => (
-                        <div
-                          key={shipper._id}
-                          className='col-lg-4 col-md-6 col-12 mb-2'
-                        >
-                          <div className='card borer-0'>
-                            <div className='card-header text-center'>
-                              <h4 className='text-center'>{shipper.name}</h4>
-                            </div>
-                            <div className='card-body'>
-                              <div className='d-flex justify-content-between align-items-center'>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm float-start'
-                                >
-                                  <FaShip className='mb-1 fs-4' /> <br />
-                                  {shipper.departureSeaport.name} <br />
-                                  <span
-                                    className='fw-lighter'
-                                    style={{ fontSize: '12px' }}
+                      availableShippers
+                        .filter((a) => a.cargoType === 'FCL')
+                        .map((shipper) => (
+                          <div
+                            key={shipper._id}
+                            className='col-lg-4 col-md-6 col-12 mb-2'
+                          >
+                            <div className='card borer-0'>
+                              <div className='card-header text-center'>
+                                <h4 className='text-center'>{shipper.name}</h4>
+                              </div>
+                              <div className='card-body'>
+                                <div className='d-flex justify-content-between align-items-center'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm float-start'
                                   >
-                                    {moment(shipper.departureDate).format(
-                                      'DD MMM'
-                                    )}
-                                  </span>
-                                </button>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm my-auto'
-                                >
-                                  <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
-                                </button>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm float-end'
-                                >
-                                  <FaShip className='mb-1 fs-4' /> <br />{' '}
-                                  {shipper.arrivalSeaport.name} <br />
-                                  <span
-                                    className='fw-lighter'
-                                    style={{ fontSize: '12px' }}
+                                    <FaShip className='mb-1 fs-4' /> <br />
+                                    {shipper.departureSeaport.name} <br />
+                                    <span
+                                      className='fw-lighter'
+                                      style={{ fontSize: '12px' }}
+                                    >
+                                      {moment(shipper.departureDate).format(
+                                        'DD MMM'
+                                      )}
+                                    </span>
+                                  </button>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm my-auto'
                                   >
-                                    {moment(shipper.arrivalDate).format(
-                                      'DD MMM'
-                                    )}
-                                  </span>
+                                    <FaLongArrowAltRight className='mb-1 fs-4 text-success' />
+                                  </button>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm float-end'
+                                  >
+                                    <FaShip className='mb-1 fs-4' /> <br />{' '}
+                                    {shipper.arrivalSeaport.name} <br />
+                                    <span
+                                      className='fw-lighter'
+                                      style={{ fontSize: '12px' }}
+                                    >
+                                      {moment(shipper.arrivalDate).format(
+                                        'DD MMM'
+                                      )}
+                                    </span>
+                                  </button>
+                                </div>
+                                <hr />
+
+                                <div className='d-flex justify-content-between align-items-center'>
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm'
+                                  >
+                                    <FaClock className='mb-1 fs-6' />{' '}
+                                    <span className='fw-bold fs-6'>
+                                      {moment(new Date(shipper.arrivalDate))
+                                        .diff(
+                                          moment(
+                                            new Date(shipper.departureDate)
+                                          ),
+                                          'days'
+                                        )
+                                        .toLocaleString()}{' '}
+                                      days
+                                    </span>
+                                  </button>
+
+                                  <button
+                                    type='button'
+                                    className='btn btn-light btn-sm'
+                                  >
+                                    <span className='fw-bold fs-6'>
+                                      <FaDollarSign className='mb-1 fs-6' />
+                                      {(
+                                        Number(totalContainerKG) * shipper.price
+                                      ).toLocaleString()}
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className='card-footer'>
+                                <button
+                                  onClick={() => setSelectedShipment(shipper)}
+                                  className='btn btn-primary btn-sm form-control'
+                                >
+                                  <FaCheckCircle className='mb-1' /> Select
+                                  Shipment
                                 </button>
                               </div>
-                              <hr />
-
-                              <div className='d-flex justify-content-between align-items-center'>
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm'
-                                >
-                                  <FaClock className='mb-1 fs-6' />{' '}
-                                  <span className='fw-bold fs-6'>
-                                    {moment(new Date(shipper.arrivalDate))
-                                      .diff(
-                                        moment(new Date(shipper.departureDate)),
-                                        'days'
-                                      )
-                                      .toLocaleString()}{' '}
-                                    days
-                                  </span>
-                                </button>
-
-                                <button
-                                  type='button'
-                                  className='btn btn-light btn-sm'
-                                >
-                                  <span className='fw-bold fs-6'>
-                                    <FaDollarSign className='mb-1 fs-6' />
-                                    {(
-                                      Number(totalContainerKG) * shipper.price
-                                    ).toLocaleString()}
-                                  </span>
-                                </button>
-                              </div>
-                            </div>
-                            <div className='card-footer'>
-                              <button
-                                onClick={() => setSelectedShipment(shipper)}
-                                className='btn btn-primary btn-sm form-control'
-                              >
-                                <FaCheckCircle className='mb-1' /> Select
-                                Shipment
-                              </button>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     <div className='text-center btn-groups'>
                       <button
                         onClick={() => setFormStep((curr) => curr - 1)}
