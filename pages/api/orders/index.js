@@ -74,6 +74,7 @@ handler.post(async (req, res) => {
     destPostalCode,
     destWarehouseName,
     dropOffTown,
+    destAirport,
   } = req.body
   const {
     pickUpAddress,
@@ -83,6 +84,7 @@ handler.post(async (req, res) => {
     pickUpWarehouseName,
     pickupCountry,
     pickupPort,
+    pickupAirport,
   } = req.body
   const {
     grossWeight,
@@ -105,7 +107,8 @@ handler.post(async (req, res) => {
     destAddress: undefinedChecker(destAddress),
     destCity: undefinedChecker(destCity),
     destCountry,
-    destPort,
+    destPort: undefinedChecker(destPort),
+    destAirport: undefinedChecker(destAirport),
     destPostalCode: undefinedChecker(destPostalCode),
     destWarehouseName: undefinedChecker(destWarehouseName),
     dropOffTown: undefinedChecker(dropOffTown),
@@ -118,7 +121,8 @@ handler.post(async (req, res) => {
     pickUpTown: undefinedChecker(pickUpTown),
     pickUpWarehouseName: undefinedChecker(pickUpWarehouseName),
     pickupCountry,
-    pickupPort,
+    pickupPort: undefinedChecker(pickupPort),
+    pickupAirport: undefinedChecker(pickupAirport),
   }
 
   const lastRecord = await Order.findOne(
@@ -148,7 +152,7 @@ handler.post(async (req, res) => {
 
   let containerLCL
 
-  if (cargoType === 'LCL') {
+  if (cargoType === 'LCL' || cargoType === 'AIR') {
     containerLCL = JSON.parse(req.body.inputFields)
   }
 
@@ -192,7 +196,7 @@ handler.post(async (req, res) => {
           return res.status(400).send('Invalid data')
         }
       }
-      // FCL
+      // LCL
       if (cargoType === 'LCL') {
         const LCLDATA = {
           destination,
@@ -218,6 +222,38 @@ handler.post(async (req, res) => {
           },
         }
         const createObj = await Order.create(LCLDATA)
+        if (createObj) {
+          res.status(201).json({ status: 'success' })
+        } else {
+          return res.status(400).send('Invalid data')
+        }
+      }
+      // AIR
+      if (cargoType === 'AIR') {
+        const AIRDATA = {
+          destination,
+          pickup,
+          buyer,
+          grossWeight: undefinedChecker(grossWeight),
+          importExport,
+          isHasInvoice,
+          isTemperatureControlled,
+          movementType,
+          noOfPackages: undefinedChecker(noOfPackages),
+          transportationType,
+          commodity: undefinedChecker(commodity),
+          cargoDescription,
+          cargoType,
+          createdBy,
+          trackingNo,
+          shipment: selectedShipment,
+          containerLCL,
+          invoiceFile: {
+            invoiceFileName: invoice.fullFileName,
+            invoiceFilePath: invoice.filePath,
+          },
+        }
+        const createObj = await Order.create(AIRDATA)
         if (createObj) {
           res.status(201).json({ status: 'success' })
         } else {
@@ -256,7 +292,7 @@ handler.post(async (req, res) => {
         return res.status(400).send('Invalid data')
       }
     }
-    // FCL
+    // LCL
     if (cargoType === 'LCL') {
       const LCLDATA = {
         destination,
@@ -278,6 +314,34 @@ handler.post(async (req, res) => {
         containerLCL,
       }
       const createObj = await Order.create(LCLDATA)
+      if (createObj) {
+        res.status(201).json({ status: 'success' })
+      } else {
+        return res.status(400).send('Invalid data')
+      }
+    }
+    // AIR
+    if (cargoType === 'AIR') {
+      const AIRDATA = {
+        destination,
+        pickup,
+        buyer,
+        grossWeight: undefinedChecker(grossWeight),
+        importExport,
+        isHasInvoice,
+        isTemperatureControlled,
+        movementType,
+        noOfPackages: undefinedChecker(noOfPackages),
+        transportationType,
+        commodity: undefinedChecker(commodity),
+        cargoDescription,
+        cargoType,
+        createdBy,
+        trackingNo,
+        shipment: selectedShipment,
+        containerLCL,
+      }
+      const createObj = await Order.create(AIRDATA)
       if (createObj) {
         res.status(201).json({ status: 'success' })
       } else {
