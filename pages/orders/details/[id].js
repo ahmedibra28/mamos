@@ -9,8 +9,6 @@ import {
   FaTimesCircle,
 } from 'react-icons/fa'
 import Head from 'next/head'
-// import useOrders from '../../api/orders'
-
 import useOrders from '../../../api/orders'
 import Message from '../../../components/Message'
 import Loader from 'react-loader-spinner'
@@ -39,9 +37,18 @@ const Details = () => {
       0
     )
 
+  const TotalKG =
+    data &&
+    data.containerLCL.length > 0 &&
+    data.containerLCL.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
+
   const lclService =
-    data && data.shipment && data.cargoType === 'LCL'
-      ? data.shipment.price * 167 * TotalCBM
+    data &&
+    data.shipment &&
+    (data.cargoType === 'LCL' || data.cargoType === 'AIR')
+      ? data.shipment.price *
+        167 *
+        (data.cargoType === 'AIR' ? TotalKG : TotalCBM)
       : 0
 
   const totalCost = () => {
@@ -118,9 +125,17 @@ const Details = () => {
                   </tr>
                   <tr>
                     <th scope='row' className='pe-3'>
-                      Pickup Port
+                      {data.cargoType === 'AIR'
+                        ? 'Pickup Airport'
+                        : 'Pickup Port'}
                     </th>
-                    <td>{data.pickup.pickupPort.name}</td>
+                    <td>
+                      {data.cargoType === 'AIR'
+                        ? data.pickup &&
+                          data.pickup.pickupAirport &&
+                          data.pickup.pickupAirport.name
+                        : data.pickup.pickupPort.name}
+                    </td>
                   </tr>
                   <tr>
                     <th scope='row' className='pe-3'>
@@ -146,7 +161,8 @@ const Details = () => {
                     </td>
                   </tr>
                   {(data.movementType === 'Door to Door' ||
-                    data.movementType === 'Door to Port') && (
+                    data.movementType === 'Door to Port' ||
+                    data.movementType === 'Door to Airport') && (
                     <>
                       <tr>
                         <th scope='row' className='pe-3'>
@@ -198,9 +214,17 @@ const Details = () => {
                   </tr>
                   <tr>
                     <th scope='row' className='pe-3'>
-                      Pickup Port
+                      {data.cargoType === 'AIR'
+                        ? 'Destination Airport'
+                        : 'Destination Port'}
                     </th>
-                    <td>{data.destination.destPort.name}</td>
+                    <td>
+                      {data.cargoType === 'AIR'
+                        ? data.destination &&
+                          data.destination.destAirport &&
+                          data.destination.destAirport.name
+                        : data.destination.destPort.name}
+                    </td>
                   </tr>
                   <tr>
                     <th scope='row' className='pe-3'>
@@ -316,14 +340,14 @@ const Details = () => {
               <h5 className='bg-secondary py-1 text-light'>Cargo Info</h5>
               <table>
                 <tbody>
-                  <tr>
-                    <th scope='row' className='pe-3'>
-                      Cargo Description
-                    </th>
-                    <td>{data.cargoDescription}</td>
-                  </tr>
                   {data.cargoType === 'FCL' && (
                     <>
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Cargo Description
+                        </th>
+                        <td>{data.cargoDescription}</td>
+                      </tr>
                       <tr>
                         <th scope='row' className='pe-3'>
                           Cargo Type
@@ -356,7 +380,7 @@ const Details = () => {
                       </tr>
                     </>
                   )}
-                  {data.cargoType === 'LCL' && (
+                  {(data.cargoType === 'LCL' || data.cargoType === 'AIR') && (
                     <>
                       <tr>
                         <th scope='row' className='pe-3'>
@@ -406,6 +430,14 @@ const Details = () => {
                       <td>{TotalCBM} CBM</td>
                     </tr>
                   )}
+                  {data.cargoType === 'AIR' && (
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Total KG
+                      </th>
+                      <td>{TotalKG} KG</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -446,7 +478,7 @@ const Details = () => {
                     <th scope='row' className='pe-3'>
                       Transportation
                     </th>
-                    {data.cargoType === 'LCL' && (
+                    {(data.cargoType === 'LCL' || data.cargoType === 'AIR') && (
                       <td>${lclService.toLocaleString()}</td>
                     )}
                     {data.cargoType === 'FCL' && (

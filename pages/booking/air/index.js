@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import withAuth from '../../../HOC/withAuth'
+import Link from 'next/link'
 import {
   FaArrowAltCircleLeft,
   FaArrowAltCircleRight,
@@ -105,15 +106,11 @@ const Air = () => {
   )
   const { data: getSelectedShipmentData } = getSelectedShipment
 
-  console.log({ getSelectedShipmentData })
-
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
   const { data: airportsData } = getAirports
   const { data: shippersData } = getShippers
   const { data: townsData } = getTowns
-
-  console.log('TOWN DATA', townsData && townsData)
 
   const availableMovementTypes = [
     { name: 'Door to Door' },
@@ -132,10 +129,6 @@ const Air = () => {
         ship.containerLCL &&
         ship.containerLCL.reduce((acc, curr) => acc + curr.qty * curr.weight, 0)
     )
-  console.log(
-    'GET SELECTED SHIPMENT: ',
-    getSelectedShipmentData && getSelectedShipmentData
-  )
 
   const USED_KG =
     USED_CAPACITY_ARRAY &&
@@ -143,33 +136,11 @@ const Air = () => {
 
   const AVAILABLE_KG = DEFAULT_CAPACITY - USED_KG
 
-  console.log({
-    DEFAULT_CAPACITY,
-    USED_KG,
-    AVAILABLE_KG,
-  })
-
   const TotalKG =
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
   const LCLPrice = selectedShipment && selectedShipment.price * TotalKG * 167
-
-  console.log({ LCLPrice })
-  console.log({ TotalKG })
-
-  console.log({ selectedShipment })
-
-  console.log(
-    'Pick UP TOWN: ',
-    townsData &&
-      townsData.filter(
-        (town) =>
-          town.isActive &&
-          town.airport &&
-          town.airport._id === watch().pickupAirport
-      )
-  )
 
   const dropOffDoorCost0 =
     townsData &&
@@ -211,6 +182,7 @@ const Air = () => {
     error: errorAdd,
     isSuccess: isSuccessAdd,
     mutateAsync: addMutateAsync,
+    data: submittedData,
   } = addOrder
 
   if (isSuccessAdd) {
@@ -219,9 +191,7 @@ const Air = () => {
   if (isErrorAdd) {
     console.log('Error: ', errorAdd)
   }
-  console.log({ availableShippers })
   const submitHandler = (data) => {
-    console.log(data)
     const availableShippers =
       shippersData &&
       shippersData.filter(
@@ -275,7 +245,6 @@ const Air = () => {
       addMutateAsync(formData)
     }
   }
-  console.log(availableShippers)
   return (
     <div className='mt-1'>
       <div className='px-2'>
@@ -1315,32 +1284,29 @@ const Air = () => {
                         <div className='col-12'>
                           <h5>THANK YOU FOR BOOKING WITH US!</h5>
                           <p>
-                            We have received your booking ER454578. The booking
-                            confirmation should be sent to you shortly.
+                            We have received your booking{' '}
+                            {submittedData && submittedData.trackingNo} The
+                            booking confirmation should be sent to you shortly.
                           </p>
                         </div>
                       </div>
                     )}
                     <div className='text-center'>
-                      <button type='button' className='btn btn-primary btn-lg'>
-                        <FaBook className='mb-1' /> Book another booking
-                      </button>{' '}
+                      <Link href='/booking'>
+                        <a type='button' className='btn btn-primary btn-lg'>
+                          <FaBook className='mb-1' /> Book another booking
+                        </a>
+                      </Link>{' '}
                       <br /> <br />
-                      <button
-                        type='button'
-                        className='btn btn-light shadow btn-lg'
-                      >
-                        <FaSearch className='mb-1' /> Track shipment
-                      </button>
+                      <Link href='/track'>
+                        <a
+                          type='button'
+                          className='btn btn-light shadow btn-lg'
+                        >
+                          <FaSearch className='mb-1' /> Track shipment
+                        </a>
+                      </Link>
                     </div>
-
-                    <button
-                      onClick={() => setFormStep((curr) => curr - 1)}
-                      type='button'
-                      className='btn btn-primary btn-sm'
-                    >
-                      <FaArrowAltCircleLeft className='mb-1' /> Previous
-                    </button>
                   </div>
                 </section>
               )}
@@ -1352,4 +1318,4 @@ const Air = () => {
   )
 }
 
-export default Air
+export default dynamic(() => Promise.resolve(withAuth(Air)), { ssr: false })

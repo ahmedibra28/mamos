@@ -21,6 +21,7 @@ const orderScheme = mongoose.Schema(
       destCity: String,
       destCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
       destPort: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      destAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
       destPostalCode: String,
       destWarehouseName: String,
       dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
@@ -33,6 +34,7 @@ const orderScheme = mongoose.Schema(
       pickUpWarehouseName: String,
       pickupCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
       pickupPort: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      pickupAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     },
     invoiceFile: {
       invoiceFileName: String,

@@ -35,10 +35,12 @@ handler.get(async (req, res) => {
     .sort({ createdAt: -1 })
     .populate('destination.destCountry')
     .populate('destination.destPort')
+    .populate('destination.destAirport')
     .populate('destination.dropOffTown')
     .populate('pickup.pickUpTown')
     .populate('pickup.pickupCountry')
     .populate('pickup.pickupPort')
+    .populate('pickup.pickupAirport')
     .populate('containerFCL.container')
     .populate('containerLCL.commodity')
     .populate('commodity')
@@ -61,7 +63,6 @@ handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
 
-  console.log(req.body)
 
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
@@ -191,7 +192,7 @@ handler.post(async (req, res) => {
         }
         const createObj = await Order.create(FCLDATA)
         if (createObj) {
-          res.status(201).json({ status: 'success' })
+          res.status(201).json(createObj)
         } else {
           return res.status(400).send('Invalid data')
         }
@@ -223,7 +224,7 @@ handler.post(async (req, res) => {
         }
         const createObj = await Order.create(LCLDATA)
         if (createObj) {
-          res.status(201).json({ status: 'success' })
+          res.status(201).json(createObj)
         } else {
           return res.status(400).send('Invalid data')
         }
@@ -255,7 +256,7 @@ handler.post(async (req, res) => {
         }
         const createObj = await Order.create(AIRDATA)
         if (createObj) {
-          res.status(201).json({ status: 'success' })
+          res.status(201).json(createObj)
         } else {
           return res.status(400).send('Invalid data')
         }
@@ -287,7 +288,7 @@ handler.post(async (req, res) => {
       }
       const createObj = await Order.create(FCLDATA)
       if (createObj) {
-        res.status(201).json({ status: 'success' })
+        res.status(201).json(createObj)
       } else {
         return res.status(400).send('Invalid data')
       }
@@ -315,7 +316,7 @@ handler.post(async (req, res) => {
       }
       const createObj = await Order.create(LCLDATA)
       if (createObj) {
-        res.status(201).json({ status: 'success' })
+        res.status(201).json(createObj)
       } else {
         return res.status(400).send('Invalid data')
       }
@@ -343,7 +344,7 @@ handler.post(async (req, res) => {
       }
       const createObj = await Order.create(AIRDATA)
       if (createObj) {
-        res.status(201).json({ status: 'success' })
+        res.status(201).json(createObj)
       } else {
         return res.status(400).send('Invalid data')
       }
