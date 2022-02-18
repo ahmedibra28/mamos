@@ -17,11 +17,25 @@ handler.use(isAuth)
 handler.get(async (req, res) => {
   await dbConnect()
 
+  const { group } = req.user
+
   const trackingNo =
     req.query && req.query.search && req.query.search.toUpperCase()
 
-  let query = Order.find(trackingNo ? { trackingNo } : {})
-  const total = await Order.countDocuments(trackingNo ? { trackingNo } : {})
+  let query = Order.find(
+    trackingNo
+      ? { trackingNo }
+      : group !== 'admin'
+      ? { createdBy: req.user._id }
+      : {}
+  )
+  const total = await Order.countDocuments(
+    trackingNo
+      ? { trackingNo }
+      : group !== 'admin'
+      ? { createdBy: req.user._id }
+      : {}
+  )
 
   const page = parseInt(req.query.page) || 1
   const pageSize = parseInt(req.query.limit) || 50
@@ -62,7 +76,6 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await dbConnect()
   const createdBy = req.user.id
-
 
   const invoiceFile = req.files && req.files.invoiceFile
   const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body

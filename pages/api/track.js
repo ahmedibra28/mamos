@@ -1,17 +1,18 @@
 import nc from 'next-connect'
-import dbConnect from '../../../../utils/db'
-import Order from '../../../../models/Order'
-import { isAuth } from '../../../../utils/auth'
+import dbConnect from '../../utils/db'
+import Order from '../../models/Order'
+import { isAuth } from '../../utils/auth'
 
 const handler = nc()
+
 handler.use(isAuth)
-handler.get(async (req, res) => {
+handler.post(async (req, res) => {
   await dbConnect()
-  const { id } = req.query
+  const trackingNo = req.body.name && req.body.name.toUpperCase()
   const { group } = req.user
 
   const obj = await Order.findOne(
-    group === 'admin' ? { _id: id } : { _id: id, createdBy: req.user._id }
+    group === 'admin' ? { trackingNo } : { trackingNo, createdBy: req.user._id }
   )
     .populate('destination.destCountry')
     .populate('destination.destPort')
@@ -26,23 +27,10 @@ handler.get(async (req, res) => {
     .populate('commodity')
     .populate('shipment')
 
-  res.send(obj)
-})
-
-handler.delete(async (req, res) => {
-  await dbConnect()
-  const { group } = req.user
-
-  const _id = req.query.id
-  const obj = await Order.findOne(
-    group === 'admin' ? { _id } : { _id, createdBy: req.user._id }
-  )
-  if (!obj) {
-    return res.status(404).send('Order not found')
+  if (obj) {
+    res.send(obj)
   } else {
-    await obj.remove()
-
-    res.json({ status: 'success' })
+    return res.status(404).send('Invalid tracking no')
   }
 })
 

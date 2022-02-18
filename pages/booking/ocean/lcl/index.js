@@ -54,7 +54,7 @@ const LCL = () => {
     },
   ])
 
-  const MAX_STEP = 10
+  const MAX_STEP = 9
   const invoiceCharges = 79
 
   const {
@@ -114,7 +114,6 @@ const LCL = () => {
   )
   const { data: getSelectedShipmentData } = getSelectedShipment
 
-
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
   const { data: seaportsData } = getSeaports
@@ -161,8 +160,6 @@ const LCL = () => {
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
   const LCLPrice = selectedShipment && selectedShipment.price * TotalCBM * 167
-
-
 
   const dropOffDoorCost0 =
     townsData &&

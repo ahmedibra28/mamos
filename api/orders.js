@@ -8,7 +8,7 @@ export default function useOrders(page, search, id, shipment) {
 
   // get all order
   const getOrders = useQuery(
-    'order',
+    'orders',
     async () =>
       await dynamicAPI('get', `${url}?page=${page}&&search=${search}`, {}),
     { retry: 0 }
@@ -32,7 +32,7 @@ export default function useOrders(page, search, id, shipment) {
 
   // delete order
   const deleteOrder = useMutation(
-    async (id) => await dynamicAPI('delete', `${url}/${id}`, {}),
+    async (id) => await dynamicAPI('delete', `${url}/details/${id}`, {}),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(['orders']),

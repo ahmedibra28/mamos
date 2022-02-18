@@ -5,16 +5,18 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
-import { FaFileDownload, FaPlus, FaInfoCircle } from 'react-icons/fa'
+import { FaFileDownload, FaPlus, FaInfoCircle, FaTrash } from 'react-icons/fa'
 import useOrders from '../../api/orders'
 import { CSVLink } from 'react-csv'
 import Pagination from '../../components/Pagination'
 import moment from 'moment'
+import { confirmAlert } from 'react-confirm-alert'
+import { Confirm } from '../../components/Confirm'
 
 const Orders = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const { getOrders } = useOrders(page, search)
+  const { getOrders, deleteOrder } = useOrders(page, search)
 
   useEffect(() => {
     refetch()
@@ -22,12 +24,23 @@ const Orders = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
+  const { data, isLoading, isError, error, refetch } = getOrders
+  const {
+    isLoading: isLoadingDelete,
+    isError: isErrorDelete,
+    error: errorDelete,
+    isSuccess: isSuccessDelete,
+    mutateAsync: deleteMutateAsync,
+  } = deleteOrder
+
   const searchHandler = (e) => {
     e.preventDefault()
     refetch()
   }
 
-  const { data, isLoading, isError, error, refetch } = getOrders
+  const deleteHandler = (id) => {
+    confirmAlert(Confirm(() => deleteMutateAsync(id)))
+  }
 
   return (
     <>
@@ -35,6 +48,13 @@ const Orders = () => {
         <title>Order</title>
         <meta property='og:title' content='Order' key='title' />
       </Head>
+
+      {isSuccessDelete && (
+        <Message variant='success'>
+          Order has been cancelled successfully.
+        </Message>
+      )}
+      {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}
 
       <div className='position-relative'>
         <button
@@ -149,6 +169,20 @@ const Orders = () => {
                             <FaInfoCircle />
                           </a>
                         </Link>
+                        <button
+                          className='btn btn-danger btn-sm rounded-pill ms-1'
+                          onClick={() => deleteHandler(order._id)}
+                          disabled={isLoadingDelete}
+                        >
+                          {isLoadingDelete ? (
+                            <span className='spinner-border spinner-border-sm' />
+                          ) : (
+                            <span>
+                              {' '}
+                              <FaTrash />
+                            </span>
+                          )}
+                        </button>
                       </td>
                     </tr>
                   ))}

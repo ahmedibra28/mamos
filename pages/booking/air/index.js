@@ -50,7 +50,7 @@ const Air = () => {
     },
   ])
 
-  const MAX_STEP = 10
+  const MAX_STEP = 9
   const invoiceCharges = 79
 
   const {
