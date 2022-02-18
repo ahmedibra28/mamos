@@ -9,9 +9,10 @@ handler.get(async (req, res) => {
   await dbConnect()
   const { id } = req.query
   const { group } = req.user
+  const fullAccess = ['admin', 'logistic'].includes(group)
 
   const obj = await Order.findOne(
-    group === 'admin' ? { _id: id } : { _id: id, createdBy: req.user._id }
+    fullAccess ? { _id: id } : { _id: id, createdBy: req.user._id }
   )
     .populate('destination.destCountry')
     .populate('destination.destPort')
@@ -32,10 +33,11 @@ handler.get(async (req, res) => {
 handler.delete(async (req, res) => {
   await dbConnect()
   const { group } = req.user
+  const fullAccess = ['admin', 'logistic'].includes(group)
 
   const _id = req.query.id
   const obj = await Order.findOne(
-    group === 'admin' ? { _id } : { _id, createdBy: req.user._id }
+    fullAccess ? { _id } : { _id, createdBy: req.user._id }
   )
   if (!obj) {
     return res.status(404).send('Order not found')

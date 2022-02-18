@@ -5,13 +5,20 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
-import { FaFileDownload, FaPlus, FaInfoCircle, FaTrash } from 'react-icons/fa'
+import {
+  FaFileDownload,
+  FaPlus,
+  FaInfoCircle,
+  FaTimesCircle,
+  FaChevronCircleDown,
+} from 'react-icons/fa'
 import useOrders from '../../api/orders'
 import { CSVLink } from 'react-csv'
 import Pagination from '../../components/Pagination'
 import moment from 'moment'
 import { confirmAlert } from 'react-confirm-alert'
 import { Confirm } from '../../components/Confirm'
+import { Access, UnlockAccess } from '../../utils/UnlockAccess'
 
 const Orders = () => {
   const [search, setSearch] = useState('')
@@ -163,26 +170,97 @@ const Orders = () => {
                       </td>
                       <td>{moment(order.createdAt).format('MMM Do')}</td>
 
-                      <td className='btn-order'>
+                      <td className='btn-group'>
                         <Link href={`/orders/details/${order._id}`}>
                           <a className='btn btn-primary btn-sm rounded-pill'>
                             <FaInfoCircle />
                           </a>
                         </Link>
-                        <button
-                          className='btn btn-danger btn-sm rounded-pill ms-1'
-                          onClick={() => deleteHandler(order._id)}
-                          disabled={isLoadingDelete}
-                        >
-                          {isLoadingDelete ? (
-                            <span className='spinner-border spinner-border-sm' />
-                          ) : (
-                            <span>
-                              {' '}
-                              <FaTrash />
-                            </span>
-                          )}
-                        </button>
+                        {!UnlockAccess(Access.admin_logistic) && (
+                          <button
+                            className='btn btn-danger btn-sm rounded-pill ms-1'
+                            onClick={() => deleteHandler(order._id)}
+                            disabled={isLoadingDelete}
+                          >
+                            {isLoadingDelete ? (
+                              <span className='spinner-border spinner-border-sm' />
+                            ) : (
+                              <span>
+                                <FaTimesCircle />
+                              </span>
+                            )}
+                          </button>
+                        )}
+                        {UnlockAccess(Access.admin_logistic) && (
+                          <div
+                            disabled={isLoadingDelete}
+                            className='dropdown ms-1'
+                          >
+                            <button
+                              className='btn btn-success dropdown-toggles btn-sm rounded-pill'
+                              type='button'
+                              id='more'
+                              data-bs-toggle='dropdown'
+                              aria-expanded='false'
+                            >
+                              <FaChevronCircleDown />
+                            </button>
+                            <ul
+                              className='dropdown-menu border-0'
+                              aria-labelledby='more'
+                            >
+                              <li>
+                                <button
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  Invoice
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  AIR Cargo
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  LCL Cargo
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  FCL Cargo
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  Confirm
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  onClick={() => deleteHandler(order._id)}
+                                  className='dropdown-item btn-sm'
+                                  type='button'
+                                >
+                                  Cancel Order
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -19,22 +19,16 @@ handler.get(async (req, res) => {
 
   const { group } = req.user
 
+  const fullAccess = ['admin', 'logistic'].includes(group)
+
   const trackingNo =
     req.query && req.query.search && req.query.search.toUpperCase()
 
   let query = Order.find(
-    trackingNo
-      ? { trackingNo }
-      : group !== 'admin'
-      ? { createdBy: req.user._id }
-      : {}
+    trackingNo ? { trackingNo } : !fullAccess ? { createdBy: req.user._id } : {}
   )
   const total = await Order.countDocuments(
-    trackingNo
-      ? { trackingNo }
-      : group !== 'admin'
-      ? { createdBy: req.user._id }
-      : {}
+    trackingNo ? { trackingNo } : !fullAccess ? { createdBy: req.user._id } : {}
   )
 
   const page = parseInt(req.query.page) || 1
