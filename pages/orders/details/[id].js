@@ -29,6 +29,8 @@ const Details = () => {
       0
     )
 
+  console.log('ONE ', totalContainerKG)
+
   const TotalCBM =
     data &&
     data.containerLCL.length > 0 &&

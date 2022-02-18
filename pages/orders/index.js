@@ -210,45 +210,69 @@ const Orders = () => {
                               aria-labelledby='more'
                             >
                               <li>
-                                <button
-                                  className='dropdown-item btn-sm'
-                                  type='button'
+                                <Link
+                                  href={`/orders/update/invoice/${order._id}`}
                                 >
-                                  Invoice
-                                </button>
+                                  <a
+                                    className='dropdown-item btn-sm'
+                                    type='button'
+                                  >
+                                    Invoice
+                                  </a>
+                                </Link>
                               </li>
-                              <li>
-                                <button
-                                  className='dropdown-item btn-sm'
-                                  type='button'
-                                >
-                                  AIR Cargo
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className='dropdown-item btn-sm'
-                                  type='button'
-                                >
-                                  LCL Cargo
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className='dropdown-item btn-sm'
-                                  type='button'
-                                >
-                                  FCL Cargo
-                                </button>
-                              </li>
-                              <li>
-                                <button
-                                  className='dropdown-item btn-sm'
-                                  type='button'
-                                >
-                                  Confirm
-                                </button>
-                              </li>
+                              {order.cargoType === 'AIR' && (
+                                <li>
+                                  <Link
+                                    href={`/orders/update/edit-air-cargo/${order._id}`}
+                                  >
+                                    <a
+                                      className='dropdown-item btn-sm'
+                                      type='button'
+                                    >
+                                      AIR Cargo
+                                    </a>
+                                  </Link>
+                                </li>
+                              )}
+                              {order.cargoType === 'LCL' && (
+                                <li>
+                                  <Link
+                                    href={`/orders/update/edit-lcl-cargo/${order._id}`}
+                                  >
+                                    <a
+                                      className='dropdown-item btn-sm'
+                                      type='button'
+                                    >
+                                      LCL Cargo
+                                    </a>
+                                  </Link>
+                                </li>
+                              )}
+                              {order.cargoType === 'FCL' && (
+                                <li>
+                                  <Link
+                                    href={`/orders/update/edit-fcl-cargo/${order._id}`}
+                                  >
+                                    <a
+                                      className='dropdown-item btn-sm'
+                                      type='button'
+                                    >
+                                      FCL Cargo
+                                    </a>
+                                  </Link>
+                                </li>
+                              )}
+                              {order.status === 'Pending' && (
+                                <li>
+                                  <button
+                                    className='dropdown-item btn-sm'
+                                    type='button'
+                                  >
+                                    Confirm
+                                  </button>
+                                </li>
+                              )}
                               <li>
                                 <button
                                   onClick={() => deleteHandler(order._id)}
