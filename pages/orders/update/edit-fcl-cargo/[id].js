@@ -199,65 +199,71 @@ const EditFCLCargo = () => {
             </div>
             <form onSubmit={handleSubmit(submitHandler)}>
               <div className='row gx-2 my-2'>
-                <div className='row gx-2 my-2'>
-                  <div className='col-12'>
-                    <h5>CARGO DETAILS</h5>
-                    <p>Tel us a bit more about your cargo.</p>
-                  </div>
+                <div className='col-lg-8 col-md-10 col-12 mx-auto'>
+                  <div className='row gx-2 my-2'>
+                    <div className='col-12'>
+                      <h5>CARGO DETAILS</h5>
+                      <p>Tel us a bit more about your cargo.</p>
+                    </div>
 
-                  <div className='col-md-6 col-12 mx-auto'>
-                    {inputText({
-                      register,
-                      errors,
-                      name: 'cargoDescription',
-                      label: 'Cargo Description',
-                    })}
-                  </div>
-                  <div className='col-md-6 col-12 mx-auto'>
-                    {dynamicInputSelect({
-                      register,
-                      errors,
-                      label: 'Commodity *',
-                      name: 'commodity',
-                      value: 'name',
-                      data:
-                        commoditiesData &&
-                        commoditiesData.filter(
-                          (commodity) => commodity.isActive
-                        ),
-                    })}
-                  </div>
-                  <div className='col-md-6 col-12 mx-auto'>
-                    {inputNumber({
-                      register,
-                      errors,
-                      name: 'noOfPackages',
-                      label: 'No. of Packages',
-                    })}
-                  </div>
-                  <div className='col-md-6 col-12 mx-auto'>
-                    {inputNumber({
-                      register,
-                      errors,
-                      name: 'grossWeight',
-                      label: 'Gross Weight as KG',
-                      max: totalContainerKG,
-                    })}
-                  </div>
-                  <div className='col-12'>
-                    {inputCheckBox({
-                      register,
-                      errors,
-                      name: 'isTemperatureControlled',
-                      isRequired: false,
-                      label:
-                        'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
-                    })}
+                    <div className='col-md-6 col-12 mx-auto'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'cargoDescription',
+                        label: 'Cargo Description',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12 mx-auto'>
+                      {dynamicInputSelect({
+                        register,
+                        errors,
+                        label: 'Commodity *',
+                        name: 'commodity',
+                        value: 'name',
+                        data:
+                          commoditiesData &&
+                          commoditiesData.filter(
+                            (commodity) => commodity.isActive
+                          ),
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12 mx-auto'>
+                      {inputNumber({
+                        register,
+                        errors,
+                        name: 'noOfPackages',
+                        label: 'No. of Packages',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12 mx-auto'>
+                      {inputNumber({
+                        register,
+                        errors,
+                        name: 'grossWeight',
+                        label: 'Gross Weight as KG',
+                        max: totalContainerKG,
+                      })}
+                    </div>
+                    <div className='col-12'>
+                      {inputCheckBox({
+                        register,
+                        errors,
+                        name: 'isTemperatureControlled',
+                        isRequired: false,
+                        label:
+                          'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <button className='btn btn-primary btn sm'>Update</button>
+              <div className='text-center mb-3'>
+                <button disabled={!isValid} className='btn btn-primary btn-sm'>
+                  Update
+                </button>
+              </div>
             </form>
           </div>
         )
