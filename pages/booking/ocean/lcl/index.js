@@ -620,7 +620,7 @@ const LCL = () => {
                           <div className='col-'>
                             <p className='text-danger text-center'>
                               {AVAILABLE_LCL_CBM < TotalCBM &&
-                                `You can use more than ${AVAILABLE_LCL_CBM} CBM in total`}
+                                `You can not use more than ${AVAILABLE_LCL_CBM} CBM in total`}
                             </p>
                           </div>
 

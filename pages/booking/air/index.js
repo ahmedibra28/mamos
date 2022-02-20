@@ -30,7 +30,6 @@ import {
 import useCountries from '../../../api/countries'
 import useCommodities from '../../../api/commodities'
 import useAirports from '../../../api/airports'
-import useContainers from '../../../api/containers'
 import useShippers from '../../../api/shippers'
 import useTowns from '../../../api/towns'
 import useOrders from '../../../api/orders'
@@ -600,7 +599,7 @@ const Air = () => {
                           <div className='col-'>
                             <p className='text-danger text-center'>
                               {AVAILABLE_KG < TotalKG &&
-                                `You can use more than ${AVAILABLE_KG} KG in total`}
+                                `You can not use more than ${AVAILABLE_KG} KG in total`}
                             </p>
                           </div>
 

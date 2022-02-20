@@ -10,7 +10,7 @@ import useOrders from '../../../../api/orders'
 import useContainers from '../../../../api/containers'
 import { useEffect, useState } from 'react'
 
-const EditFCLCargo = () => {
+const EditLCLCargo = () => {
   const [selectedShipment, setSelectedShipment] = useState(null)
 
   const router = useRouter()
@@ -191,7 +191,7 @@ const EditFCLCargo = () => {
                           <div className='col-'>
                             <p className='text-danger text-center'>
                               {AVAILABLE_LCL_CBM < TotalCBM &&
-                                `You can use more than ${AVAILABLE_LCL_CBM} CBM in total`}
+                                `You can not use more than ${AVAILABLE_LCL_CBM} CBM in total`}
                             </p>
                           </div>
 
@@ -435,6 +435,6 @@ const EditFCLCargo = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(EditFCLCargo)), {
+export default dynamic(() => Promise.resolve(withAuth(EditLCLCargo)), {
   ssr: false,
 })
