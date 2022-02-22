@@ -15,7 +15,7 @@ const EditLCLCargo = () => {
 
   const router = useRouter()
   const { id } = router.query
-  const { getOrderDetails, getSelectedShipment } = useOrders(
+  const { getOrderDetails, getSelectedShipment, updateLCLCargo } = useOrders(
     '',
     '',
     id,
@@ -28,6 +28,20 @@ const EditLCLCargo = () => {
   const { data: commoditiesData } = getCommodities
   const { data: containersData } = getContainers
   const { data: getSelectedShipmentData } = getSelectedShipment
+
+  const {
+    isLoading: isLoadingUpdate,
+    isError: isErrorUpdate,
+    error: errorUpdate,
+    isSuccess: isSuccessUpdate,
+    mutateAsync: updateMutateAsync,
+  } = updateLCLCargo
+
+  useEffect(() => {
+    if (isSuccessUpdate) {
+      router.push('/orders')
+    }
+  }, [isSuccessUpdate])
 
   const [inputFields, setInputFields] = useState([
     {
@@ -65,6 +79,10 @@ const EditLCLCargo = () => {
     e.preventDefault()
 
     console.log(inputFields)
+    updateMutateAsync({
+      _id: id,
+      inputFields,
+    })
   }
 
   const handleAddField = () => {
@@ -140,6 +158,7 @@ const EditLCLCargo = () => {
 
   return (
     <>
+      {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isLoading ? (
         <div className='text-center'>
           <Loader

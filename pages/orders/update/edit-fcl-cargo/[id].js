@@ -29,13 +29,27 @@ import { useEffect, useState } from 'react'
 const EditFCLCargo = () => {
   const router = useRouter()
   const { id } = router.query
-  const { getOrderDetails } = useOrders('', '', id)
+  const { getOrderDetails, updateFCLCargo } = useOrders('', '', id)
   const { getContainers } = useContainers()
   const { getCommodities } = useCommodities()
 
   const { data, isLoading, isError, error } = getOrderDetails
   const { data: containersData } = getContainers
   const { data: commoditiesData } = getCommodities
+
+  const {
+    isLoading: isLoadingUpdate,
+    isError: isErrorUpdate,
+    error: errorUpdate,
+    isSuccess: isSuccessUpdate,
+    mutateAsync: updateMutateAsync,
+  } = updateFCLCargo
+
+  useEffect(() => {
+    if (isSuccessUpdate) {
+      router.push('/orders')
+    }
+  }, [isSuccessUpdate])
 
   const customSelectedContainer =
     data &&
@@ -115,11 +129,17 @@ const EditFCLCargo = () => {
   }
 
   const submitHandler = (data) => {
-    console.log({ data, selectContainer })
+    console.log({ _id: id, data, selectContainer })
+    updateMutateAsync({
+      _id: id,
+      data,
+      selectContainer,
+    })
   }
 
   return (
     <>
+      {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isLoading ? (
         <div className='text-center'>
           <Loader

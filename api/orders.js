@@ -55,6 +55,31 @@ export default function useOrders(page, search, id, shipment) {
     { enabled: !!shipment, retry: 0 }
   )
 
+  // update fcl cargo order
+  const updateFCLCargo = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/update/fcl/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+  // update lcl cargo order
+  const updateLCLCargo = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/update/lcl/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+  // update air cargo order
+  const updateAIRCargo = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/update/air/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -62,5 +87,8 @@ export default function useOrders(page, search, id, shipment) {
     addOrder,
     getOrderDetails,
     getSelectedShipment,
+    updateFCLCargo,
+    updateLCLCargo,
+    updateAIRCargo,
   }
 }

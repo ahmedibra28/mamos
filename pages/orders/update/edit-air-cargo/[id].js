@@ -15,7 +15,7 @@ const EditAirCargo = () => {
 
   const router = useRouter()
   const { id } = router.query
-  const { getOrderDetails, getSelectedShipment } = useOrders(
+  const { getOrderDetails, getSelectedShipment, updateAIRCargo } = useOrders(
     '',
     '',
     id,
@@ -38,6 +38,20 @@ const EditAirCargo = () => {
     },
   ])
 
+  const {
+    isLoading: isLoadingUpdate,
+    isError: isErrorUpdate,
+    error: errorUpdate,
+    isSuccess: isSuccessUpdate,
+    mutateAsync: updateMutateAsync,
+  } = updateAIRCargo
+
+  useEffect(() => {
+    if (isSuccessUpdate) {
+      router.push('/orders')
+    }
+  }, [isSuccessUpdate])
+
   useEffect(() => {
     if (data) {
       setSelectedShipment(data.shipment)
@@ -55,6 +69,7 @@ const EditAirCargo = () => {
 
   const submitHandler = (e) => {
     e.preventDefault()
+    updateMutateAsync({ _id: id, inputFields })
 
     console.log(inputFields)
   }
@@ -121,6 +136,7 @@ const EditAirCargo = () => {
 
   return (
     <>
+      {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
       {isLoading ? (
         <div className='text-center'>
           <Loader
