@@ -80,6 +80,15 @@ export default function useOrders(page, search, id, shipment) {
     }
   )
 
+  // update status cargo order
+  const updateStatusCargo = useMutation(
+    async (id) => await dynamicAPI('put', `${url}/update/${id}`, {}),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -90,5 +99,6 @@ export default function useOrders(page, search, id, shipment) {
     updateFCLCargo,
     updateLCLCargo,
     updateAIRCargo,
+    updateStatusCargo,
   }
 }

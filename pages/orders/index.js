@@ -23,7 +23,7 @@ import { Access, UnlockAccess } from '../../utils/UnlockAccess'
 const Orders = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const { getOrders, deleteOrder } = useOrders(page, search)
+  const { getOrders, deleteOrder, updateStatusCargo } = useOrders(page, search)
 
   useEffect(() => {
     refetch()
@@ -39,6 +39,14 @@ const Orders = () => {
     isSuccess: isSuccessDelete,
     mutateAsync: deleteMutateAsync,
   } = deleteOrder
+
+  const {
+    isLoading: isLoadingUpdate,
+    isError: isErrorUpdate,
+    error: errorUpdate,
+    isSuccess: isSuccessUpdate,
+    mutateAsync: updateMutateAsync,
+  } = updateStatusCargo
 
   const searchHandler = (e) => {
     e.preventDefault()
@@ -266,6 +274,7 @@ const Orders = () => {
                               {order.status === 'Pending' && (
                                 <li>
                                   <button
+                                    onClick={() => updateMutateAsync(order._id)}
                                     className='dropdown-item btn-sm'
                                     type='button'
                                   >
