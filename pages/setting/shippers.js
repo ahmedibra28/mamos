@@ -92,6 +92,7 @@ const Shipper = () => {
       actionType: '',
       location: '',
       description: '',
+      isActiveLocation: false,
     },
   ])
 
@@ -104,6 +105,7 @@ const Shipper = () => {
         actionType: '',
         location: '',
         description: '',
+        isActiveLocation: false,
       },
     ])
   }
@@ -133,6 +135,7 @@ const Shipper = () => {
         actionType: '',
         location: '',
         description: '',
+        isActiveLocation: false,
       },
     ])
   }
@@ -211,6 +214,7 @@ const Shipper = () => {
             actionType: fields.actionType,
             location: fields.location,
             description: fields.description,
+            isActiveLocation: fields.isActiveLocation,
           }))
         : [
             {
@@ -219,6 +223,7 @@ const Shipper = () => {
               actionType: '',
               location: '',
               description: '',
+              isActiveLocation: false,
             },
           ]
     )
@@ -549,7 +554,7 @@ const Shipper = () => {
                               <option value='Arrives At'>Arrives At</option>
                             </select>
                           </div>
-                          <div className='col-12'>
+                          <div className='col-9'>
                             <label htmlFor='item' className='form-label'>
                               Description
                             </label>
@@ -571,6 +576,22 @@ const Shipper = () => {
                             >
                               <FaTrash className='mb-1' /> Remove
                             </button>
+                          </div>
+                          <div className='col-3'>
+                            <label htmlFor='item' className='form-label'>
+                              Is Active Location?
+                            </label>
+                            <select
+                              className='form-control form-control-sm'
+                              name='isActiveLocation'
+                              id='isActiveLocation'
+                              value={inputField.isActiveLocation}
+                              onChange={(e) => handleInputChange(e, index)}
+                            >
+                              <option value=''>Select Action Type</option>
+                              <option value={true}>Active</option>
+                              <option value={false}>In-Active</option>
+                            </select>
                           </div>
                         </div>
                       </div>

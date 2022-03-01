@@ -214,7 +214,6 @@ const FCL = () => {
       formData.append('dropOffTown', data.dropOffTown)
       formData.append('grossWeight', data.grossWeight)
       formData.append('importExport', data.importExport)
-      formData.append('invoiceFile', data.invoiceFile)
       formData.append('isHasInvoice', data.isHasInvoice)
       formData.append('isTemperatureControlled', data.isTemperatureControlled)
       formData.append('movementType', data.movementType)
@@ -1240,7 +1239,11 @@ const FCL = () => {
                                           </h6>
                                           <div className='position-relative'>
                                             <FaCircle
-                                              className='text-light border border-success rounded-pill position-absolute mt-2'
+                                              className={`border border-success rounded-pill position-absolute mt-2 ${
+                                                event.isActiveLocation
+                                                  ? 'text-success'
+                                                  : 'text-light'
+                                              }`}
                                               style={{ marginLeft: '-20' }}
                                             />
                                           </div>

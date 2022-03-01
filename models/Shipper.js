@@ -26,6 +26,7 @@ const shipperScheme = mongoose.Schema(
         tradeType: { type: String },
         location: { type: String },
         description: { type: String },
+        isActiveLocation: { type: Boolean, default: false },
       },
     ],
     isActive: { type: Boolean, default: true },

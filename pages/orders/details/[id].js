@@ -531,7 +531,11 @@ const Details = () => {
                             </h6>
                             <div className='position-relative'>
                               <FaCircle
-                                className='text-light border border-success rounded-pill position-absolute mt-2'
+                                className={`border border-success rounded-pill position-absolute mt-2 ${
+                                  event.isActiveLocation
+                                    ? 'text-success'
+                                    : 'text-light'
+                                }`}
                                 style={{ marginLeft: '-20' }}
                               />
                             </div>

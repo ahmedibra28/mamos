@@ -23,7 +23,12 @@ import { Access, UnlockAccess } from '../../utils/UnlockAccess'
 const Orders = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
-  const { getOrders, deleteOrder, updateStatusCargo } = useOrders(page, search)
+  const {
+    getOrders,
+    deleteOrder,
+    updateStatusCargo,
+    updateStatusCargoToComplete,
+  } = useOrders(page, search)
 
   useEffect(() => {
     refetch()
@@ -47,6 +52,9 @@ const Orders = () => {
     isSuccess: isSuccessUpdate,
     mutateAsync: updateMutateAsync,
   } = updateStatusCargo
+
+  const { mutateAsync: updateStatusToCompleteMutateAsync } =
+    updateStatusCargoToComplete
 
   const searchHandler = (e) => {
     e.preventDefault()
@@ -171,7 +179,7 @@ const Orders = () => {
                         ${order.status === 'Pending' && 'bg-warning'} 
                         ${order.status === 'Canceled' && 'bg-danger'}
                         ${order.status === 'Shipped' && 'bg-primary'}
-                        ${order.status === 'Complete' && 'bg-success'}
+                        ${order.status === 'Completed' && 'bg-success'}
                         `}
                       >
                         {order.status}
@@ -199,101 +207,126 @@ const Orders = () => {
                             )}
                           </button>
                         )}
-                        {UnlockAccess(Access.admin_logistic) && (
-                          <div
-                            disabled={isLoadingDelete}
-                            className='dropdown ms-1'
-                          >
-                            <button
-                              className='btn btn-success dropdown-toggles btn-sm rounded-pill'
-                              type='button'
-                              id='more'
-                              data-bs-toggle='dropdown'
-                              aria-expanded='false'
+                        {UnlockAccess(Access.admin_logistic) &&
+                          order.status !== 'Completed' && (
+                            <div
+                              disabled={isLoadingDelete}
+                              className='dropdown ms-1'
                             >
-                              <FaChevronCircleDown />
-                            </button>
-                            <ul
-                              className='dropdown-menu border-0'
-                              aria-labelledby='more'
-                            >
-                              <li>
-                                <Link
-                                  href={`/orders/update/invoice/${order._id}`}
-                                >
-                                  <a
-                                    className='dropdown-item btn-sm'
-                                    type='button'
-                                  >
-                                    Invoice
-                                  </a>
-                                </Link>
-                              </li>
-                              {order.cargoType === 'AIR' && (
-                                <li>
-                                  <Link
-                                    href={`/orders/update/edit-air-cargo/${order._id}`}
-                                  >
-                                    <a
+                              <button
+                                className='btn btn-success dropdown-toggles btn-sm rounded-pill'
+                                type='button'
+                                id='more'
+                                data-bs-toggle='dropdown'
+                                aria-expanded='false'
+                              >
+                                <FaChevronCircleDown />
+                              </button>
+                              <ul
+                                className='dropdown-menu border-0'
+                                aria-labelledby='more'
+                              >
+                                {order.status === 'Pending' && (
+                                  <li>
+                                    <Link
+                                      href={`/orders/update/invoice/${order._id}`}
+                                    >
+                                      <a
+                                        className='dropdown-item btn-sm'
+                                        type='button'
+                                      >
+                                        Invoice
+                                      </a>
+                                    </Link>
+                                  </li>
+                                )}
+                                {order.cargoType === 'AIR' &&
+                                  order.status === 'Pending' && (
+                                    <li>
+                                      <Link
+                                        href={`/orders/update/edit-air-cargo/${order._id}`}
+                                      >
+                                        <a
+                                          className='dropdown-item btn-sm'
+                                          type='button'
+                                        >
+                                          AIR Cargo
+                                        </a>
+                                      </Link>
+                                    </li>
+                                  )}
+                                {order.cargoType === 'LCL' &&
+                                  order.status === 'Pending' && (
+                                    <li>
+                                      <Link
+                                        href={`/orders/update/edit-lcl-cargo/${order._id}`}
+                                      >
+                                        <a
+                                          className='dropdown-item btn-sm'
+                                          type='button'
+                                        >
+                                          LCL Cargo
+                                        </a>
+                                      </Link>
+                                    </li>
+                                  )}
+                                {order.cargoType === 'FCL' &&
+                                  order.status === 'Pending' && (
+                                    <li>
+                                      <Link
+                                        href={`/orders/update/edit-fcl-cargo/${order._id}`}
+                                      >
+                                        <a
+                                          className='dropdown-item btn-sm'
+                                          type='button'
+                                        >
+                                          FCL Cargo
+                                        </a>
+                                      </Link>
+                                    </li>
+                                  )}
+                                {order.status === 'Pending' && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        updateMutateAsync(order._id)
+                                      }
                                       className='dropdown-item btn-sm'
                                       type='button'
                                     >
-                                      AIR Cargo
-                                    </a>
-                                  </Link>
-                                </li>
-                              )}
-                              {order.cargoType === 'LCL' && (
-                                <li>
-                                  <Link
-                                    href={`/orders/update/edit-lcl-cargo/${order._id}`}
-                                  >
-                                    <a
+                                      Confirm
+                                    </button>
+                                  </li>
+                                )}
+                                {order.status === 'Shipped' && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        updateStatusToCompleteMutateAsync(
+                                          order._id
+                                        )
+                                      }
                                       className='dropdown-item btn-sm'
                                       type='button'
                                     >
-                                      LCL Cargo
-                                    </a>
-                                  </Link>
-                                </li>
-                              )}
-                              {order.cargoType === 'FCL' && (
-                                <li>
-                                  <Link
-                                    href={`/orders/update/edit-fcl-cargo/${order._id}`}
-                                  >
-                                    <a
+                                      Arrived
+                                    </button>
+                                  </li>
+                                )}
+                                {order.status === 'Pending' && (
+                                  <li>
+                                    <button
+                                      onClick={() => deleteHandler(order._id)}
                                       className='dropdown-item btn-sm'
                                       type='button'
                                     >
-                                      FCL Cargo
-                                    </a>
-                                  </Link>
-                                </li>
-                              )}
-                              {order.status === 'Pending' && (
-                                <li>
-                                  <button
-                                    onClick={() => updateMutateAsync(order._id)}
-                                    className='dropdown-item btn-sm'
-                                    type='button'
-                                  >
-                                    Confirm
-                                  </button>
-                                </li>
-                              )}
-                              <li>
-                                <button
-                                  onClick={() => deleteHandler(order._id)}
-                                  className='dropdown-item btn-sm'
-                                  type='button'
-                                >
-                                  Cancel Order
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                        )}
+                                      Cancel Order
+                                    </button>
+                                  </li>
+                                )}
+                              </ul>
+                            </div>
+                          )}
                       </td>
                     </tr>
                   ))}
