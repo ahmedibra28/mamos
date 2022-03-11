@@ -98,7 +98,7 @@ handler.put(async (req, res) => {
       type: `${obj.cargoType} Cargo Order`,
       amount: await totalAmount(),
       description: `Order ${obj.id} - ${obj.trackingNo}`,
-      shipper: obj.shipment,
+      order: obj._id,
       createdBy: obj.createdBy,
     })
 

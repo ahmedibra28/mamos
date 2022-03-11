@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import Shipper from './Shipper'
+import Order from './Order'
 import User from './User'
 
 const incomeScheme = mongoose.Schema(
@@ -7,7 +7,7 @@ const incomeScheme = mongoose.Schema(
     type: String,
     amount: Number,
     description: String,
-    shipper: { type: mongoose.Schema.Types.ObjectId, ref: Shipper },
+    order: { type: mongoose.Schema.Types.ObjectId, ref: Order },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
