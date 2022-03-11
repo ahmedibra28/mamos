@@ -190,14 +190,24 @@ const Air = () => {
   if (isErrorAdd) {
     console.log('Error: ', errorAdd)
   }
+
+  const bookingDate = moment().format('YYYY-MM-DD')
+
+  const filteredAvailableShippers =
+    shippersData &&
+    shippersData.filter(
+      (s) =>
+        s.isActive &&
+        s.transportationType === 'Plane' &&
+        s.cargoType === 'AIR' &&
+        s.departureDate >= bookingDate
+    )
+
   const submitHandler = (data) => {
     const availableShippers =
-      shippersData &&
-      shippersData.filter(
+      filteredAvailableShippers &&
+      filteredAvailableShippers.filter(
         (shipper) =>
-          shipper.isActive &&
-          shipper.transportationType === 'Plane' &&
-          shipper.cargoType === 'AIR' &&
           shipper.departureAirport._id === data.pickupAirport &&
           shipper.arrivalAirport._id === data.destAirport
       )
