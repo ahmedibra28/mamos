@@ -130,7 +130,7 @@ const FCL = () => {
         town.seaport._id === watch().destPort
     )
 
-  const dropOffDoorCost = dropOffDoorCost0 ? dropOffDoorCost0.cost : 0
+  const dropOffDoorCost = dropOffDoorCost0 ? dropOffDoorCost0.price : 0
 
   const pickupDoorCost0 =
     townsData &&
@@ -142,7 +142,7 @@ const FCL = () => {
         town.seaport._id === watch().pickupPort
     )
 
-  const pickupDoorCost = pickupDoorCost0 ? pickupDoorCost0.cost : 0
+  const pickupDoorCost = pickupDoorCost0 ? pickupDoorCost0.price : 0
 
   const totalContainerKG =
     selectContainer &&

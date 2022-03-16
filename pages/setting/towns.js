@@ -102,6 +102,7 @@ const Town = () => {
           name: data.name,
           seaport: data.seaport,
           airport: data.airport,
+          price: data.price,
           cost: data.cost,
           isPort: data.isPort,
           country: data.country,
@@ -118,6 +119,7 @@ const Town = () => {
     setValue('isActive', town.isActive)
     setValue('seaport', town.seaport && town.seaport._id)
     setValue('airport', town.airport && town.airport._id)
+    setValue('price', town.price)
     setValue('cost', town.cost)
     setValue('isPort', town.isPort)
   }
@@ -255,6 +257,16 @@ const Town = () => {
                         })}
                       </div>
                     )}
+                    {watch().country && (
+                      <div className='col-md-6 col-12'>
+                        {inputNumber({
+                          register,
+                          label: 'Price',
+                          errors,
+                          name: 'price',
+                        })}
+                      </div>
+                    )}
 
                     <div className='row'>
                       <div className='col'>
@@ -351,6 +363,7 @@ const Town = () => {
                   <th>Airport/Seaport</th>
                   <th>Town Name</th>
                   <th>Cost</th>
+                  <th>Price</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>
@@ -366,6 +379,7 @@ const Town = () => {
                       </td>
                       <td>{toUpper(town.name)}</td>
                       <td>${town.cost.toFixed(2)}</td>
+                      <td>${town.price.toFixed(2)}</td>
                       <td>
                         {town.isActive ? (
                           <FaCheckCircle className='text-success mb-1' />

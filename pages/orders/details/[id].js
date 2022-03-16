@@ -60,12 +60,12 @@ const Details = () => {
     const dropOffService =
       data.movementType === 'Port to Door' ||
       data.movementType === 'Door to Door'
-        ? data.destination.dropOffTown.cost
+        ? data.destination.dropOffTown.price
         : 0
     const pickupService =
       data.movementType === 'Door to Port' ||
       data.movementType === 'Door to Door'
-        ? data.pickup.pickUpTown.cost
+        ? data.pickup.pickUpTown.price
         : 0
 
     return tService + iService + dropOffService + pickupService + lclService
@@ -462,7 +462,7 @@ const Details = () => {
                       <th scope='row' className='pe-3'>
                         Pickup Cost
                       </th>
-                      <td>${data.pickup.pickUpTown.cost.toLocaleString()}</td>
+                      <td>${data.pickup.pickUpTown.price.toLocaleString()}</td>
                     </tr>
                   )}
                   {(data.movementType === 'Port to Door' ||
@@ -472,7 +472,7 @@ const Details = () => {
                         Drop-off Cost
                       </th>
                       <td>
-                        ${data.destination.dropOffTown.cost.toLocaleString()}
+                        ${data.destination.dropOffTown.price.toLocaleString()}
                       </td>
                     </tr>
                   )}

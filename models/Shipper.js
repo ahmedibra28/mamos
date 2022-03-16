@@ -8,6 +8,7 @@ const shipperScheme = mongoose.Schema(
   {
     name: { type: String },
     transportationType: { type: String },
+    cost: { type: Number, default: 0 },
     price: { type: Number },
     cargoType: { type: String },
     movementType: { type: String },

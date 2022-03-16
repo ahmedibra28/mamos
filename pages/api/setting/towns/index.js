@@ -29,7 +29,8 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, seaport, airport, cost, isPort, country } = req.body
+  const { isActive, name, seaport, airport, price, cost, isPort, country } =
+    req.body
   const createdBy = req.user.id
 
   const exist = await constants.model.exists(
@@ -45,6 +46,7 @@ handler.post(async (req, res) => {
     airport: !isPort ? airport : null,
     country,
     isPort,
+    price,
     cost,
     isActive,
     createdBy,

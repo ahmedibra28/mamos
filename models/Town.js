@@ -7,7 +7,8 @@ import Country from './Country'
 const townScheme = mongoose.Schema(
   {
     name: { type: String, requited: true },
-    cost: { type: Number, requited: true },
+    cost: { type: Number, default: 0 },
+    price: { type: Number, requited: true },
     country: { type: mongoose.Schema.Types.ObjectId, ref: Country },
     seaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     airport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },

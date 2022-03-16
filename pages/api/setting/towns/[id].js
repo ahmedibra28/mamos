@@ -17,7 +17,8 @@ handler.use(isAuth)
 handler.put(async (req, res) => {
   await dbConnect()
 
-  const { isActive, name, seaport, airport, cost, isPort, country } = req.body
+  const { isActive, name, seaport, airport, price, cost, isPort, country } =
+    req.body
   const _id = req.query.id
   const updatedBy = req.user.id
 
@@ -42,6 +43,7 @@ handler.put(async (req, res) => {
       obj.name = name
       obj.seaport = isPort ? seaport : null
       obj.airport = !isPort ? airport : null
+      obj.price = price
       obj.cost = cost
       obj.isPort = isPort
       obj.country = country
