@@ -221,7 +221,6 @@ const FCL = () => {
       formData.append('destPostalCode', data.destPostalCode)
       formData.append('destWarehouseName', data.destWarehouseName)
       formData.append('dropOffTown', data.dropOffTown)
-      formData.append('grossWeight', data.grossWeight)
       formData.append('importExport', data.importExport)
       formData.append('isHasInvoice', data.isHasInvoice)
       formData.append('isTemperatureControlled', data.isTemperatureControlled)
@@ -259,7 +258,7 @@ const FCL = () => {
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            {TotalRunningCost && TotalRunningCost !== 0 && (
+            {/* {TotalRunningCost && TotalRunningCost !== 0 && (
               <button
                 type='button'
                 className='btn btn-success shadow rounded-pills mt-1'
@@ -267,7 +266,7 @@ const FCL = () => {
                 <FaDollarSign className='mb-1' />{' '}
                 {TotalRunningCost.toLocaleString()}
               </button>
-            )}
+            )} */}
             <p className='text-muted bfw-lighter mt-2'>
               {watch().importExport &&
                 watch().movementType &&
@@ -711,15 +710,7 @@ const FCL = () => {
                           label: 'No. of Packages',
                         })}
                       </div>
-                      <div className='col-md-6 col-12 mx-auto'>
-                        {inputNumber({
-                          register,
-                          errors,
-                          name: 'grossWeight',
-                          label: 'Gross Weight as KG',
-                          max: totalContainerKG,
-                        })}
-                      </div>
+
                       <div className='col-12'>
                         {inputCheckBox({
                           register,
@@ -868,17 +859,6 @@ const FCL = () => {
                                       town.seaport._id === watch().destPort
                                   ),
                               })}
-                              {watch().dropOffTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {dropOffDoorCost &&
-                                      dropOffDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the drop-off address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
@@ -943,17 +923,6 @@ const FCL = () => {
                                       town.seaport._id === watch().pickupPort
                                   ),
                               })}
-                              {watch().pickUpTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {pickupDoorCost &&
-                                      pickupDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the pickup address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
@@ -1139,7 +1108,6 @@ const FCL = () => {
                                     )?.name}
                                   <br />
                                   {watch().noOfPackages} packages <br />
-                                  {watch().grossWeight} kg
                                 </td>
                               </tr>
 
@@ -1157,42 +1125,6 @@ const FCL = () => {
                                       </div>
                                     ))}
                                 </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-
-                        <div className='col-md-8 col-12 mx-auto mt-4'>
-                          <h5>SHIPMENT & SERVICE CHARGES</h5>
-                          <label>To be paid by you</label>
-                        </div>
-                        <div className='col-md-8 col-12 mx-auto'>
-                          <table className='table table-sm hover bordered table-striped caption-top '>
-                            <tbody>
-                              <tr>
-                                <td>Invoice Services</td>
-                                <td>
-                                  $
-                                  {!watch().isHasInvoice
-                                    ? invoiceCharges.toLocaleString()
-                                    : '0.00'}
-                                </td>
-                              </tr>
-                              {watch().pickUpTown && (
-                                <tr>
-                                  <td>Pickup Door Services</td>
-                                  <td>${pickupDoorCost.toLocaleString()}</td>
-                                </tr>
-                              )}
-                              {watch().dropOffTown && (
-                                <tr>
-                                  <td>Drop-Off Door Services</td>
-                                  <td>${dropOffDoorCost.toLocaleString()}</td>
-                                </tr>
-                              )}
-                              <tr>
-                                <td>Transportation Services</td>
-                                <td>${TotalRunningCost0.toLocaleString()}</td>
                               </tr>
                             </tbody>
                           </table>

@@ -95,7 +95,6 @@ handler.post(async (req, res) => {
     pickupAirport,
   } = req.body
   const {
-    grossWeight,
     importExport,
     isHasInvoice,
     isTemperatureControlled,
@@ -178,7 +177,6 @@ handler.post(async (req, res) => {
           destination,
           pickup,
           buyer,
-          grossWeight: undefinedChecker(grossWeight),
           importExport,
           isHasInvoice,
           isTemperatureControlled,
@@ -210,7 +208,6 @@ handler.post(async (req, res) => {
           destination,
           pickup,
           buyer,
-          grossWeight: undefinedChecker(grossWeight),
           importExport,
           isHasInvoice,
           isTemperatureControlled,
@@ -242,7 +239,6 @@ handler.post(async (req, res) => {
           destination,
           pickup,
           buyer,
-          grossWeight: undefinedChecker(grossWeight),
           importExport,
           isHasInvoice,
           isTemperatureControlled,
@@ -278,7 +274,6 @@ handler.post(async (req, res) => {
         destination,
         pickup,
         buyer,
-        grossWeight: undefinedChecker(grossWeight),
         importExport,
         isHasInvoice,
         isTemperatureControlled,
@@ -306,7 +301,6 @@ handler.post(async (req, res) => {
         destination,
         pickup,
         buyer,
-        grossWeight: undefinedChecker(grossWeight),
         importExport,
         isHasInvoice,
         isTemperatureControlled,
@@ -334,7 +328,6 @@ handler.post(async (req, res) => {
         destination,
         pickup,
         buyer,
-        grossWeight: undefinedChecker(grossWeight),
         importExport,
         isHasInvoice,
         isTemperatureControlled,
@@ -355,6 +348,7 @@ handler.post(async (req, res) => {
       } else {
         return res.status(400).send('Invalid data')
       }
+      console.log(AIRDATA)
     }
   }
 })

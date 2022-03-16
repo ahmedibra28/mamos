@@ -10,16 +10,27 @@ import {
 } from 'react-icons/fa'
 import Head from 'next/head'
 import useOrders from '../../../api/orders'
+import useContainers from '../../../api/containers'
 import Message from '../../../components/Message'
 import Loader from 'react-loader-spinner'
 import moment from 'moment'
+import { Access, UnlockAccess } from '../../../utils/UnlockAccess'
 
 const Details = () => {
   const router = useRouter()
   const { id } = router.query
   const { getOrderDetails } = useOrders('', '', id)
+  const { getContainers } = useContainers()
 
   const { data, isLoading, isError, error } = getOrderDetails
+  const { data: containers } = getContainers
+
+  const filteredContainers =
+    containers &&
+    containers.find(
+      (c) =>
+        data && data.cargoType === 'LCL' && data.shipment.container === c._id
+    )
 
   const totalContainerKG =
     data &&
@@ -29,7 +40,11 @@ const Details = () => {
       0
     )
 
-  console.log('ONE ', totalContainerKG)
+  const DEFAULT_LCL_CAPACITY =
+    filteredContainers &&
+    filteredContainers.length *
+      filteredContainers.height *
+      filteredContainers.width
 
   const TotalCBM =
     data &&
@@ -48,9 +63,9 @@ const Details = () => {
     data &&
     data.shipment &&
     (data.cargoType === 'LCL' || data.cargoType === 'AIR')
-      ? data.shipment.price *
-        167 *
-        (data.cargoType === 'AIR' ? TotalKG : TotalCBM)
+      ? data.cargoType === 'AIR'
+        ? data.shipment.price * TotalKG
+        : (data.shipment.price / DEFAULT_LCL_CAPACITY) * TotalCBM
       : 0
 
   const totalCost = () => {
@@ -447,58 +462,72 @@ const Details = () => {
             <div className='my-3'>
               <h5 className='bg-secondary py-1 text-light'>Cost Info</h5>
               <table>
-                <tbody>
-                  {!data.isHasInvoice && (
+                {!UnlockAccess(Access.admin_logistic) ? (
+                  <tbody>
                     <tr>
                       <th scope='row' className='pe-3'>
-                        Invoice Cost
+                        Total Cost
                       </th>
-                      <td>${79}.00</td>
+                      <td>${totalCost().toLocaleString()}</td>
                     </tr>
-                  )}
-                  {(data.movementType === 'Door to Port' ||
-                    data.movementType === 'Door to Door') && (
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Pickup Cost
-                      </th>
-                      <td>${data.pickup.pickUpTown.price.toLocaleString()}</td>
-                    </tr>
-                  )}
-                  {(data.movementType === 'Port to Door' ||
-                    data.movementType === 'Door to Door') && (
-                    <tr>
-                      <th scope='row' className='pe-3'>
-                        Drop-off Cost
-                      </th>
-                      <td>
-                        ${data.destination.dropOffTown.price.toLocaleString()}
-                      </td>
-                    </tr>
-                  )}
-                  <tr>
-                    <th scope='row' className='pe-3'>
-                      Transportation
-                    </th>
-                    {(data.cargoType === 'LCL' || data.cargoType === 'AIR') && (
-                      <td>${lclService.toLocaleString()}</td>
+                  </tbody>
+                ) : (
+                  <tbody>
+                    {!data.isHasInvoice && (
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Invoice Cost
+                        </th>
+                        <td>${79}.00</td>
+                      </tr>
                     )}
-                    {data.cargoType === 'FCL' && (
-                      <td>
-                        $
-                        {(
-                          data.shipment.price * totalContainerKG
-                        ).toLocaleString()}
-                      </td>
+                    {(data.movementType === 'Door to Port' ||
+                      data.movementType === 'Door to Door') && (
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Pickup Cost
+                        </th>
+                        <td>
+                          ${data.pickup.pickUpTown.price.toLocaleString()}
+                        </td>
+                      </tr>
                     )}
-                  </tr>
-                  <tr>
-                    <th scope='row' className='pe-3'>
-                      Total Cost
-                    </th>
-                    <td>${totalCost().toLocaleString()}</td>
-                  </tr>
-                </tbody>
+                    {(data.movementType === 'Port to Door' ||
+                      data.movementType === 'Door to Door') && (
+                      <tr>
+                        <th scope='row' className='pe-3'>
+                          Drop-off Cost
+                        </th>
+                        <td>
+                          ${data.destination.dropOffTown.price.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Transportation
+                      </th>
+                      {(data.cargoType === 'LCL' ||
+                        data.cargoType === 'AIR') && (
+                        <td>${lclService.toLocaleString()}</td>
+                      )}
+                      {data.cargoType === 'FCL' && (
+                        <td>
+                          $
+                          {(
+                            data.shipment.price * totalContainerKG
+                          ).toLocaleString()}
+                        </td>
+                      )}
+                    </tr>
+                    <tr>
+                      <th scope='row' className='pe-3'>
+                        Total Cost
+                      </th>
+                      <td>${totalCost().toLocaleString()}</td>
+                    </tr>
+                  </tbody>
+                )}
               </table>
             </div>
 

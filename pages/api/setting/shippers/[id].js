@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import dbConnect from '../../../../utils/db'
 import Shipper from '../../../../models/Shipper'
 import { isAuth } from '../../../../utils/auth'
+import Expense from '../../../../models/Expense'
 
 const handler = nc()
 
@@ -23,6 +24,7 @@ handler.put(async (req, res) => {
     isActive,
     name,
     price,
+    cost,
     transportationType,
     departureSeaport,
     arrivalSeaport,
@@ -45,6 +47,7 @@ handler.put(async (req, res) => {
     obj.name = name
     obj.transportationType = transportationType
     obj.price = price
+    obj.cost = cost
     obj.movementType = movementType
     obj.departureSeaport = undefinedChecker(departureSeaport)
     obj.arrivalSeaport = undefinedChecker(arrivalSeaport)
@@ -59,6 +62,13 @@ handler.put(async (req, res) => {
     obj.isActive = isActive
     obj.updatedBy = updatedBy
     await obj.save()
+
+    const expenseObj = await Expense.findOne({ shipper: obj._id })
+    if (expenseObj) {
+      expenseObj.amount = cost
+      expenseObj.updatedBy = updatedBy
+      await expenseObj.save()
+    }
 
     res.json({ status: constants.success })
   } else {

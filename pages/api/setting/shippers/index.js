@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import dbConnect from '../../../../utils/db'
 import Shipper from '../../../../models/Shipper'
 import { isAuth } from '../../../../utils/auth'
+import Expense from '../../../../models/Expense'
 
 const handler = nc()
 
@@ -37,6 +38,7 @@ handler.post(async (req, res) => {
     isActive,
     name,
     price,
+    cost,
     transportationType,
     departureSeaport,
     arrivalSeaport,
@@ -55,6 +57,7 @@ handler.post(async (req, res) => {
   const createObj = await constants.model.create({
     name,
     price,
+    cost,
     transportationType,
     departureSeaport: undefinedChecker(departureSeaport),
     arrivalSeaport: undefinedChecker(arrivalSeaport),
@@ -72,6 +75,14 @@ handler.post(async (req, res) => {
   })
 
   if (createObj) {
+    await Expense.create({
+      type: `Container`,
+      amount: cost,
+      description: `Renting ${createObj.id} Container`,
+      shipper: createObj._id,
+      createdBy: createdBy,
+    })
+
     res.status(201).json({ status: constants.success })
   } else {
     return res.status(400).send(constants.failed)

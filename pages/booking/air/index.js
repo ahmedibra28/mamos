@@ -139,7 +139,7 @@ const Air = () => {
     inputFields &&
     inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
 
-  const LCLPrice = selectedShipment && selectedShipment.price * TotalKG * 167
+  const LCLPrice = selectedShipment && selectedShipment.price * TotalKG
 
   const dropOffDoorCost0 =
     townsData &&
@@ -272,7 +272,7 @@ const Air = () => {
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            {TotalRunningCost && TotalRunningCost !== 0 && (
+            {/* {TotalRunningCost && TotalRunningCost !== 0 && (
               <button
                 type='button'
                 className='btn btn-success shadow rounded-pills mt-1'
@@ -280,7 +280,7 @@ const Air = () => {
                 <FaDollarSign className='mb-1' />{' '}
                 {TotalRunningCost.toLocaleString()}
               </button>
-            )}
+            )} */}
             <p className='text-muted bfw-lighter mt-2'>
               {watch().importExport &&
                 watch().movementType &&
@@ -883,17 +883,6 @@ const Air = () => {
                                       town.airport._id === watch().destAirport
                                   ),
                               })}
-                              {watch().dropOffTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {dropOffDoorCost &&
-                                      dropOffDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the drop-off address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
@@ -958,17 +947,6 @@ const Air = () => {
                                       town.airport._id === watch().pickupAirport
                                   ),
                               })}
-                              {watch().pickUpTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {pickupDoorCost &&
-                                      pickupDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the pickup address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({

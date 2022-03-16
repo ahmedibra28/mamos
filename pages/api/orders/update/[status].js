@@ -7,6 +7,7 @@ import Income from '../../../../models/Income'
 import Shipper from '../../../../models/Shipper'
 import Town from '../../../../models/Town'
 import Container from '../../../../models/Container'
+import Expense from '../../../../models/Expense'
 
 const handler = nc()
 handler.use(isAuth)
@@ -36,22 +37,35 @@ handler.put(async (req, res) => {
 
       const pickUpAmount = async () => {
         if (movementTypes.pickUp.includes(obj.movementType)) {
-          const town = await Town.findById(obj.pickup.pickUpTown, { cost: 1 })
-          return town.cost
+          const town = await Town.findById(obj.pickup.pickUpTown, {
+            cost: 1,
+            price: 1,
+          })
+          return { cost: town.cost, price: town.price }
         }
       }
-      const PAmount = Number((await pickUpAmount()) ? await pickUpAmount() : 0)
+      const PAmountCost = Number(
+        (await pickUpAmount()) ? await (await pickUpAmount()).cost : 0
+      )
+      const PAmountPrice = Number(
+        (await pickUpAmount()) ? await (await pickUpAmount()).price : 0
+      )
 
       const dropOffAmount = async () => {
         if (movementTypes.dropOff.includes(obj.movementType)) {
           const town = await Town.findById(obj.destination.dropOffTown, {
             cost: 1,
+            price: 1,
           })
-          return town.cost
+          return { cost: town.cost, price: town.price }
         }
       }
-      const DAmount = Number(
-        (await dropOffAmount()) ? await dropOffAmount() : 0
+
+      const DAmountCost = Number(
+        (await dropOffAmount()) ? await (await dropOffAmount()).cost : 0
+      )
+      const DAmountPrice = Number(
+        (await dropOffAmount()) ? await (await dropOffAmount()).price : 0
       )
 
       const LCLAmount = async () => {
@@ -91,25 +105,86 @@ handler.put(async (req, res) => {
         ? FCLArray.reduce((acc, curr) => acc + curr, 0)
         : 0
 
-      return IAmount + PAmount + DAmount + LCL + FCL + AIR
+      const totalAmount = IAmount + LCL + FCL + AIR
+      const amounts = {
+        totalAmount,
+        IAmount,
+        PAmountCost,
+        PAmountPrice,
+        DAmountPrice,
+        DAmountCost,
+        LCL,
+        FCL,
+        AIR,
+      }
+
+      return amounts
     }
 
-    const income = await Income.create({
+    console.log(await totalAmount())
+    console.log(obj.movementType)
+
+    // pickup income
+    if (movementTypes.pickUp.includes(obj.movementType)) {
+      await Income.create({
+        type: `Pick Up`,
+        amount: await (await totalAmount()).PAmountPrice,
+        description: `Order ${obj.id} - ${obj.trackingNo}`,
+        order: obj._id,
+        town: obj.pickup.pickUpTown,
+        createdBy: updatedBy,
+      })
+    }
+
+    // dropoff income
+    if (movementTypes.dropOff.includes(obj.movementType)) {
+      await Income.create({
+        type: `Drop Off`,
+        amount: await (await totalAmount()).DAmountPrice,
+        description: `Order ${obj.id} - ${obj.trackingNo}`,
+        order: obj._id,
+        town: obj.destination.dropOffTown,
+        createdBy: updatedBy,
+      })
+    }
+
+    // order income
+    await Income.create({
       type: `${obj.cargoType} Cargo Order`,
-      amount: await totalAmount(),
+      amount: await (await totalAmount()).totalAmount,
       description: `Order ${obj.id} - ${obj.trackingNo}`,
       order: obj._id,
-      createdBy: obj.createdBy,
+      createdBy: updatedBy,
     })
 
-    if (income) {
-      obj.status = 'Shipped'
-      obj.updatedBy = updatedBy
-      await obj.save()
-      res.json({ status: 'success' })
-    } else {
-      res.status(500).send('Income not created')
+    // pickup expense
+    if (movementTypes.pickUp.includes(obj.movementType)) {
+      await Expense.create({
+        type: `Pick Up`,
+        amount: await (await totalAmount()).PAmountCost,
+        description: `Order ${obj.id} - ${obj.trackingNo}`,
+        order: obj._id,
+        town: obj.pickup.pickUpTown,
+        createdBy: updatedBy,
+      })
     }
+
+    // dropoff expense
+    if (movementTypes.dropOff.includes(obj.movementType)) {
+      await Expense.create({
+        type: `Drop Off`,
+        amount: await (await totalAmount()).DAmountCost,
+        description: `Order ${obj.id} - ${obj.trackingNo}`,
+        order: obj._id,
+        town: obj.destination.dropOffTown,
+        createdBy: updatedBy,
+      })
+    }
+
+    obj.status = 'Shipped'
+    obj.updatedBy = updatedBy
+    await obj.save()
+    res.json({ status: 'success' })
   } else {
     return res.status(404).send('Order not found')
   }

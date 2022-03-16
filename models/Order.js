@@ -61,7 +61,6 @@ const orderScheme = mongoose.Schema(
     trackingNo: String,
     cargoDescription: String,
     cargoType: String,
-    grossWeight: Number,
     importExport: String,
     isHasInvoice: Boolean,
     isTemperatureControlled: Boolean,

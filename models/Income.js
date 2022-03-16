@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import Order from './Order'
+import Town from './Town'
 import User from './User'
 
 const incomeScheme = mongoose.Schema(
@@ -8,6 +9,7 @@ const incomeScheme = mongoose.Schema(
     amount: Number,
     description: String,
     order: { type: mongoose.Schema.Types.ObjectId, ref: Order },
+    town: { type: mongoose.Schema.Types.ObjectId, ref: Town },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -161,6 +161,7 @@ const Shipper = () => {
           name: data.name,
           transportationType: data.transportationType,
           price: data.price,
+          cost: data.cost,
           departureSeaport: data.departureSeaport,
           arrivalSeaport: data.arrivalSeaport,
           departureAirport: data.departureAirport,
@@ -183,6 +184,7 @@ const Shipper = () => {
     setValue('name', shipper.name)
     setValue('transportationType', shipper.transportationType)
     setValue('price', shipper.price)
+    setValue('cost', shipper.cost)
     setValue(
       'departureSeaport',
       shipper.departureSeaport && shipper.departureSeaport._id
@@ -391,7 +393,15 @@ const Shipper = () => {
                     <div className='col-md-6 col-12'>
                       {inputNumber({
                         register,
-                        label: 'Price per Kg',
+                        label: 'Cost',
+                        errors,
+                        name: 'cost',
+                      })}
+                    </div>
+                    <div className='col-md-6 col-12'>
+                      {inputNumber({
+                        register,
+                        label: 'Price',
                         errors,
                         name: 'price',
                       })}
@@ -702,7 +712,7 @@ const Shipper = () => {
                   <th>Arrival</th>
                   <th>D. Date</th>
                   <th>A. Date</th>
-                  <th>Price Per KG</th>
+                  <th>Price</th>
                   <th>Active</th>
                   <th>Actions</th>
                 </tr>

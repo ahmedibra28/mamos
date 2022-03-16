@@ -130,7 +130,11 @@ const LCL = () => {
   const DEFAULT_LCL_CAPACITY =
     selectedShipment &&
     selectedShipment.container &&
-    selectedShipment.container.payloadCapacity
+    selectedShipment.container.height *
+      selectedShipment.container.width *
+      selectedShipment.container.length
+
+  console.log({ selectedShipment })
 
   const USED_LCL_CAPACITY_ARRAY =
     getSelectedShipmentData &&
@@ -155,11 +159,9 @@ const LCL = () => {
       0
     )
 
-  const TotalKG =
-    inputFields &&
-    inputFields.reduce((acc, curr) => acc + curr.weight * curr.qty, 0)
-
-  const LCLPrice = selectedShipment && selectedShipment.price * TotalCBM * 167
+  const LCLPrice =
+    selectedShipment &&
+    (selectedShipment.price / DEFAULT_LCL_CAPACITY) * TotalCBM
 
   const dropOffDoorCost0 =
     townsData &&
@@ -292,15 +294,6 @@ const LCL = () => {
               Step {formStep} of {MAX_STEP}
             </button>{' '}
             <br />
-            {TotalRunningCost && TotalRunningCost !== 0 && (
-              <button
-                type='button'
-                className='btn btn-success shadow rounded-pills mt-1'
-              >
-                <FaDollarSign className='mb-1' />{' '}
-                {TotalRunningCost.toLocaleString()}
-              </button>
-            )}
             <p className='text-muted bfw-lighter mt-2'>
               {watch().importExport &&
                 watch().movementType &&
@@ -639,7 +632,7 @@ const LCL = () => {
                                 index + 1
                               }`}</h6>
                               <div className='row gx-1 p-2'>
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     Package Quantity
                                   </label>
@@ -657,7 +650,7 @@ const LCL = () => {
                                     }
                                   />
                                 </div>
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     P. Unit
                                   </label>
@@ -681,26 +674,7 @@ const LCL = () => {
                                   </select>
                                 </div>
 
-                                <div className='col-md-3 col-6'>
-                                  <label htmlFor='item' className='form-label'>
-                                    Weight as KG
-                                  </label>
-                                  <input
-                                    type='number'
-                                    min={0}
-                                    className='form-control form-control-sm'
-                                    placeholder='Weight'
-                                    name='weight'
-                                    id='weight'
-                                    value={inputField.weight}
-                                    required
-                                    onChange={(e) =>
-                                      handleInputChange(e, index)
-                                    }
-                                  />
-                                </div>
-
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     Commodity
                                   </label>
@@ -728,27 +702,7 @@ const LCL = () => {
                                   </select>
                                 </div>
 
-                                <div className='col-md-3 col-6'>
-                                  <label htmlFor='item' className='form-label'>
-                                    CBM Unit
-                                  </label>
-                                  <select
-                                    type='number'
-                                    min={0}
-                                    className='form-control form-control-sm'
-                                    placeholder='Unit'
-                                    name='unit'
-                                    id='unit'
-                                    value={inputField.unit}
-                                    required
-                                    onChange={(e) =>
-                                      handleInputChange(e, index)
-                                    }
-                                  >
-                                    <option value='cm'>CM</option>
-                                  </select>
-                                </div>
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     Length
                                   </label>
@@ -766,7 +720,7 @@ const LCL = () => {
                                   />
                                 </div>
 
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     Width
                                   </label>
@@ -783,7 +737,7 @@ const LCL = () => {
                                     }
                                   />
                                 </div>
-                                <div className='col-md-3 col-6'>
+                                <div className='col-md-4 col-6'>
                                   <label htmlFor='item' className='form-label'>
                                     Height
                                   </label>
@@ -801,15 +755,7 @@ const LCL = () => {
                                   />
                                 </div>
                                 <div className='col-12 mt-3'></div>
-                                <div className='col-md-4 col-12'>
-                                  <button
-                                    type='button'
-                                    className='btn btn-light btn-sm form-control form control-sm'
-                                  >
-                                    Total Weight:{' '}
-                                    {inputField.qty * inputField.weight} KG
-                                  </button>
-                                </div>
+
                                 <div className='col-md-4 col-12'>
                                   <button
                                     type='button'
@@ -989,17 +935,6 @@ const LCL = () => {
                                       town.seaport._id === watch().destPort
                                   ),
                               })}
-                              {watch().dropOffTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {dropOffDoorCost &&
-                                      dropOffDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the drop-off address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
@@ -1064,17 +999,6 @@ const LCL = () => {
                                       town.seaport._id === watch().pickupPort
                                   ),
                               })}
-                              {watch().pickUpTown && (
-                                <label className='mb-3 text-danger'>
-                                  We are charging you{' '}
-                                  <span className='fw-bold'>
-                                    $
-                                    {pickupDoorCost &&
-                                      pickupDoorCost.toLocaleString()}
-                                  </span>{' '}
-                                  based on for the pickup address
-                                </label>
-                              )}
                             </div>
                             <div className='col-md-6 col-12 mx-auto'>
                               {inputText({
