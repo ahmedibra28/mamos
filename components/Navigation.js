@@ -5,7 +5,7 @@ import {
   FaCog,
   FaUserCircle,
   FaSignInAlt,
-  FaUserPlus,
+  FaChartBar,
   FaPowerOff,
   FaUserCog,
 } from 'react-icons/fa'
@@ -75,6 +75,38 @@ const Navigation = () => {
                   </li>
                 )
             )}
+
+          <li className='nav-item dropdown'>
+            <a
+              className='nav-link dropdown-toggle'
+              href='#'
+              id='navbarDropdownMenuLink'
+              role='button'
+              data-bs-toggle='dropdown'
+              aria-expanded='false'
+            >
+              <FaChartBar className='mb-1' /> Report
+            </a>
+            <ul
+              className='dropdown-menu border-0'
+              aria-labelledby='navbarDropdownMenuLink'
+            >
+              {customLocalStorage() &&
+                customLocalStorage().userAccessRoutes &&
+                customLocalStorage().userAccessRoutes.route &&
+                customLocalStorage().userAccessRoutes.route.map(
+                  (route) =>
+                    route.isActive &&
+                    route.menu === 'Report' && (
+                      <li key={route._id}>
+                        <Link href={route.path}>
+                          <a className='dropdown-item'>{route.name}</a>
+                        </Link>
+                      </li>
+                    )
+                )}
+            </ul>
+          </li>
 
           {UnlockAccess(Access.admin) && (
             <>

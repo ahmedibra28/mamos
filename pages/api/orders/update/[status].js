@@ -121,9 +121,6 @@ handler.put(async (req, res) => {
       return amounts
     }
 
-    console.log(await totalAmount())
-    console.log(obj.movementType)
-
     // pickup income
     if (movementTypes.pickUp.includes(obj.movementType)) {
       await Income.create({

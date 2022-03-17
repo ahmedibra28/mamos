@@ -70,8 +70,6 @@ const EditAirCargo = () => {
   const submitHandler = (e) => {
     e.preventDefault()
     updateMutateAsync({ _id: id, inputFields })
-
-    console.log(inputFields)
   }
 
   const handleAddField = () => {

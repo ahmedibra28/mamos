@@ -65,8 +65,6 @@ const EditInvoiceCargo = () => {
   }, [data])
 
   const submitHandler = (data) => {
-    console.log({ _id: id, data, file })
-
     const formData = new FormData()
     formData.append('invoiceFile', data.invoiceFile && data.invoiceFile[0])
     formData.append('isHasInvoice', data.isHasInvoice)

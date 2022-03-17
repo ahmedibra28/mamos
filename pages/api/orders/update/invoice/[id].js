@@ -14,19 +14,11 @@ handler.use(isAuth)
 handler.put(async (req, res) => {
   await dbConnect()
 
-  console.log(req.url)
-
   const invoiceFile = req.files && req.files.invoiceFile
   const { isHasInvoice } = req.body
   const updatedBy = req.user.id
   const _id = req.query.id
 
-  // console.log({
-  //   isHasInvoice,
-  //   invoiceFile,
-  //   updatedBy,
-  //   _id,
-  // })
   const obj = await Order.findById(_id)
 
   if (obj) {

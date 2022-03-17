@@ -134,8 +134,6 @@ const LCL = () => {
       selectedShipment.container.width *
       selectedShipment.container.length
 
-  console.log({ selectedShipment })
-
   const USED_LCL_CAPACITY_ARRAY =
     getSelectedShipmentData &&
     getSelectedShipmentData.map(

@@ -78,7 +78,6 @@ const EditLCLCargo = () => {
   const submitHandler = (e) => {
     e.preventDefault()
 
-    console.log(inputFields)
     updateMutateAsync({
       _id: id,
       inputFields,

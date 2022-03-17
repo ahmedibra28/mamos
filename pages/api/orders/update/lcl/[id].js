@@ -11,8 +11,6 @@ handler.put(async (req, res) => {
 
   const { inputFields } = req.body
 
-  console.log(inputFields)
-
   const updatedBy = req.user.id
   const _id = req.query.id
 

@@ -129,7 +129,6 @@ const EditFCLCargo = () => {
   }
 
   const submitHandler = (data) => {
-    console.log({ _id: id, data, selectContainer })
     updateMutateAsync({
       _id: id,
       data,
