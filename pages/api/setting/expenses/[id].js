@@ -25,7 +25,7 @@ handler.put(async (req, res) => {
 
   if (obj) {
     obj.name = name
-    obj.category = category
+    obj.type = category
     obj.amount = amount
     obj.description = description
     obj.updatedBy = updatedBy

@@ -14,7 +14,7 @@ import {
 } from 'react-icons/fa'
 
 import useExpenses from '../../api/expenses'
-
+import categories from '../../utils/categories'
 import { CSVLink } from 'react-csv'
 
 import { confirmAlert } from 'react-confirm-alert'
@@ -83,10 +83,10 @@ const Expense = () => {
   }
 
   const submitHandler = async (data) => {
+    console.log({ data })
     edit
       ? updateMutateAsync({
           _id: id,
-          name: data.name,
           category: data.category,
           amount: data.amount,
           description: data.description,
@@ -95,15 +95,13 @@ const Expense = () => {
   }
 
   const editHandler = (expense) => {
+    console.log(expense)
     setId(expense._id)
     setEdit(true)
-    setValue('name', expense.name)
-    setValue('category', expense.category)
+    setValue('category', expense.type)
     setValue('amount', expense.amount)
     setValue('description', expense.description)
   }
-
-  const categories = [{ name: 'Debts' }, { name: 'Health' }, { name: 'Staff' }]
 
   return (
     <>
@@ -168,7 +166,6 @@ const Expense = () => {
                 <Message variant='danger'>{error}</Message>
               ) : (
                 <form onSubmit={handleSubmit(submitHandler)}>
-                  {inputText({ register, label: 'Name', errors, name: 'name' })}
                   {staticInputSelect({
                     register,
                     label: 'Category',
@@ -267,7 +264,6 @@ const Expense = () => {
               <caption>{data && data.length} records were found</caption>
               <thead>
                 <tr>
-                  <th>Name</th>
                   <th>Category</th>
                   <th>Amount</th>
                   <th>Description</th>
@@ -278,8 +274,7 @@ const Expense = () => {
                 {data &&
                   data.map((expense) => (
                     <tr key={expense._id}>
-                      <td>{expense.name}</td>
-                      <td>{expense.category}</td>
+                      <td>{expense.type}</td>
                       <td>${expense.amount.toFixed(2)}</td>
                       <td>{expense.description}</td>
 

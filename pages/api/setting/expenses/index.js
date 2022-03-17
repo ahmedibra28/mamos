@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import dbConnect from '../../../../utils/db'
 import Expense from '../../../../models/Expense'
 import { isAuth } from '../../../../utils/auth'
+import categories from '../../../../utils/categories'
 
 const handler = nc()
 
@@ -16,7 +17,10 @@ const constants = {
 handler.get(async (req, res) => {
   await dbConnect()
   const obj = await constants.model.find({}).lean().sort({ createdAt: -1 })
-  res.send(obj)
+
+  const cat = categories.map((c) => c.name)
+
+  res.send(obj.filter((f) => cat.includes(f.type)))
 })
 
 handler.use(isAuth)
@@ -30,7 +34,7 @@ handler.post(async (req, res) => {
     name,
     amount,
     description,
-    category,
+    type: category,
     createdBy,
   })
 
