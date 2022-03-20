@@ -91,6 +91,25 @@ export const inputEmail = (args) => {
   )
 }
 
+export const inputTel = (args) => {
+  const { register, errors, name, label, isRequired = true } = args
+
+  return (
+    <div className='mb-3'>
+      <label htmlFor={name}>{label}</label>
+      <input
+        {...register(name, isRequired && { required: `${label} is required` })}
+        type='tel'
+        placeholder={`Enter ${name}`}
+        className='form-control form-control-sm'
+      />
+      {errors && errors[name] && (
+        <span className='text-danger'>{errors[name].message}</span>
+      )}
+    </div>
+  )
+}
+
 export const inputPassword = (args) => {
   const {
     register,

@@ -1,14 +1,10 @@
-import AWS from 'aws-sdk'
+import fs from 'fs'
+import path from 'path'
+const __dirname = path.resolve()
 
 // import fileUpload from 'express-fileupload'
 // export const config = { api: { bodyParser: false } }
 // handler.use(fileUpload())
-
-const s3 = new AWS.S3({
-  endpoint: process.env.S3_ENDPOINT,
-  accessKeyId: process.env.APPLICATION_KEY_ID,
-  secretAccessKey: process.env.APPLICATION_KEY,
-})
 
 export const upload = async (args) => {
   const { fileName, fileType, pathName } = args
@@ -22,58 +18,43 @@ export const upload = async (args) => {
 
   const fullFileName = fileName && `${fullName}-${Date.now()}.${extension}`
 
-  const files = /(\.pdf|\.docx|\.doc|\.txt)$/i
-  const images = /(\.jpg|\.jpeg|\.png|\.gif|\.svg)$/i
+  let filePath = `/public/${pathName}/${fullFileName}`
 
-  if (fileName.size > 1000000) {
-    throw new Error(
-      `The file is too large and cannot be uploaded. Please reduce the size of the file. Maximum is 1MB`
-    )
-  }
+  const files = /(\.pdf|\.docx|\.doc)$/i
+  const images = /(\.jpg|\.jpeg|\.png|\.gif|\.svg)$/i
 
   if (fileType === 'file' && !files.exec(fileName && fullFileName)) {
     throw new Error(`${extension} extension is not allowed`)
   } else if (fileType === 'image' && !images.exec(fileName && fullFileName)) {
     throw new Error(`${extension} extension is not allowed`)
   } else {
-    const params = {
-      Bucket: process.env.APPLICATION_KEY_NAME,
-      Key: `${pathName}/${fullFileName}`,
-      Body: fileName.data,
-    }
+    await fileName.mv(path.join(__dirname, filePath), (err) => {
+      if (err) {
+        throw new Error(err)
+      }
+    })
 
-    const upload = await s3
-      .upload(params, (err, data) => {
-        if (err) throw err
-
-        return data
-      })
-      .promise()
     return {
-      fullFileName: upload.Key,
-      filePath: upload.Location,
+      fullFileName,
+      filePath: `/${pathName}/${fullFileName}`,
     }
   }
 }
 
-export const deleteFile = async (args) => {
+export const deleteFile = (args) => {
   const { pathName } = args
 
-  const params = {
-    Bucket: process.env.APPLICATION_KEY_NAME,
-    Key: pathName,
-  }
+  const filePath = `/public/designs/${pathName}`
 
-  const deleteObject = await s3
-    .deleteObject(params, (err, data) => {
-      if (err) throw err
-      return data
+  const destroy =
+    pathName &&
+    fs.unlink(path.join(__dirname, filePath), (err) => {
+      if (err) {
+        throw new Error(err)
+      }
     })
-    .promise()
 
-  if (!deleteObject.DeleteMarker) {
-    throw new Error('Please, upload a file')
+  if (destroy) {
+    return { success: true }
   }
-
-  return deleteObject
 }

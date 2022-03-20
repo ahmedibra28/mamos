@@ -3,6 +3,7 @@ import Order from './Order'
 import Shipper from './Shipper'
 import Town from './Town'
 import User from './User'
+import Employee from './Employee'
 
 const expenseScheme = mongoose.Schema(
   {
@@ -12,6 +13,7 @@ const expenseScheme = mongoose.Schema(
     order: { type: mongoose.Schema.Types.ObjectId, ref: Order },
     shipper: { type: mongoose.Schema.Types.ObjectId, ref: Shipper },
     town: { type: mongoose.Schema.Types.ObjectId, ref: Town },
+    employee: { type: mongoose.Schema.Types.ObjectId, ref: Employee },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

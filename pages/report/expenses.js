@@ -1,40 +1,20 @@
-import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
-import {
-  FaCheckCircle,
-  FaFileDownload,
-  FaPenAlt,
-  FaPlus,
-  FaTimesCircle,
-  FaTrash,
-} from 'react-icons/fa'
+
 import moment from 'moment'
 import useReports from '../../api/reports'
 
-import { CSVLink } from 'react-csv'
-
-import { confirmAlert } from 'react-confirm-alert'
-import { Confirm } from '../../components/Confirm'
 import { useForm } from 'react-hook-form'
-import {
-  dynamicInputSelect,
-  inputDate,
-  inputNumber,
-  inputText,
-  staticInputSelect,
-} from '../../utils/dynamicForm'
+import { inputDate, staticInputSelect } from '../../utils/dynamicForm'
 
-const expenses = () => {
+const Expenses = () => {
   const { getExpenses } = useReports()
   const {
     register,
     handleSubmit,
-    setValue,
-    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {},
@@ -49,6 +29,7 @@ const expenses = () => {
     { name: 'Container' },
     { name: 'Drop Off' },
     { name: 'Pick Up' },
+    { name: 'Salary' },
   ]
 
   const submitHandler = async (data) => {
@@ -57,6 +38,10 @@ const expenses = () => {
 
   return (
     <div>
+      <Head>
+        <title>Expenses Report</title>
+        <meta property='og:title' content='Expenses Report' key='title' />
+      </Head>
       <form onSubmit={handleSubmit(submitHandler)}>
         <div className='row gx-1 d-flex justify-content-center'>
           <div className='col-auto'>
@@ -148,4 +133,6 @@ const expenses = () => {
   )
 }
 
-export default expenses
+export default dynamic(() => Promise.resolve(withAuth(Expenses)), {
+  ssr: false,
+})
