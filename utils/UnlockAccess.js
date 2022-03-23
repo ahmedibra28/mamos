@@ -10,8 +10,9 @@ export const UnlockAccess = (roles) => {
 
 export const Access = {
   admin: ['admin'],
-  user: ['user'],
-  logistic: ['logistic'],
+  admin_user: ['admin', 'user'],
+  admin_hr: ['admin', 'hr'],
+  admin_employee: ['admin', 'employee'],
   admin_logistic: ['admin', 'logistic'],
-  adminUser: ['admin', 'user'],
+  admin_logistic_hr: ['admin', 'hr', 'logistic'],
 }

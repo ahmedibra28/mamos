@@ -76,39 +76,43 @@ const Navigation = () => {
                 )
             )}
 
-          <li className='nav-item dropdown'>
-            <a
-              className='nav-link dropdown-toggle'
-              href='#'
-              id='navbarDropdownMenuLink'
-              role='button'
-              data-bs-toggle='dropdown'
-              aria-expanded='false'
-            >
-              <FaChartBar className='mb-1' /> Report
-            </a>
-            <ul
-              className='dropdown-menu border-0'
-              aria-labelledby='navbarDropdownMenuLink'
-            >
-              {customLocalStorage() &&
-                customLocalStorage().userAccessRoutes &&
-                customLocalStorage().userAccessRoutes.route &&
-                customLocalStorage().userAccessRoutes.route.map(
-                  (route) =>
-                    route.isActive &&
-                    route.menu === 'Report' && (
-                      <li key={route._id}>
-                        <Link href={route.path}>
-                          <a className='dropdown-item'>{route.name}</a>
-                        </Link>
-                      </li>
-                    )
-                )}
-            </ul>
-          </li>
+          {UnlockAccess(Access.admin_logistic) && (
+            <>
+              <li className='nav-item dropdown'>
+                <a
+                  className='nav-link dropdown-toggle'
+                  href='#'
+                  id='navbarDropdownMenuLink'
+                  role='button'
+                  data-bs-toggle='dropdown'
+                  aria-expanded='false'
+                >
+                  <FaChartBar className='mb-1' /> Report
+                </a>
+                <ul
+                  className='dropdown-menu border-0'
+                  aria-labelledby='navbarDropdownMenuLink'
+                >
+                  {customLocalStorage() &&
+                    customLocalStorage().userAccessRoutes &&
+                    customLocalStorage().userAccessRoutes.route &&
+                    customLocalStorage().userAccessRoutes.route.map(
+                      (route) =>
+                        route.isActive &&
+                        route.menu === 'Report' && (
+                          <li key={route._id}>
+                            <Link href={route.path}>
+                              <a className='dropdown-item'>{route.name}</a>
+                            </Link>
+                          </li>
+                        )
+                    )}
+                </ul>
+              </li>
+            </>
+          )}
 
-          {UnlockAccess(Access.admin) && (
+          {UnlockAccess(Access.admin_hr) && (
             <>
               <li className='nav-item dropdown'>
                 <a
@@ -141,39 +145,41 @@ const Navigation = () => {
                     )}
                 </ul>
               </li>
-
-              <li className='nav-item dropdown'>
-                <a
-                  className='nav-link dropdown-toggle'
-                  href='#'
-                  id='navbarDropdownMenuLink'
-                  role='button'
-                  data-bs-toggle='dropdown'
-                  aria-expanded='false'
-                >
-                  <FaUserCog className='mb-1' /> Admin
-                </a>
-                <ul
-                  className='dropdown-menu border-0'
-                  aria-labelledby='navbarDropdownMenuLink'
-                >
-                  {customLocalStorage() &&
-                    customLocalStorage().userAccessRoutes &&
-                    customLocalStorage().userAccessRoutes.route &&
-                    customLocalStorage().userAccessRoutes.route.map(
-                      (route) =>
-                        route.isActive &&
-                        route.menu === 'Admin' && (
-                          <li key={route._id}>
-                            <Link href={route.path}>
-                              <a className='dropdown-item'>{route.name}</a>
-                            </Link>
-                          </li>
-                        )
-                    )}
-                </ul>
-              </li>
             </>
+          )}
+
+          {UnlockAccess(Access.admin_hr) && (
+            <li className='nav-item dropdown'>
+              <a
+                className='nav-link dropdown-toggle'
+                href='#'
+                id='navbarDropdownMenuLink'
+                role='button'
+                data-bs-toggle='dropdown'
+                aria-expanded='false'
+              >
+                <FaUserCog className='mb-1' /> Admin
+              </a>
+              <ul
+                className='dropdown-menu border-0'
+                aria-labelledby='navbarDropdownMenuLink'
+              >
+                {customLocalStorage() &&
+                  customLocalStorage().userAccessRoutes &&
+                  customLocalStorage().userAccessRoutes.route &&
+                  customLocalStorage().userAccessRoutes.route.map(
+                    (route) =>
+                      route.isActive &&
+                      route.menu === 'Admin' && (
+                        <li key={route._id}>
+                          <Link href={route.path}>
+                            <a className='dropdown-item'>{route.name}</a>
+                          </Link>
+                        </li>
+                      )
+                  )}
+              </ul>
+            </li>
           )}
 
           <li className='nav-item dropdown'>
