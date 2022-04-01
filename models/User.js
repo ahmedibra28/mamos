@@ -9,6 +9,7 @@ const userScheme = mongoose.Schema(
     mobile: { type: Number, required: true, default: 0 },
     password: { type: String, required: true },
     group: { type: String, required: true },
+    location: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },

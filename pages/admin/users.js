@@ -8,6 +8,7 @@ import { FaPenAlt, FaPlus, FaTrash } from 'react-icons/fa'
 import Pagination from '../../components/Pagination'
 import useUsers from '../../api/users'
 import useGroups from '../../api/groups'
+import useCountries from '../../api/countries'
 import { useQueryClient } from 'react-query'
 
 import { confirmAlert } from 'react-confirm-alert'
@@ -25,6 +26,7 @@ const Users = () => {
   const [page, setPage] = useState(1)
   const { getUsers, updateUser, addUser, deleteUser } = useUsers(page)
   const { getGroups } = useGroups()
+  const { getCountries } = useCountries()
 
   const {
     register,
@@ -41,6 +43,7 @@ const Users = () => {
 
   const { data, isLoading, isError, error } = getUsers
   const { data: groupData } = getGroups
+  const { data: countriesData } = getCountries
 
   const {
     isLoading: isLoadingUpdate,
@@ -91,6 +94,7 @@ const Users = () => {
           email: data.email,
           password: data.password,
           group: data.group,
+          location: data.group === 'agent' && data.location,
         })
       : addMutateAsync(data)
   }
@@ -101,6 +105,7 @@ const Users = () => {
     setValue('name', user.name)
     setValue('email', user.email)
     setValue('group', user.group)
+    setValue('location', user.group === 'agent' && user.location)
   }
 
   useEffect(() => {
@@ -202,6 +207,18 @@ const Users = () => {
                     value: 'name',
                     label: 'Group',
                   })}
+
+                  {watch().group === 'agent' &&
+                    dynamicInputSelect({
+                      register,
+                      errors,
+                      data:
+                        countriesData &&
+                        countriesData.filter((a) => a.isActive),
+                      name: 'location',
+                      value: 'name',
+                      label: 'Location',
+                    })}
 
                   <div className='modal-footer'>
                     <button

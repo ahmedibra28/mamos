@@ -11,6 +11,8 @@ import {
   FaInfoCircle,
   FaTimesCircle,
   FaChevronCircleDown,
+  FaCheckCircle,
+  FaUsers,
 } from 'react-icons/fa'
 import useOrders from '../../api/orders'
 import { CSVLink } from 'react-csv'
@@ -26,6 +28,7 @@ const Orders = () => {
   const {
     getOrders,
     deleteOrder,
+    updateDeliveredOrder,
     updateStatusCargo,
     updateStatusCargoToComplete,
   } = useOrders(page, search)
@@ -44,6 +47,14 @@ const Orders = () => {
     isSuccess: isSuccessDelete,
     mutateAsync: deleteMutateAsync,
   } = deleteOrder
+
+  const {
+    isLoading: isLoadingDelivered,
+    isError: isErrorDelivered,
+    error: errorDelivered,
+    isSuccess: isSuccessDelivered,
+    mutateAsync: deliveredMutateAsync,
+  } = updateDeliveredOrder
 
   const {
     isLoading: isLoadingUpdate,
@@ -65,6 +76,10 @@ const Orders = () => {
     confirmAlert(Confirm(() => deleteMutateAsync(id)))
   }
 
+  const orderReceivedConfirmHandler = (id) => {
+    deliveredMutateAsync(id)
+  }
+
   return (
     <>
       <Head>
@@ -78,6 +93,13 @@ const Orders = () => {
         </Message>
       )}
       {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}
+
+      {isSuccessDelivered && (
+        <Message variant='success'>
+          Order has been delivered successfully.
+        </Message>
+      )}
+      {isErrorDelivered && <Message variant='danger'>{errorDelivered}</Message>}
 
       <div className='position-relative'>
         <button
@@ -192,7 +214,33 @@ const Orders = () => {
                             <FaInfoCircle />
                           </a>
                         </Link>
-                        {!UnlockAccess(Access.admin_logistic) && (
+
+                        {!order.isDelivered && UnlockAccess(Access.agent) && (
+                          <button
+                            className='btn btn-success btn-sm rounded-pill ms-1'
+                            onClick={() =>
+                              orderReceivedConfirmHandler(order._id)
+                            }
+                            disabled={isLoadingDelivered}
+                          >
+                            {isLoadingDelivered ? (
+                              <span className='spinner-border spinner-border-sm' />
+                            ) : (
+                              <span>
+                                <FaCheckCircle />
+                              </span>
+                            )}
+                          </button>
+                        )}
+                        {order.isDelivered && UnlockAccess(Access.agent) && (
+                          <Link href={`/orders/delivery/${order._id}`}>
+                            <a className='btn btn-light btn-sm rounded-pill ms-1'>
+                              <FaUsers />
+                            </a>
+                          </Link>
+                        )}
+
+                        {!UnlockAccess(Access.admin_logistic_agent) && (
                           <button
                             className='btn btn-danger btn-sm rounded-pill ms-1'
                             onClick={() => deleteHandler(order._id)}

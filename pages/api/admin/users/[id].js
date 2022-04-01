@@ -19,6 +19,7 @@ handler.put(async (req, res) => {
 
   if (userExist) {
     userExist.name = req.body.name || userExist.name
+    userExist.location = req.body.location || userExist.location
     userExist.group = req.body.group || userExist.group
     userExist.email = req.body.email.toLowerCase() || userExist.email
     if (req.body.password) {
@@ -32,6 +33,7 @@ handler.put(async (req, res) => {
       name: updatedUser.name,
       group: updatedUser.group,
       email: updatedUser.email,
+      location: updatedUser.location,
     })
   } else {
     return res.status(404).send('User not found')

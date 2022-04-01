@@ -83,7 +83,6 @@ const Expense = () => {
   }
 
   const submitHandler = async (data) => {
-    console.log({ data })
     edit
       ? updateMutateAsync({
           _id: id,
@@ -95,7 +94,6 @@ const Expense = () => {
   }
 
   const editHandler = (expense) => {
-    console.log(expense)
     setId(expense._id)
     setEdit(true)
     setValue('category', expense.type)

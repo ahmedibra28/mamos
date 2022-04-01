@@ -71,6 +71,7 @@ const orderScheme = mongoose.Schema(
     shipment: { type: mongoose.Schema.Types.ObjectId, ref: Shipper },
 
     status: { type: String, default: 'Pending' },
+    isDelivered: { type: Boolean, default: false },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,

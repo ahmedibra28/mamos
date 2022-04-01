@@ -109,6 +109,24 @@ export default function useOrders(page, search, id, shipment) {
     }
   )
 
+  // update status order received order
+  const updateDeliveredOrder = useMutation(
+    async (id) =>
+      await dynamicAPI('put', `${url}/update/status-delivered/${id}`, {}),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+
+  const deliveryMode = useMutation(
+    async (obj) => await dynamicAPI('post', `${url}/update/delivery-mode`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['orders']),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -122,5 +140,7 @@ export default function useOrders(page, search, id, shipment) {
     updateStatusCargo,
     updateStatusCargoToComplete,
     updateInvoiceCargo,
+    updateDeliveredOrder,
+    deliveryMode,
   }
 }

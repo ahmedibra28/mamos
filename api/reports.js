@@ -1,5 +1,5 @@
 import dynamicAPI from './dynamicAPI'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
 const url = '/api/report'
 
@@ -22,5 +22,13 @@ export default function useReports() {
     }
   )
 
-  return { getExpenses, getIncomes }
+  const getDeliveryModes = useQuery(
+    ['delivery modes'],
+    async () => await dynamicAPI('get', `${url}/delivery-modes`, {}),
+    {
+      retry: 0,
+    }
+  )
+
+  return { getExpenses, getIncomes, getDeliveryModes }
 }

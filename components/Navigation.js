@@ -76,7 +76,7 @@ const Navigation = () => {
                 )
             )}
 
-          {UnlockAccess(Access.admin_logistic) && (
+          {UnlockAccess(Access.admin_logistic_agent) && (
             <>
               <li className='nav-item dropdown'>
                 <a
