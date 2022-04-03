@@ -13,7 +13,7 @@ handler.get(async (req, res) => {
     return res.status(401).send('Your are not authorized this request')
   }
 
-  const modes = await DeliveryMode.find({}).lean().sort({ createdAt: 1 })
+  const modes = await DeliveryMode.find({}).lean().sort({ createdAt: -1 })
 
   res.status(200).json(modes)
 })

@@ -5,13 +5,12 @@ import withAuth from '../../HOC/withAuth'
 import Loader from 'react-loader-spinner'
 import useReports from '../../api/reports'
 import Message from '../../components/Message'
+import moment from 'moment'
 
 const DeliveryMode = () => {
   const { getDeliveryModes } = useReports()
 
   const { data, isLoading, isError, error } = getDeliveryModes
-
-  console.log(data && data)
 
   return (
     <>
@@ -53,7 +52,7 @@ const DeliveryMode = () => {
                       <td>{mode.name}</td>
                       <td>{mode.mobile}</td>
                       <td>{mode.address}</td>
-                      <td>{mode.createdAt.slice(10)}</td>
+                      <td>{moment(mode.createdAt).format('ll')}</td>
                       <td>{mode.mode}</td>
                     </tr>
                   ))}

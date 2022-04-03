@@ -10,7 +10,7 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const { _id, buyer, mode } = req.body
+  const { _id, mode } = req.body
   const updatedBy = req.user.id
 
   if (req.user.group !== 'agent') {
@@ -20,14 +20,12 @@ handler.post(async (req, res) => {
   const obj = await Order.findOne({ _id, isDelivered: true })
 
   if (obj) {
-    await DeliveryMode.create({
-      name: buyer.buyerName,
-      mobile: buyer.buyerMobileNumber,
-      email: buyer.buyerEmail,
-      address: buyer.buyerAddress,
-      mode,
-      createdBy: updatedBy,
-    })
+    const delivery = await DeliveryMode.findOne({ order: obj._id })
+    if (delivery) {
+      delivery.mode = mode
+      delivery.updatedBy = updatedBy
+      await delivery.save()
+    }
 
     res.json({ status: 'success' })
   } else {

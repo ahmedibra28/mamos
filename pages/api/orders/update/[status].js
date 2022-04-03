@@ -8,6 +8,7 @@ import Shipper from '../../../../models/Shipper'
 import Town from '../../../../models/Town'
 import Container from '../../../../models/Container'
 import Expense from '../../../../models/Expense'
+import Payment from '../../../../models/Payment'
 
 const handler = nc()
 handler.use(isAuth)
@@ -70,11 +71,16 @@ handler.put(async (req, res) => {
 
       const LCLAmount = async () => {
         if (obj.cargoType === 'LCL') {
+          const shipper = await Shipper.findById(obj.shipment)
+          const container = await Container.findById(shipper.container)
+
+          const DEFAULT_LCL_CAPACITY =
+            container && container.length * container.height * container.width
           const TotalCBM = await obj.containerLCL.reduce(
             (acc, curr) => acc + curr.length * curr.width * curr.height,
             0
           )
-          return shipment.price * TotalCBM * 167
+          return (shipment.price / DEFAULT_LCL_CAPACITY) * TotalCBM
         }
       }
       const LCL = Number((await LCLAmount()) ? await LCLAmount() : 0)
@@ -85,7 +91,7 @@ handler.put(async (req, res) => {
             (acc, curr) => acc + curr.qty * curr.weight,
             0
           )
-          return shipment.price * TotalCBM * 167
+          return shipment.price * TotalCBM
         }
       }
       const AIR = Number((await AIRAmount()) ? await AIRAmount() : 0)
@@ -120,6 +126,15 @@ handler.put(async (req, res) => {
 
       return amounts
     }
+
+    const totalAmounts =
+      (await (await totalAmount()).PAmountPrice) +
+      (await (
+        await totalAmount()
+      ).DAmountPrice) +
+      (await (
+        await totalAmount()
+      ).totalAmount)
 
     // pickup income
     if (movementTypes.pickUp.includes(obj.movementType)) {
@@ -177,6 +192,15 @@ handler.put(async (req, res) => {
         createdBy: updatedBy,
       })
     }
+
+    // add payment
+    await Payment.create({
+      paymentMethod: obj.paymentMethod,
+      order: obj._id,
+      amount: totalAmounts,
+      payments: [],
+      createdBy: updatedBy,
+    })
 
     obj.status = 'Shipped'
     obj.updatedBy = updatedBy

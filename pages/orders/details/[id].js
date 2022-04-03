@@ -74,12 +74,15 @@ const Details = () => {
     const iService = data.isHasInvoice ? 0 : 79
     const dropOffService =
       data.movementType === 'Port to Door' ||
-      data.movementType === 'Door to Door'
+      data.movementType === 'Airport to Door' ||
+      data.movementType === 'Door to Door' ||
+      data.movementType === 'Airport to Door'
         ? data.destination.dropOffTown.price
         : 0
     const pickupService =
       data.movementType === 'Door to Port' ||
-      data.movementType === 'Door to Door'
+      data.movementType === 'Door to Door' ||
+      data.movementType === 'Door to Airport'
         ? data.pickup.pickUpTown.price
         : 0
 
@@ -253,7 +256,8 @@ const Details = () => {
                   </tr>
 
                   {(data.movementType === 'Door to Door' ||
-                    data.movementType === 'Port to Door') && (
+                    data.movementType === 'Port to Door' ||
+                    data.movementType === 'Airport to Door') && (
                     <>
                       <tr>
                         <th scope='row' className='pe-3'>
@@ -462,6 +466,15 @@ const Details = () => {
             <div className='my-3'>
               <h5 className='bg-secondary py-1 text-light'>Cost Info</h5>
               <table>
+                <tbody>
+                  <tr>
+                    <th scope='row' className='pe-3'>
+                      Payment Method
+                    </th>
+                    <td>{data && data.paymentMethod}</td>
+                  </tr>
+                </tbody>
+
                 {!UnlockAccess(Access.admin_logistic) ? (
                   <tbody>
                     <tr>
@@ -482,7 +495,8 @@ const Details = () => {
                       </tr>
                     )}
                     {(data.movementType === 'Door to Port' ||
-                      data.movementType === 'Door to Door') && (
+                      data.movementType === 'Door to Door' ||
+                      data.movementType === 'Door to Airport') && (
                       <tr>
                         <th scope='row' className='pe-3'>
                           Pickup Cost

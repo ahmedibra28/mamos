@@ -112,7 +112,7 @@ export default function useOrders(page, search, id, shipment) {
   // update status order received order
   const updateDeliveredOrder = useMutation(
     async (id) =>
-      await dynamicAPI('put', `${url}/update/status-delivered/${id}`, {}),
+      await dynamicAPI('post', `${url}/update/status-delivered/${id}`, {}),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(['orders']),

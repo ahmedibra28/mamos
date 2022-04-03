@@ -268,6 +268,7 @@ const LCL = () => {
       formData.append('pickupPort', data.pickupPort)
       formData.append('transportationType', 'Ocean')
       formData.append('selectedShipment', selectedShipment._id)
+      formData.append('paymentMethod', data.paymentMethod)
 
       formData.append('inputFields', JSON.stringify(inputFields))
 
@@ -1106,6 +1107,24 @@ const LCL = () => {
                             <h6>${invoiceCharges.toFixed(2)}</h6>
                           </>
                         )}
+
+                        <div className='col-12'>
+                          <h5>PAYMENT METHOD</h5>
+                          <p>Please select your payment options</p>
+                        </div>
+                        <div className='col-md-6 col-12'>
+                          {staticInputSelect({
+                            register,
+                            errors,
+                            name: 'paymentMethod',
+                            label: 'Payment Method',
+                            data: [
+                              { name: 'Sender' },
+                              { name: 'Receiver' },
+                              { name: 'Partial' },
+                            ],
+                          })}
+                        </div>
 
                         <span className='mt-1'></span>
                         <hr />

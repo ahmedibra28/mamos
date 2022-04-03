@@ -69,6 +69,7 @@ const orderScheme = mongoose.Schema(
     transportationType: String,
     commodity: { type: mongoose.Schema.Types.ObjectId, ref: Commodity },
     shipment: { type: mongoose.Schema.Types.ObjectId, ref: Shipper },
+    paymentMethod: { type: String, default: 'Sender' },
 
     status: { type: String, default: 'Pending' },
     isDelivered: { type: Boolean, default: false },
