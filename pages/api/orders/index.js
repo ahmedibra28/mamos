@@ -19,7 +19,7 @@ handler.get(async (req, res) => {
 
   const { group } = req.user
 
-  const fullAccess = ['admin', 'logistic', 'agent'].includes(group)
+  const fullAccess = ['admin', 'logistic', 'branch'].includes(group)
 
   const trackingNo =
     req.query && req.query.search && req.query.search.toUpperCase()

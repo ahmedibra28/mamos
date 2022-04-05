@@ -9,7 +9,7 @@ handler.get(async (req, res) => {
   await dbConnect()
   const { id } = req.query
   const { group } = req.user
-  const fullAccess = ['admin', 'logistic', 'agent'].includes(group)
+  const fullAccess = ['admin', 'logistic', 'branch'].includes(group)
 
   const obj = await Order.findOne(
     fullAccess ? { _id: id } : { _id: id, createdBy: req.user._id }

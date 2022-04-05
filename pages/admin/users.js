@@ -94,7 +94,7 @@ const Users = () => {
           email: data.email,
           password: data.password,
           group: data.group,
-          location: data.group === 'agent' && data.location,
+          location: data.group === 'branch' && data.location,
         })
       : addMutateAsync(data)
   }
@@ -105,7 +105,7 @@ const Users = () => {
     setValue('name', user.name)
     setValue('email', user.email)
     setValue('group', user.group)
-    setValue('location', user.group === 'agent' && user.location)
+    setValue('location', user.group === 'branch' && user.location)
   }
 
   useEffect(() => {
@@ -208,7 +208,7 @@ const Users = () => {
                     label: 'Group',
                   })}
 
-                  {watch().group === 'agent' &&
+                  {watch().group === 'branch' &&
                     dynamicInputSelect({
                       register,
                       errors,

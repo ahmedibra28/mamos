@@ -285,6 +285,7 @@ export const inputFile = (args) => {
         type='file'
         placeholder={`Enter ${name}`}
         className='form-control form-control-sm'
+        multiple={name === 'file' ? true : false}
         id='formFile'
         onChange={(e) => setFile(e.target.files[0])}
       />

@@ -215,7 +215,7 @@ const Orders = () => {
                           </a>
                         </Link>
 
-                        {!order.isDelivered && UnlockAccess(Access.agent) && (
+                        {!order.isDelivered && UnlockAccess(Access.branch) && (
                           <button
                             className='btn btn-success btn-sm rounded-pill ms-1'
                             onClick={() =>
@@ -232,7 +232,7 @@ const Orders = () => {
                             )}
                           </button>
                         )}
-                        {order.isDelivered && UnlockAccess(Access.agent) && (
+                        {order.isDelivered && UnlockAccess(Access.branch) && (
                           <Link href={`/orders/delivery/${order._id}`}>
                             <a className='btn btn-light btn-sm rounded-pill ms-1'>
                               <FaUsers />
@@ -240,7 +240,7 @@ const Orders = () => {
                           </Link>
                         )}
 
-                        {!UnlockAccess(Access.admin_logistic_agent) && (
+                        {!UnlockAccess(Access.admin_logistic_branch) && (
                           <button
                             className='btn btn-danger btn-sm rounded-pill ms-1'
                             onClick={() => deleteHandler(order._id)}

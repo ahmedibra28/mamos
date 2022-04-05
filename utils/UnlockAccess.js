@@ -10,11 +10,11 @@ export const UnlockAccess = (roles) => {
 
 export const Access = {
   admin: ['admin'],
-  agent: ['agent'],
+  branch: ['branch'],
   admin_user: ['admin', 'user'],
   admin_hr: ['admin', 'hr'],
   admin_employee: ['admin', 'employee'],
   admin_logistic: ['admin', 'logistic'],
   admin_logistic_hr: ['admin', 'hr', 'logistic'],
-  admin_logistic_agent: ['admin', 'agent', 'logistic'],
+  admin_logistic_branch: ['admin', 'branch', 'logistic'],
 }

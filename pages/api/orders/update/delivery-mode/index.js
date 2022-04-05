@@ -13,7 +13,7 @@ handler.post(async (req, res) => {
   const { _id, mode } = req.body
   const updatedBy = req.user.id
 
-  if (req.user.group !== 'agent') {
+  if (req.user.group !== 'branch') {
     return res.status(401).send('Your are authorized this action')
   }
 
