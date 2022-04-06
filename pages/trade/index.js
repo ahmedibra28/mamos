@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
+import Link from 'next/link'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import withAuth from '../HOC/withAuth'
-import Message from '../components/Message'
+import withAuth from '../../HOC/withAuth'
+import Message from '../../components/Message'
 import Loader from 'react-loader-spinner'
 import {
   FaCheckCircle,
@@ -13,15 +14,18 @@ import {
   FaTimesCircle,
   FaTrash,
   FaPlusCircle,
+  FaInfoCircle,
+  FaShareAlt,
 } from 'react-icons/fa'
 
-import useTrades from '../api/trades'
+import useTrades from '../../api/trades'
 import { useForm } from 'react-hook-form'
 import { CSVLink } from 'react-csv'
 import moment from 'moment'
 import { confirmAlert } from 'react-confirm-alert'
-import { Confirm } from '../components/Confirm'
-import { inputFile, inputTextArea } from '../utils/dynamicForm'
+import { Confirm } from '../../components/Confirm'
+import { inputFile, inputTextArea } from '../../utils/dynamicForm'
+import { Access, UnlockAccess } from '../../utils/UnlockAccess'
 
 const Trade = () => {
   const {
@@ -61,7 +65,6 @@ const Trade = () => {
     mutateAsync: addMutateAsync,
   } = addTrade
 
-  const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
   const [file, setFile] = useState([])
   const [trade, setTrade] = useState({})
@@ -320,7 +323,7 @@ const Trade = () => {
                           </span>
                         ) : trade.status === 'accepted' ? (
                           <span className='badge bg-success'>
-                            {trade.status}
+                            {trade.status} {trade.employee && <FaShareAlt />}
                           </span>
                         ) : (
                           <span className='badge bg-danger'>
@@ -337,23 +340,43 @@ const Trade = () => {
                           data-bs-toggle='modal'
                           data-bs-target='#editTradeModal'
                         >
-                          <FaPenAlt />
+                          <FaInfoCircle />
                         </button>
 
-                        <button
-                          className='btn btn-danger btn-sm rounded-pill ms-1'
-                          onClick={() => deleteHandler(trade._id)}
-                          disabled={isLoadingDelete}
-                        >
-                          {isLoadingDelete ? (
-                            <span className='spinner-border spinner-border-sm' />
-                          ) : (
-                            <span>
-                              {' '}
-                              <FaTrash />
-                            </span>
+                        {UnlockAccess(Access.logistic) && (
+                          <button
+                            className='btn btn-success btn-sm rounded-pill ms-1'
+                            onClick={() => updateMutateAsync(trade._id)}
+                          >
+                            <FaCheckCircle />
+                          </button>
+                        )}
+
+                        {trade.status === 'pending' && (
+                          <button
+                            className='btn btn-danger btn-sm rounded-pill ms-1'
+                            onClick={() => deleteHandler(trade._id)}
+                            disabled={isLoadingDelete}
+                          >
+                            {isLoadingDelete ? (
+                              <span className='spinner-border spinner-border-sm' />
+                            ) : (
+                              <span>
+                                {' '}
+                                <FaTrash />
+                              </span>
+                            )}
+                          </button>
+                        )}
+
+                        {UnlockAccess(Access.logistic) &&
+                          trade.status === 'accepted' && (
+                            <Link href={`trade/${trade._id}`}>
+                              <a className='btn btn-secondary btn-sm rounded-pill ms-1'>
+                                <FaShareAlt />
+                              </a>
+                            </Link>
                           )}
-                        </button>
                       </td>
                     </tr>
                   ))}

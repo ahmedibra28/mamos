@@ -20,8 +20,9 @@ const constants = {
 handler.use(isAuth)
 handler.get(async (req, res) => {
   await dbConnect()
+  const { group } = req.user
   const obj = await constants.model
-    .find({ createdBy: req.user._id })
+    .find(group === 'logistic' ? {} : { createdBy: req.user._id })
     .lean()
     .sort({ createdAt: -1 })
     .populate('createdBy')

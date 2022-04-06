@@ -6,6 +6,7 @@ const tradeScheme = mongoose.Schema(
     files: [],
     description: String,
     status: { type: String, default: 'pending' },
+    employee: { type: mongoose.Schema.Types.ObjectId, ref: User },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

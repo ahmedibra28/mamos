@@ -13,12 +13,32 @@ export default function useTrades() {
     { retry: 0 }
   )
 
-  // update trades
+  const getEmployeeUsers = useQuery(
+    'employee users',
+    async () => await dynamicAPI('get', `${url}/users`, {}),
+    { retry: 0 }
+  )
+
+  const getSharedByEmployee = useQuery(
+    'shared trades',
+    async () => await dynamicAPI('get', `${url}/shared`, {}),
+    { retry: 0 }
+  )
+
+  // update trade status
   const updateTrade = useMutation(
-    async (obj) => await dynamicAPI('put', `${url}/${obj._id}`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/${obj}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(['trades']),
+    }
+  )
+
+  const shareTradeToEmployee = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/users/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['employee users']),
     }
   )
 
@@ -40,5 +60,13 @@ export default function useTrades() {
     }
   )
 
-  return { getTrades, updateTrade, deleteTrade, addTrade }
+  return {
+    getTrades,
+    updateTrade,
+    deleteTrade,
+    addTrade,
+    getEmployeeUsers,
+    shareTradeToEmployee,
+    getSharedByEmployee,
+  }
 }

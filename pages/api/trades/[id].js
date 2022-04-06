@@ -14,16 +14,39 @@ const constants = {
 }
 
 handler.use(isAuth)
-
-handler.delete(async (req, res) => {
+handler.put(async (req, res) => {
   await dbConnect()
 
   const _id = req.query.id
   const obj = await constants.model.findOne({
     _id,
-    createdBy: req.user._id,
     status: 'pending',
   })
+  if (!obj) {
+    return res.status(404).send(constants.failed)
+  } else {
+    obj.status = 'accepted'
+    await obj.save()
+
+    res.json({ status: 'Trade has been accepted' })
+  }
+})
+
+handler.delete(async (req, res) => {
+  await dbConnect()
+
+  const { group } = req.user
+
+  const _id = req.query.id
+  const obj = await constants.model.findOne(
+    group === 'logistic'
+      ? { _id, status: 'pending' }
+      : {
+          _id,
+          createdBy: req.user._id,
+          status: 'pending',
+        }
+  )
   if (!obj) {
     return res.status(404).send(constants.failed)
   } else {
