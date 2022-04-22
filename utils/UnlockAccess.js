@@ -12,6 +12,8 @@ export const Access = {
   admin: ['admin'],
   branch: ['branch'],
   logistic: ['logistic'],
+  user: ['user'],
+  trade: ['trade'],
   admin_user: ['admin', 'user'],
   admin_hr: ['admin', 'hr'],
   admin_employee: ['admin', 'employee'],

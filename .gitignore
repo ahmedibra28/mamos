@@ -35,5 +35,5 @@ yarn-error.log*
 .env
 
 # nvoice
-/public/invoice
-/public/trade
+/public/invoice/*
+/public/trade/*

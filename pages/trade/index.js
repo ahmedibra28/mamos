@@ -16,6 +16,8 @@ import {
   FaPlusCircle,
   FaInfoCircle,
   FaShareAlt,
+  FaMinusCircle,
+  FaCheckDouble,
 } from 'react-icons/fa'
 
 import useTrades from '../../api/trades'
@@ -28,6 +30,7 @@ import { inputFile, inputTextArea } from '../../utils/dynamicForm'
 import { Access, UnlockAccess } from '../../utils/UnlockAccess'
 
 const Trade = () => {
+  const [duration, setDuration] = useState(1)
   const {
     register,
     handleSubmit,
@@ -37,7 +40,14 @@ const Trade = () => {
     defaultValues: {},
   })
 
-  const { getTrades, updateTrade, addTrade, deleteTrade } = useTrades()
+  const {
+    getTrades,
+    updateTrade,
+    addTrade,
+    deleteTrade,
+    updateTradeToAgreed,
+    updateTradeToComplete,
+  } = useTrades()
 
   const { data, isLoading, isError, error } = getTrades
 
@@ -48,6 +58,22 @@ const Trade = () => {
     isSuccess: isSuccessUpdate,
     mutateAsync: updateMutateAsync,
   } = updateTrade
+
+  const {
+    isLoading: isLoadingAgreed,
+    isError: isErrorAgreed,
+    error: errorAgreed,
+    isSuccess: isSuccessAgreed,
+    mutateAsync: agreedMutateAsync,
+  } = updateTradeToAgreed
+
+  const {
+    isLoading: isLoadingComplete,
+    isError: isErrorComplete,
+    error: errorComplete,
+    isSuccess: isSuccessComplete,
+    mutateAsync: completeMutateAsync,
+  } = updateTradeToComplete
 
   const {
     isLoading: isLoadingDelete,
@@ -85,7 +111,6 @@ const Trade = () => {
   }
 
   const submitHandler = async (data) => {
-    console.log(data)
     const formData = new FormData()
 
     for (let i = 0; i < data.file.length; i++) {
@@ -113,6 +138,16 @@ const Trade = () => {
         </Message>
       )}
       {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
+      {isSuccessAgreed && (
+        <Message variant='success'>Trade has been agreed successfully.</Message>
+      )}
+      {isErrorAgreed && <Message variant='danger'>{errorAgreed}</Message>}
+      {isSuccessComplete && (
+        <Message variant='success'>
+          Trade has been completed successfully.
+        </Message>
+      )}
+      {isErrorComplete && <Message variant='danger'>{errorComplete}</Message>}
       {isSuccessAdd && (
         <Message variant='success'>
           Trade has been Created successfully.
@@ -223,6 +258,13 @@ const Trade = () => {
                       </div>
                     </div>
                   )}
+                  <hr />
+                  <h3>Evaluations</h3>
+                  {edit && trade && (
+                    <div className='row gy-3'>
+                      <div className='col-12'>{trade.evaluation}</div>
+                    </div>
+                  )}
 
                   <div className='modal-footer'>
                     <button
@@ -308,6 +350,9 @@ const Trade = () => {
                   <th>Customer</th>
                   <th>Status</th>
                   <th>DateTime</th>
+                  {UnlockAccess(Access.trade) && trade.status === 'pending' && (
+                    <th>Days</th>
+                  )}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -325,13 +370,42 @@ const Trade = () => {
                           <span className='badge bg-success'>
                             {trade.status} {trade.employee && <FaShareAlt />}
                           </span>
-                        ) : (
-                          <span className='badge bg-danger'>
+                        ) : trade.status == 'evaluated' ? (
+                          <span className='badge bg-info'>{trade.status}</span>
+                        ) : trade.status === 'agreed' ? (
+                          <span className='badge bg-primary'>
                             {trade.status}
                           </span>
-                        )}
+                        ) : (
+                          trade.status === 'completed' && (
+                            <span className='badge bg-success'>
+                              {trade.status}
+                            </span>
+                          )
+                        )}{' '}
+                        {trade.status === 'evaluated'
+                          ? trade.evaluation
+                          : trade.descriptionStatus}
                       </td>
                       <td>{moment(trade.createdAt).format('lll')}</td>
+                      {UnlockAccess(Access.trade) &&
+                        trade.status === 'pending' && (
+                          <th>
+                            <FaMinusCircle
+                              className='text-danger'
+                              onClick={() =>
+                                setDuration(duration === 1 ? 1 : duration - 1)
+                              }
+                            />
+                            <button className='btn btn-light btn-sm rounded-pill mx-1'>
+                              {duration}
+                            </button>
+                            <FaPlusCircle
+                              className='text-success'
+                              onClick={() => setDuration(duration + 1)}
+                            />
+                          </th>
+                        )}
 
                       <td className='btn-trade'>
                         <button
@@ -343,14 +417,21 @@ const Trade = () => {
                           <FaInfoCircle />
                         </button>
 
-                        {UnlockAccess(Access.logistic) && (
-                          <button
-                            className='btn btn-success btn-sm rounded-pill ms-1'
-                            onClick={() => updateMutateAsync(trade._id)}
-                          >
-                            <FaCheckCircle />
-                          </button>
-                        )}
+                        {UnlockAccess(Access.trade) &&
+                          trade.status === 'pending' && (
+                            <button
+                              className='btn btn-success btn-sm rounded-pill ms-1'
+                              onClick={() =>
+                                updateMutateAsync({
+                                  _id: trade._id,
+                                  status: 'accepted',
+                                  duration,
+                                })
+                              }
+                            >
+                              <FaCheckCircle />
+                            </button>
+                          )}
 
                         {trade.status === 'pending' && (
                           <button
@@ -369,13 +450,45 @@ const Trade = () => {
                           </button>
                         )}
 
-                        {UnlockAccess(Access.logistic) &&
+                        {UnlockAccess(Access.trade) &&
                           trade.status === 'accepted' && (
                             <Link href={`trade/${trade._id}`}>
                               <a className='btn btn-secondary btn-sm rounded-pill ms-1'>
                                 <FaShareAlt />
                               </a>
                             </Link>
+                          )}
+
+                        {UnlockAccess(Access.user) &&
+                          trade.status === 'evaluated' && (
+                            <button
+                              className='btn btn-success btn-sm rounded-pill ms-1'
+                              disabled={isLoadingAgreed}
+                              onClick={() =>
+                                agreedMutateAsync({
+                                  _id: trade._id,
+                                  status: 'agreed',
+                                })
+                              }
+                            >
+                              <FaCheckCircle />
+                            </button>
+                          )}
+
+                        {UnlockAccess(Access.trade) &&
+                          trade.status === 'agreed' && (
+                            <button
+                              className='btn btn-success btn-sm rounded-pill ms-1'
+                              disabled={isLoadingComplete}
+                              onClick={() =>
+                                completeMutateAsync({
+                                  _id: trade._id,
+                                  status: 'completed',
+                                })
+                              }
+                            >
+                              <FaCheckDouble />
+                            </button>
                           )}
                       </td>
                     </tr>

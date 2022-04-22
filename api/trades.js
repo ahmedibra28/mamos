@@ -25,20 +25,49 @@ export default function useTrades() {
     { retry: 0 }
   )
 
-  // update trade status
+  // update trade status to accept and duration
   const updateTrade = useMutation(
-    async (obj) => await dynamicAPI('put', `${url}/${obj}`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(['trades']),
     }
   )
 
+  // update trade to shared and share to employee
   const shareTradeToEmployee = useMutation(
     async (obj) => await dynamicAPI('put', `${url}/users/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(['employee users']),
+    }
+  )
+
+  // update trade price from employee to customer
+  const updatePriceTrade = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/shared/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['trades']),
+    }
+  )
+
+  // agreed
+  const updateTradeToAgreed = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/shared/agreed/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['trades']),
+    }
+  )
+
+  // completed
+  const updateTradeToComplete = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/complete/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['trades']),
     }
   )
 
@@ -68,5 +97,8 @@ export default function useTrades() {
     getEmployeeUsers,
     shareTradeToEmployee,
     getSharedByEmployee,
+    updatePriceTrade,
+    updateTradeToAgreed,
+    updateTradeToComplete,
   }
 }

@@ -1,7 +1,7 @@
 import nc from 'next-connect'
-import dbConnect from '../../../utils/db'
-import Trade from '../../../models/Trade'
-import { isAuth } from '../../../utils/auth'
+import dbConnect from '../../../../utils/db'
+import Trade from '../../../../models/Trade'
+import { isAuth } from '../../../../utils/auth'
 
 const handler = nc()
 
@@ -18,7 +18,7 @@ handler.get(async (req, res) => {
   await dbConnect()
   const { group } = req.user
   const obj = await constants.model
-    .find(group === 'logistic' ? {} : { employee: req.user._id })
+    .find(group === 'trade' ? {} : { employee: req.user._id })
     .lean()
     .sort({ createdAt: -1 })
     .populate('createdBy')

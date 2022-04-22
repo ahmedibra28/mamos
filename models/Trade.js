@@ -7,6 +7,8 @@ const tradeScheme = mongoose.Schema(
     description: String,
     status: { type: String, default: 'pending' },
     employee: { type: mongoose.Schema.Types.ObjectId, ref: User },
+    descriptionStatus: { type: String, default: 'Order received successfully' },
+    evaluation: String,
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,31 +1,37 @@
 import nc from 'next-connect'
 import dbConnect from '../../../../utils/db'
-import Payment from '../../../../models/Payment'
+import Trade from '../../../../models/Trade'
 import { isAuth } from '../../../../utils/auth'
 
 const handler = nc()
 
-const modelName = 'Payment'
+const modelName = 'Trade'
 const constants = {
-  model: Payment,
+  model: Trade,
   success: `${modelName} was updated successfully`,
   failed: `${modelName} was not updated successfully`,
   existed: `${modelName} was already existed`,
 }
 
 handler.use(isAuth)
-
-handler.delete(async (req, res) => {
+handler.put(async (req, res) => {
   await dbConnect()
 
   const _id = req.query.id
-  const obj = await constants.model.findById(_id)
+  const { status } = req.body
+
+  const obj = await constants.model.findOne({
+    _id,
+    status: 'agreed',
+  })
   if (!obj) {
     return res.status(404).send(constants.failed)
   } else {
-    // await obj.remove()
+    obj.status = status
+    obj.descriptionStatus = `Order completed`
+    await obj.save()
 
-    res.json({ status: constants.success })
+    res.status(200).json({ status: 'Trade has been completed' })
   }
 })
 

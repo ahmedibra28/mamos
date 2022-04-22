@@ -22,7 +22,7 @@ handler.get(async (req, res) => {
   await dbConnect()
   const { group } = req.user
   const obj = await constants.model
-    .find(group === 'logistic' ? {} : { createdBy: req.user._id })
+    .find(group === 'trade' ? {} : { createdBy: req.user._id })
     .lean()
     .sort({ createdAt: -1 })
     .populate('createdBy')
@@ -33,7 +33,9 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await dbConnect()
 
-  const files = req.files && req.files.file
+  const files = Array.isArray(req.files.file)
+    ? req.files.file
+    : [req.files.file]
   const createdBy = req.user.id
 
   // save files to server
@@ -54,6 +56,7 @@ handler.post(async (req, res) => {
     files: filesPath,
     description: req.body.description,
     status: 'pending',
+    descriptionStatus: 'Order received successfully',
     createdBy,
   })
 
