@@ -4,7 +4,7 @@ import User from './User'
 
 const airportScheme = mongoose.Schema(
   {
-    name: { type: String, requited: true },
+    name: { type: String, required: true },
     country: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Country,

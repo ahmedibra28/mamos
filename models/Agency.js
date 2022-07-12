@@ -3,13 +3,13 @@ import User from './User'
 
 const agencyScheme = mongoose.Schema(
   {
-    name: { type: String, requited: true },
-    contactPerson: { type: String, requited: true },
-    mobile: { type: Number, requited: true },
-    email: { type: String, requited: true, unique: true, lowercase: true },
-    address: { type: String, requited: true },
-    city: { type: String, requited: true },
-    state: { type: String, requited: true },
+    name: { type: String, required: true },
+    contactPerson: { type: String, required: true },
+    mobile: { type: Number, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 
     createdBy: {

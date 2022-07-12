@@ -6,15 +6,15 @@ import Airport from './Airport'
 
 const townScheme = mongoose.Schema(
   {
-    name: { type: String, requited: true },
-    cost: { type: Number, requited: true },
-    price: { type: Number, requited: true },
+    name: { type: String, required: true },
+    cost: { type: Number, required: true },
+    price: { type: Number, required: true },
     country: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Country,
       required: true,
     },
-    isPort: { type: Boolean, requited: true },
+    isPort: { type: Boolean, required: true },
     seaport: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Seaport,
