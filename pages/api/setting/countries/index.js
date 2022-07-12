@@ -44,6 +44,14 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
+    // check existence of object
+    const exist = await schemaName.findOne({
+      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+    })
+
+    if (exist)
+      return res.status(400).json({ error: 'Duplicate value detected' })
+
     const object = await schemaName.create({
       ...req.body,
       createdBy: req.user.id,

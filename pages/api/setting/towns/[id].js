@@ -16,19 +16,19 @@ handler.put(async (req, res) => {
   try {
     const { id } = req.query
 
-    const { name, cost, price, country, seaport, airport, isSeaport, status } =
+    const { name, cost, price, country, seaport, airport, isPort, status } =
       req.body
 
-    if (Number(cost) < Number(price))
+    if (Number(cost) > Number(price))
       return res
         .status(404)
         .json({ error: 'Cost must be greater than price amount' })
 
-    if (isSeaport) {
+    if (isPort) {
       if (!seaport)
         return res.status(404).json({ error: 'Seaport is required' })
     }
-    if (!isSeaport) {
+    if (!isPort) {
       if (!airport)
         return res.status(404).json({ error: 'Airport is required' })
     }
@@ -89,9 +89,9 @@ handler.put(async (req, res) => {
     object.cost = cost
     object.price = price
     object.country = country
-    object.airport = airport
-    object.seaport = seaport
-    object.isSeaport = isSeaport
+    object.isPort = isPort
+    object.airport = isPort ? undefined : airport
+    object.seaport = isPort ? seaport : undefined
     object.status = status
     object.updatedBy = req.user.id
     await object.save()

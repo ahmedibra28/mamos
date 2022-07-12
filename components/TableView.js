@@ -20,7 +20,7 @@ const TableView = (props) => {
 
   function getDeepObjValue(item, s) {
     return s.split('.').reduce((p, c) => {
-      p = p[c]
+      p = p?.[c]
       return p
     }, item)
   }

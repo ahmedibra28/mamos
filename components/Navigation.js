@@ -159,7 +159,6 @@ const Navigation = () => {
           <a>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              priority
               width='90'
               height='auto'
               src='/dark-logo.png'

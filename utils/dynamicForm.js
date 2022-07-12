@@ -66,6 +66,7 @@ export const inputNumber = (args) => {
       <input
         {...register(name, isRequired && { required: `${label} is required` })}
         type='number'
+        step='0.01'
         placeholder={`${placeholder}`}
         className='form-control'
       />

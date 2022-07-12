@@ -5,6 +5,7 @@ import Country from '../../../../models/Country'
 import Airport from '../../../../models/Airport'
 import Seaport from '../../../../models/Seaport'
 import { isAuth } from '../../../../utils/auth'
+import { priceFormat } from '../../../../utils/priceFormat'
 
 const schemaName = Town
 
@@ -35,7 +36,15 @@ handler.get(async (req, res) => {
       .populate('airport', ['name'])
       .populate('seaport', ['name'])
 
-    const result = await query
+    let result = await query
+
+    result = result.map((value) => ({
+      ...value,
+      cost: priceFormat(value.cost),
+      price: priceFormat(value.price),
+    }))
+
+    priceFormat
 
     res.status(200).json({
       startIndex: skip + 1,
@@ -54,18 +63,19 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
-    const { cost, price, seaport, airport, isSeaport } = req.body
+    const { name, country, status, cost, price, seaport, airport, isPort } =
+      req.body
 
-    if (Number(cost) < Number(price))
+    if (Number(cost) > Number(price))
       return res
         .status(404)
         .json({ error: 'Cost must be greater than price amount' })
 
-    if (isSeaport) {
+    if (isPort) {
       if (!seaport)
         return res.status(404).json({ error: 'Seaport is required' })
     }
-    if (!isSeaport) {
+    if (!isPort) {
       if (!airport)
         return res.status(404).json({ error: 'Airport is required' })
     }
@@ -93,10 +103,37 @@ handler.post(async (req, res) => {
       if (!obj) return res.status(404).json({ error: 'Seaport not found' })
     }
 
-    const object = await schemaName.create({
-      ...req.body,
+    // check existence of object
+    const exist = await schemaName.findOne(
+      isPort
+        ? {
+            name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+            country: req.body.country,
+            seaport: req.body.seaport,
+          }
+        : {
+            name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+            country: req.body.country,
+            airport: req.body.airport,
+          }
+    )
+
+    if (exist)
+      return res.status(400).json({ error: 'Duplicate value detected' })
+
+    const requestObj = {
+      name,
+      country,
+      cost,
+      price,
+      status,
+      isPort,
+      airport: isPort ? undefined : airport,
+      seaport: isPort ? seaport : undefined,
       createdBy: req.user.id,
-    })
+    }
+
+    const object = await schemaName.create(requestObj)
     res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })

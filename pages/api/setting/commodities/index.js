@@ -1,10 +1,9 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Seaport from '../../../../models/Seaport'
-import Country from '../../../../models/Country'
+import Commodity from '../../../../models/Commodity'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Seaport
+const schemaName = Commodity
 
 const handler = nc()
 handler.use(isAuth)
@@ -24,12 +23,7 @@ handler.get(async (req, res) => {
 
     const pages = Math.ceil(total / pageSize)
 
-    query = query
-      .skip(skip)
-      .limit(pageSize)
-      .sort({ createdAt: -1 })
-      .lean()
-      .populate('country', ['name'])
+    query = query.skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean()
 
     const result = await query
 
@@ -50,19 +44,9 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
-    // check if status is active
-    if (req.body.country) {
-      const obj = await Country.findOne({
-        country: req.body.country,
-        status: 'active',
-      })
-      if (!obj) return res.status(404).json({ error: 'Country not found' })
-    }
-
     // check existence of object
     const exist = await schemaName.findOne({
       name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
-      country: req.body.country,
     })
 
     if (exist)

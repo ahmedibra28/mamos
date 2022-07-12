@@ -14,16 +14,14 @@ const townScheme = mongoose.Schema(
       ref: Country,
       required: true,
     },
-    isSeaport: { type: Boolean, requited: true },
+    isPort: { type: Boolean, requited: true },
     seaport: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Seaport,
-      required: true,
     },
     airport: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Airport,
-      required: true,
     },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 

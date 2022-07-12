@@ -59,6 +59,15 @@ handler.post(async (req, res) => {
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
 
+    // check existence of object
+    const exist = await schemaName.findOne({
+      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+      country: req.body.country,
+    })
+
+    if (exist)
+      return res.status(400).json({ error: 'Duplicate value detected' })
+
     const object = await schemaName.create({
       ...req.body,
       createdBy: req.user.id,

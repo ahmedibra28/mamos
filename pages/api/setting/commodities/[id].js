@@ -1,10 +1,10 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Country from '../../../../models/Country'
+import Commodity from '../../../../models/Commodity'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Country
-const schemaNameString = 'Country'
+const schemaName = Commodity
+const schemaNameString = 'Commodity'
 
 const handler = nc()
 handler.use(isAuth)
