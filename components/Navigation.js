@@ -1,24 +1,18 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import {
-  FaCog,
-  FaUserCircle,
-  FaSignInAlt,
-  FaUserPlus,
-  FaPowerOff,
-  FaUserCog,
-} from 'react-icons/fa'
-import { logout } from '../api/users'
+import { FaSignInAlt, FaUserPlus, FaPowerOff } from 'react-icons/fa'
+import useAuthHook from '../utils/api/auth'
 import { useMutation } from 'react-query'
 import { useRouter } from 'next/router'
 import { customLocalStorage } from '../utils/customLocalStorage'
-import { Access, UnlockAccess } from '../utils/UnlockAccess'
+// import { Access, UnlockAccess } from '../utils/UnlockAccess'
 
 const Navigation = () => {
   const router = useRouter()
-  const { mutateAsync } = useMutation(logout, {
-    onSuccess: () => router.push('/login'),
+  const { postLogout } = useAuthHook()
+
+  const { mutateAsync } = useMutation(postLogout, {
+    onSuccess: () => router.push('/auth/login'),
   })
 
   const logoutHandler = () => {
@@ -36,16 +30,16 @@ const Navigation = () => {
     return (
       <>
         <ul className='navbar-nav ms-auto'>
-          {/* <li className='nav-item'>
-            <Link href='/register'>
-              <a className='nav-link active' aria-current='page'>
+          <li className='nav-item'>
+            <Link href='/auth/register'>
+              <a className='nav-link' aria-current='page'>
                 <FaUserPlus className='mb-1' /> Register
               </a>
             </Link>
-          </li> */}
+          </li>
           <li className='nav-item'>
-            <Link href='/login'>
-              <a className='nav-link active' aria-current='page'>
+            <Link href='/auth/login'>
+              <a className='nav-link' aria-current='page'>
                 <FaSignInAlt className='mb-1' /> Login
               </a>
             </Link>
@@ -55,30 +49,62 @@ const Navigation = () => {
     )
   }
 
+  const user = () => {
+    const userInfo =
+      customLocalStorage() &&
+      customLocalStorage().userInfo &&
+      customLocalStorage().userInfo
+
+    return userInfo
+  }
+
+  const menus = () => {
+    const dropdownItems =
+      customLocalStorage() &&
+      customLocalStorage().userAccessRoutes &&
+      customLocalStorage().userAccessRoutes.clientPermission &&
+      customLocalStorage().userAccessRoutes.clientPermission.map(
+        (route) => route.menu
+      )
+
+    const menuItems =
+      customLocalStorage() &&
+      customLocalStorage().userAccessRoutes &&
+      customLocalStorage().userAccessRoutes.clientPermission &&
+      customLocalStorage().userAccessRoutes.clientPermission.map(
+        (route) => route
+      )
+
+    const dropdownArray =
+      dropdownItems &&
+      dropdownItems.filter((item) => item !== 'hidden' && item !== 'normal')
+
+    const uniqueDropdowns = [...new Set(dropdownArray)]
+
+    return { uniqueDropdowns, menuItems }
+  }
+
   const authItems = () => {
     return (
       <>
         <ul className='navbar-nav ms-auto'>
-          {customLocalStorage() &&
-            customLocalStorage().userAccessRoutes &&
-            customLocalStorage().userAccessRoutes.route &&
-            customLocalStorage().userAccessRoutes.route.map(
-              (route) =>
-                route.isActive &&
-                route.menu === 'Normal' && (
-                  <li key={route._id} className='nav-item'>
-                    <Link href={route.path}>
-                      <a className='nav-link active' aria-current='page'>
-                        {route.name}
+          {menus() &&
+            menus().menuItems.map(
+              (menu) =>
+                menu.menu === 'normal' && (
+                  <li key={menu._id} className='nav-item'>
+                    <Link href={menu.path}>
+                      <a className='nav-link' aria-current='page'>
+                        {menu.name}
                       </a>
                     </Link>
                   </li>
                 )
             )}
 
-          {UnlockAccess(Access.admin) && (
-            <>
-              <li className='nav-item dropdown'>
+          {menus() &&
+            menus().uniqueDropdowns.map((item) => (
+              <li key={item} className='nav-item dropdown'>
                 <a
                   className='nav-link dropdown-toggle'
                   href='#'
@@ -87,97 +113,39 @@ const Navigation = () => {
                   data-bs-toggle='dropdown'
                   aria-expanded='false'
                 >
-                  <FaCog className='mb-1' /> Setting
+                  {item === 'profile'
+                    ? user() && user().name
+                    : item.charAt(0).toUpperCase() + item.substring(1)}
                 </a>
                 <ul
                   className='dropdown-menu border-0'
                   aria-labelledby='navbarDropdownMenuLink'
                 >
-                  {customLocalStorage() &&
-                    customLocalStorage().userAccessRoutes &&
-                    customLocalStorage().userAccessRoutes.route &&
-                    customLocalStorage().userAccessRoutes.route.map(
-                      (route) =>
-                        route.isActive &&
-                        route.menu === 'Setting' && (
-                          <li key={route._id}>
-                            <Link href={route.path}>
-                              <a className='dropdown-item'>{route.name}</a>
+                  {menus() &&
+                    menus().menuItems.map(
+                      (menu) =>
+                        menu.menu === item && (
+                          <li key={menu._id}>
+                            <Link href={menu.path}>
+                              <a className='dropdown-item'>{menu.name}</a>
                             </Link>
                           </li>
                         )
                     )}
                 </ul>
               </li>
+            ))}
 
-              <li className='nav-item dropdown'>
-                <a
-                  className='nav-link dropdown-toggle'
-                  href='#'
-                  id='navbarDropdownMenuLink'
-                  role='button'
-                  data-bs-toggle='dropdown'
-                  aria-expanded='false'
-                >
-                  <FaUserCog className='mb-1' /> Admin
-                </a>
-                <ul
-                  className='dropdown-menu border-0'
-                  aria-labelledby='navbarDropdownMenuLink'
-                >
-                  {customLocalStorage() &&
-                    customLocalStorage().userAccessRoutes &&
-                    customLocalStorage().userAccessRoutes.route &&
-                    customLocalStorage().userAccessRoutes.route.map(
-                      (route) =>
-                        route.isActive &&
-                        route.menu === 'Admin' && (
-                          <li key={route._id}>
-                            <Link href={route.path}>
-                              <a className='dropdown-item'>{route.name}</a>
-                            </Link>
-                          </li>
-                        )
-                    )}
-                </ul>
-              </li>
-            </>
-          )}
-
-          <li className='nav-item dropdown'>
-            <a
-              className='nav-link dropdown-toggle'
-              href='#'
-              id='navbarDropdownMenuLink'
-              role='button'
-              data-bs-toggle='dropdown'
-              aria-expanded='false'
-            >
-              <FaUserCircle className='mb-1' />{' '}
-              {customLocalStorage() &&
-                customLocalStorage().userInfo &&
-                customLocalStorage().userInfo.name}
-            </a>
-            <ul
-              className='dropdown-menu border-0'
-              aria-labelledby='navbarDropdownMenuLink'
-            >
-              <li>
-                <Link href='/profile'>
-                  <a className='dropdown-item'>
-                    <FaUserCircle className='mb-1' /> Profile
-                  </a>
-                </Link>
-              </li>
-
-              <li>
-                <Link href='/'>
-                  <a className='dropdown-item' onClick={logoutHandler}>
-                    <FaPowerOff className='mb-1' /> Logout
-                  </a>
-                </Link>
-              </li>
-            </ul>
+          <li className='nav-item'>
+            <Link href='/auth/login'>
+              <a
+                className='nav-link'
+                aria-current='page'
+                onClick={logoutHandler}
+              >
+                <FaPowerOff className='mb-1' /> Logout
+              </a>
+            </Link>
           </li>
         </ul>
       </>
@@ -185,15 +153,16 @@ const Navigation = () => {
   }
 
   return (
-    <nav className='navbar navbar-expand-lg navbar-light shadow-lg'>
+    <nav className='navbar navbar-expand-md navbar-light bg-light'>
       <div className='container'>
         <Link href='/'>
           <a>
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               priority
-              width='80'
-              height='35'
-              src='/logo.png'
+              width='90'
+              height='auto'
+              src='/dark-logo.png'
               className='img-fluid brand-logos'
               alt='logo'
             />

@@ -7,8 +7,10 @@ const containerScheme = mongoose.Schema(
     height: { type: Number, required: true },
     width: { type: Number, required: true },
     length: { type: Number, required: true },
+
     payloadCapacity: { type: Number, required: true },
-    isActive: { type: Boolean, default: true },
+    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,

@@ -4,12 +4,14 @@ import User from './User'
 const agencyScheme = mongoose.Schema(
   {
     name: { type: String, requited: true },
+    contactPerson: { type: String, requited: true },
     mobile: { type: Number, requited: true },
     email: { type: String, requited: true, unique: true, lowercase: true },
-    city: { type: String, requited: true },
     address: { type: String, requited: true },
+    city: { type: String, requited: true },
+    state: { type: String, requited: true },
+    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 
-    isActive: { type: Boolean, default: true },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,

@@ -1,18 +1,32 @@
 import mongoose from 'mongoose'
-import Seaport from './Seaport'
-import Airport from './Airport'
 import User from './User'
 import Country from './Country'
+import Seaport from './Seaport'
+import Airport from './Airport'
 
 const townScheme = mongoose.Schema(
   {
     name: { type: String, requited: true },
     cost: { type: Number, requited: true },
-    country: { type: mongoose.Schema.Types.ObjectId, ref: Country },
-    seaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
-    airport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
-    isPort: { type: Boolean, default: false },
-    isActive: { type: Boolean, default: true },
+    price: { type: Number, requited: true },
+    country: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Country,
+      required: true,
+    },
+    isSeaport: { type: Boolean, requited: true },
+    seaport: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Seaport,
+      required: true,
+    },
+    airport: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Airport,
+      required: true,
+    },
+    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,

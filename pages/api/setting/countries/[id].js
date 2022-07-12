@@ -1,59 +1,54 @@
 import nc from 'next-connect'
-import dbConnect from '../../../../utils/db'
-import Country from '../../../../models/Country'
-import { isAuth } from '../../../../utils/auth'
+import db from '../../../../../config/db'
+import Country from '../../../../../models/Country'
+import { isAuth } from '../../../../../utils/auth'
+
+const schemaName = Country
+const schemaNameString = 'Country'
 
 const handler = nc()
-
-const modelName = 'Country'
-const constants = {
-  model: Country,
-  success: `${modelName} was updated successfully`,
-  failed: `${modelName} was not updated successfully`,
-  existed: `${modelName} was already existed`,
-}
-
 handler.use(isAuth)
 handler.put(async (req, res) => {
-  await dbConnect()
+  await db()
+  try {
+    const { id } = req.query
+    const { name, status } = req.body
 
-  const { isActive, name } = req.body
-  const _id = req.query.id
-  const updatedBy = req.user.id
+    const object = await schemaName.findById(id)
+    if (!object)
+      return res.status(400).json({ error: `${schemaNameString} not found` })
 
-  const obj = await constants.model.findById(_id)
-
-  if (obj) {
-    const exist = await constants.model.exists({
-      _id: { $ne: _id },
-      name,
+    // check existence of object
+    const exist = await schemaName.findOne({
+      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+      _id: { $ne: id },
     })
-    if (!exist) {
-      obj.name = name
-      obj.isActive = isActive
-      obj.updatedBy = updatedBy
-      await obj.save()
 
-      res.json({ status: constants.success })
-    } else {
-      return res.status(400).send(constants.failed)
-    }
-  } else {
-    return res.status(404).send(constants.failed)
+    if (exist)
+      return res.status(400).json({ error: 'Duplicate value detected' })
+
+    object.name = name
+    object.status = status
+    object.updatedBy = req.user.id
+    await object.save()
+    res.status(200).send(`${schemaNameString} updated`)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
 })
 
 handler.delete(async (req, res) => {
-  await dbConnect()
+  await db()
+  try {
+    const { id } = req.query
+    const object = await schemaName.findById(id)
+    if (!object)
+      return res.status(400).json({ error: `${schemaNameString} not found` })
 
-  const _id = req.query.id
-  const obj = await constants.model.findById(_id)
-  if (!obj) {
-    return res.status(404).send(constants.failed)
-  } else {
-    await obj.remove()
-
-    res.json({ status: constants.success })
+    await object.remove()
+    res.status(200).send(`${schemaNameString} removed`)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
 })
 

@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import { customLocalStorage } from '../utils/customLocalStorage'
 
 const withAuth = async (WrappedComponent) => {
+  // eslint-disable-next-line react/display-name
   return (props) => {
     if (typeof window !== 'undefined') {
       const router = useRouter()
@@ -16,16 +17,16 @@ const withAuth = async (WrappedComponent) => {
         customLocalStorage() &&
         customLocalStorage().userAccessRoutes &&
         !customLocalStorage()
-          .userAccessRoutes.route.map((g) => g.path)
+          .userAccessRoutes.clientPermission.map((g) => g.path)
           .includes(pathName)
       ) {
-        router.push('/profile')
+        router.push('/')
         return null
       }
 
       if (!accessToken) {
         router.isReady &&
-          router.push(`/login?next=${router.isReady && router.asPath}`)
+          router.push(`/auth/login?next=${router.isReady && router.asPath}`)
 
         return null
       }

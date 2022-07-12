@@ -6,11 +6,11 @@ export default function Layout({ children }) {
   return (
     <>
       <Head>
-        <title>Mamos Cargo</title>
-        <meta property='og:title' content='Mamos Cargo' key='title' />
+        <title>Mamos Business</title>
+        <meta property='og:title' content='Mamos Business' key='title' />
       </Head>
       <Navigation />
-      <main className='container'>{children}</main>
+      <main className='container py-2'>{children}</main>
       <Footer />
     </>
   )

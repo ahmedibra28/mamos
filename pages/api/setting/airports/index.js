@@ -1,51 +1,71 @@
 import nc from 'next-connect'
-import dbConnect from '../../../../utils/db'
+import db from '../../../../config/db'
 import Airport from '../../../../models/Airport'
+import Country from '../../../../models/Country'
 import { isAuth } from '../../../../utils/auth'
 
+const schemaName = Airport
+
 const handler = nc()
-
-const modelName = 'airport'
-const constants = {
-  model: Airport,
-  success: `New ${modelName} was created successfully`,
-  failed: `New ${modelName} was not created successfully`,
-  existed: `New ${modelName} was already existed`,
-}
-
+handler.use(isAuth)
 handler.get(async (req, res) => {
-  await dbConnect()
-  const obj = await constants.model
-    .find({})
-    .lean()
-    .sort({ createdAt: -1 })
-    .populate('country')
-  res.send(obj)
+  await db()
+  try {
+    const q = req.query && req.query.q
+
+    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
+
+    const page = parseInt(req.query.page) || 1
+    const pageSize = parseInt(req.query.limit) || 25
+    const skip = (page - 1) * pageSize
+    const total = await schemaName.countDocuments(
+      q ? { name: { $regex: q, $options: 'i' } } : {}
+    )
+
+    const pages = Math.ceil(total / pageSize)
+
+    query = query
+      .skip(skip)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .lean()
+      .populate('country', ['name'])
+
+    const result = await query
+
+    res.status(200).json({
+      startIndex: skip + 1,
+      endIndex: skip + result.length,
+      count: result.length,
+      page,
+      pages,
+      total,
+      data: result,
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-handler.use(isAuth)
 handler.post(async (req, res) => {
-  await dbConnect()
+  await db()
+  try {
+    // check if status is active
+    if (req.body.country) {
+      const obj = await Country.findOne({
+        country: req.body.country,
+        status: 'active',
+      })
+      if (!obj) return res.status(404).json({ error: 'Country not found' })
+    }
 
-  const { isActive, name, country } = req.body
-  const createdBy = req.user.id
-
-  const exist = await constants.model.exists({ name, country })
-
-  if (exist) {
-    return res.status(400).send(constants.existed)
-  }
-  const createObj = await constants.model.create({
-    name,
-    country,
-    isActive,
-    createdBy,
-  })
-
-  if (createObj) {
-    res.status(201).json({ status: constants.success })
-  } else {
-    return res.status(400).send(constants.failed)
+    const object = await schemaName.create({
+      ...req.body,
+      createdBy: req.user.id,
+    })
+    res.status(200).send(object)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
   }
 })
 
