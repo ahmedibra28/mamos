@@ -206,8 +206,8 @@ const Agencies = () => {
     !edit && <hr key='01' />,
     !edit && <hr key='02' />,
     !edit && (
-      <h4 key='03' className='font-monospace'>
-        User Authentication
+      <h4 key='03' className='font-monospace text-primary'>
+        Agency Access Credentials
       </h4>
     ),
     !edit && '',

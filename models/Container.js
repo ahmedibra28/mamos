@@ -4,11 +4,11 @@ import User from './User'
 const containerScheme = mongoose.Schema(
   {
     name: { type: String, required: true },
-    height: { type: Number, required: true },
-    width: { type: Number, required: true },
     length: { type: Number, required: true },
+    width: { type: Number, required: true },
+    height: { type: Number, required: true },
+    details: {},
 
-    payloadCapacity: { type: Number, required: true },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 
     createdBy: {
