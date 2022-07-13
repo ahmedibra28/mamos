@@ -7,7 +7,9 @@ import { useForm } from 'react-hook-form'
 import useAgenciesHook from '../../utils/api/agencies'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
+  InputAutoCompleteSelect,
   inputEmail,
+  inputPassword,
   inputTel,
   inputText,
   inputTextArea,
@@ -15,6 +17,7 @@ import {
 } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
+import { cities } from '../../utils/data'
 
 const Agencies = () => {
   const [page, setPage] = useState(1)
@@ -106,7 +109,7 @@ const Agencies = () => {
       'address',
       'status',
     ],
-    createdAt: 'createdAt',
+    // createdAt: 'createdAt',
     data: data,
   }
 
@@ -141,7 +144,6 @@ const Agencies = () => {
           email: data.email,
           address: data.address,
           city: data.city,
-          state: data.state,
           status: data.status,
         })
       : mutateAsyncPost(data)
@@ -176,19 +178,21 @@ const Agencies = () => {
       name: 'email',
       placeholder: 'Enter email',
     }),
-    inputText({
+    InputAutoCompleteSelect({
       register,
       errors,
       label: 'City',
       name: 'city',
-      placeholder: 'Enter city',
+      placeholder: 'Select city',
+      data: cities,
     }),
-    inputText({
+    staticInputSelect({
       register,
       errors,
-      label: 'State',
-      name: 'state',
-      placeholder: 'Enter state',
+      label: 'Status',
+      name: 'status',
+      placeholder: 'Select status',
+      data: [{ name: 'active' }, { name: 'inactive' }],
     }),
     inputTextArea({
       register,
@@ -198,19 +202,37 @@ const Agencies = () => {
       placeholder: 'Enter address',
     }),
 
-    staticInputSelect({
-      register,
-      errors,
-      label: 'Status',
-      name: 'status',
-      placeholder: 'Select status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
-    }),
+    !edit && '',
+    !edit && <hr key='01' />,
+    !edit && <hr key='02' />,
+    !edit && (
+      <h4 key='03' className='font-monospace'>
+        User Authentication
+      </h4>
+    ),
+    !edit && '',
+    !edit &&
+      inputEmail({
+        register,
+        errors,
+        label: 'Auth Email',
+        name: 'authEmail',
+        placeholder: 'Enter auth email address',
+      }),
+    !edit &&
+      inputPassword({
+        register,
+        errors,
+        label: 'Auth Password',
+        name: 'authPassword',
+        placeholder: 'Enter auth password',
+        isRequired: false,
+      }),
   ]
 
-  const row = false
+  const row = true
   const column = 'col-md-6 col-12'
-  const modalSize = 'modal-md'
+  const modalSize = 'modal-lg'
 
   return (
     <>

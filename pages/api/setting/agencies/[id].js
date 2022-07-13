@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import Agency from '../../../../models/Agency'
 import { isAuth } from '../../../../utils/auth'
+import { cities } from '../../../../utils/data'
 
 const schemaName = Agency
 const schemaNameString = 'Agency'
@@ -12,8 +13,13 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { name, contactPerson, mobile, email, address, city, state, status } =
+    const { name, contactPerson, mobile, email, address, city, status } =
       req.body
+
+    const cityValidate = cities.map((city) => `${city.city} - ${city.country}`)
+
+    if (!cityValidate.includes(city))
+      return res.status(404).json({ error: 'Invalid city' })
 
     const object = await schemaName.findById(id)
     if (!object)
@@ -21,7 +27,7 @@ handler.put(async (req, res) => {
 
     // check existence of object
     const exist = await schemaName.findOne({
-      mobile: { $regex: `^${req.body?.mobile?.trim()}$`, $options: 'i' },
+      mobile: req.body?.mobile?.trim(),
       _id: { $ne: id },
     })
 
@@ -34,7 +40,6 @@ handler.put(async (req, res) => {
     object.email = email
     object.address = address
     object.city = city
-    object.state = state
     object.status = status
     object.updatedBy = req.user.id
     await object.save()

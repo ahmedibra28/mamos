@@ -362,8 +362,8 @@ export const InputAutoCompleteSelect = (args) => {
         <option value=''>-------------</option>
         {data &&
           data.map((d) => (
-            <option key={d._id} value={d._id}>
-              {d.name}
+            <option key={d._id} value={`${d.city} - ${d.country}`}>
+              {`${d.city} - ${d.country}`}
             </option>
           ))}
       </datalist>
