@@ -40,3 +40,7 @@ yarn-error.log*
 /public/uploads/*.docx
 /public/uploads/*.doc
 
+
+
+# database
+mamos-business

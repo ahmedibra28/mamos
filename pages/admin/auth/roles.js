@@ -141,9 +141,8 @@ const Roles = () => {
       ? mutateAsyncUpdate({
           _id: id,
           name: data.name,
-          method: data.method,
-          route: data.route,
-          auth: data.auth,
+          permission: data.permission,
+          clientPermission: data.clientPermission,
           description: data.description,
         })
       : mutateAsyncPost(data)

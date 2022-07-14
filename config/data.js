@@ -148,6 +148,13 @@ const clientPermissions = [
     auth: true,
     description: 'Towns page',
   },
+  {
+    name: 'Transportations',
+    path: '/setting/transportations',
+    menu: 'setting',
+    auth: true,
+    description: 'Transportations page',
+  },
 ]
 
 const permissions = [
@@ -555,6 +562,36 @@ const permissions = [
     route: '/api/setting/towns/:id',
     auth: true,
     name: 'Town',
+    method: 'DELETE',
+  },
+
+  // Transportation endpoint
+  {
+    description: 'Get All Transportations',
+    route: '/api/setting/transportations',
+    auth: true,
+    name: 'Transportation',
+    method: 'GET',
+  },
+  {
+    description: 'Create Transportation',
+    route: '/api/setting/transportations',
+    auth: true,
+    name: 'Transportation',
+    method: 'POST',
+  },
+  {
+    description: 'Update Transportation',
+    route: '/api/setting/transportations/:id',
+    auth: true,
+    name: 'Transportation',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Transportation',
+    route: '/api/setting/transportations/:id',
+    auth: true,
+    name: 'Transportation',
     method: 'DELETE',
   },
 ]

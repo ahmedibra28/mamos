@@ -44,8 +44,6 @@ handler.get(async (req, res) => {
       price: priceFormat(value.price),
     }))
 
-    priceFormat
-
     res.status(200).json({
       startIndex: skip + 1,
       endIndex: skip + result.length,
