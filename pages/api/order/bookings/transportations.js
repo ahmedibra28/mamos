@@ -3,6 +3,7 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
+import { priceFormat } from '../../../../utils/priceFormat'
 
 const schemaName = Transportation
 
@@ -17,13 +18,15 @@ handler.post(async (req, res) => {
       pickupSeaport,
       destinationAirport,
       destinationSeaport,
+      cargoType,
     } = req.body
 
     if (transportationType === 'plane') {
-      const object = await schemaName
+      let object = await schemaName
         .find({
           departureAirport: pickupAirport,
           arrivalAirport: destinationAirport,
+          cargoType,
           status: 'active',
           departureDate: { $gt: moment().format() },
         })
@@ -34,13 +37,20 @@ handler.post(async (req, res) => {
         .populate('departureSeaport')
         .populate('departureAirport')
         .populate('container')
+
+      object = object.map((obj) => ({
+        ...obj,
+        price: priceFormat(obj.price),
+      }))
+
       res.status(200).send(object)
     }
     if (transportationType === 'ship') {
-      const object = await schemaName
+      let object = await schemaName
         .find({
           departureSeaport: pickupSeaport,
           arrivalSeaport: destinationSeaport,
+          cargoType,
           status: 'active',
           departureDate: { $gt: moment().format() },
         })
@@ -51,6 +61,12 @@ handler.post(async (req, res) => {
         .populate('departureSeaport')
         .populate('departureAirport')
         .populate('container')
+
+      object = object.map((obj) => ({
+        ...obj,
+        price: priceFormat(obj.price),
+      }))
+
       res.status(200).send(object)
     }
   } catch (error) {

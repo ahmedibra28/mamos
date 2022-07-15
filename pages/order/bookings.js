@@ -8,30 +8,45 @@ import useBookingsHook from '../../utils/api/booking'
 import useSeaportsHook from '../../utils/api/seaports'
 import useAirportsHook from '../../utils/api/airports'
 import useCountriesHook from '../../utils/api/countries'
+import useCommoditiesHook from '../../utils/api/commodities'
 
-import { Spinner, Pagination, Message, Confirm } from '../../components'
+import { Spinner, Message, Confirm } from '../../components'
+import { dynamicInputSelect, staticInputSelect } from '../../utils/dynamicForm'
 import {
-  dynamicInputSelect,
-  InputAutoCompleteSelect,
-  inputEmail,
-  inputPassword,
-  inputTel,
-  inputText,
-  inputTextArea,
-  staticInputSelect,
-} from '../../utils/dynamicForm'
+  TransportationItem,
+  TransportationItemFCL,
+} from '../../components/TransportationItem'
+import { FaMinusCircle, FaPlusCircle, FaTrash } from 'react-icons/fa'
 
 const Bookings = () => {
+  const [selectedTransportation, setSelectedTransportation] = useState(null)
+  const [selectContainer, setSelectContainer] = useState([])
+  const [inputFields, setInputFields] = useState([
+    {
+      qty: 0,
+      commodity: '',
+      length: '',
+      width: '',
+      height: '',
+    },
+  ])
+
   const { postBookings, postAvailableTransportations } = useBookingsHook({})
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
   const { getCountries } = useCountriesHook({ limit: 1000000 })
+  const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
 
   const { data: seaportsData } = getSeaports
   const { data: airportsData } = getAirports
   const { data: countriesData } = getCountries
-  const { data: transportationsData, mutateAsync: transportationsMutateAsync } =
-    postAvailableTransportations
+  const { data: commoditiesData } = getCommodities
+
+  const {
+    data: transportationsData,
+    mutateAsync: transportationsMutateAsync,
+    isLoading: isLoadingTransportations,
+  } = postAvailableTransportations
 
   const {
     register,
@@ -45,17 +60,91 @@ const Bookings = () => {
   })
 
   const submitHandler = (data) => {
-    console.log(data)
+    console.log({
+      ...data,
+      transportation: selectedTransportation,
+      container: selectContainer,
+    })
     transportationsMutateAsync({
-      transportationType: watch().transportationType,
-      pickupAirport: watch().pickupAirport,
-      pickupSeaport: watch().pickupSeaport,
-      destinationAirport: watch().destinationAirport,
-      destinationSeaport: watch().destinationSeaport,
+      transportationType: data.transportationType,
+      pickupAirport: data.pickupAirport,
+      pickupSeaport: data.pickupSeaport,
+      destinationAirport: data.destinationAirport,
+      destinationSeaport: data.destinationSeaport,
+      cargoType: data.cargoType,
     })
   }
 
-  console.log(transportationsData)
+  const addContainer = (container) => {
+    const existed = selectContainer.find((c) => c._id === container._id)
+    if (existed) {
+      const newSelectContainer = selectContainer.map((c) => {
+        if (c._id === container._id) {
+          return {
+            ...container,
+            quantity: c.quantity + 1,
+          }
+        }
+        return c
+      })
+      setSelectContainer(newSelectContainer)
+    } else {
+      setSelectContainer([...selectContainer, { ...container, quantity: 1 }])
+    }
+  }
+
+  const removeContainer = (container) => {
+    const newSelectContainer = selectContainer.map((c) => {
+      if (c._id === container._id && c.quantity > 1) {
+        return {
+          ...container,
+          quantity: c.quantity - 1,
+        }
+      }
+      if (c._id === container._id && c.quantity === 1) {
+        return null
+      }
+      return c
+    })
+
+    setSelectContainer(newSelectContainer.filter((f) => f !== null))
+  }
+
+  const handleAddField = () => {
+    setInputFields([
+      ...inputFields,
+      {
+        qty: '',
+        commodity: '',
+        length: '',
+        width: '',
+        height: '',
+      },
+    ])
+  }
+
+  const handleRemoveField = (index) => {
+    const list = [...inputFields]
+    list.splice(index, 1)
+    setInputFields(list)
+  }
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target
+    const old = inputFields[index]
+    const updated = { ...old, [name]: value }
+    var list = [...inputFields]
+    list[index] = updated
+    setInputFields(list)
+  }
+
+  const TotalCBM = inputFields
+    ?.reduce(
+      (acc, curr) => acc + (curr.length * curr.width * curr.height) / 1000,
+      0
+    )
+    ?.toFixed(2)
+
   return (
     <>
       <Head>
@@ -114,9 +203,19 @@ const Bookings = () => {
                 ],
               })}
             </div>
+            {watch().transportationType !== 'plane' && (
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {staticInputSelect({
+                  register,
+                  errors,
+                  label: 'Cargo type?',
+                  name: 'cargoType',
+                  data: [{ name: 'FCL' }, { name: 'LCL' }],
+                })}
+              </div>
+            )}
           </div>
         </div>
-
         <div className='bg-light p-3 my-2'>
           <h3>Departure and Arrival Information</h3>
           <div className='row'>
@@ -207,7 +306,173 @@ const Bookings = () => {
             </div>
           </div>
         </div>
+        {isLoadingTransportations ? (
+          <Spinner />
+        ) : (
+          transportationsData && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Available transportations based on your lookup</h3>
 
+              <div className='row gy-3'>
+                {transportationsData
+                  ?.filter((item) => item?.cargoType === watch().cargoType)
+                  ?.map((item) => (
+                    <div
+                      key={item._id}
+                      className='col-lg-3 col-md-4 col-sm-6 col-12'
+                    >
+                      <TransportationItem
+                        item={item}
+                        setSelectedTransportation={setSelectedTransportation}
+                        selectedTransportation={selectedTransportation}
+                        addContainer={addContainer}
+                        removeContainer={removeContainer}
+                        selectContainer={selectContainer}
+                        cargoType={watch().cargoType}
+                      />
+                    </div>
+                  ))}
+                <div className='col-12'>
+                  {transportationsData?.length === 0 && (
+                    <p className='text-center text-danger'>
+                      <span className='fw-bold'>Sorry! </span> There is no
+                      available transportations. Please update your search or
+                      contact us filter.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        )}
+        {watch().cargoType !== 'FCL' &&
+          selectedTransportation &&
+          selectedTransportation?.cargoType !== 'FCL' &&
+          transportationsData?.filter(
+            (item) => item?.cargoType === watch().cargoType
+          )?.length > 0 && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Cargo Information</h3>
+              <h6>
+                Total CBM [{TotalCBM} M<sup>3</sup>]
+              </h6>
+              <label>Tell us a bit more about your cargo.</label>
+              {inputFields.map((inputField, index) => (
+                <div key={index} className='mt-3'>
+                  <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
+                  <div className='row gy-3'>
+                    <div className='col-lg-2 col-md-3 col-6'>
+                      <label htmlFor='item' className='form-label'>
+                        Package Quantity
+                      </label>
+                      <input
+                        type='number'
+                        min={0}
+                        className='form-control '
+                        placeholder='Package quantity'
+                        name='qty'
+                        id='qty'
+                        value={inputField.qty}
+                        required
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </div>
+
+                    <div className='col-lg-2 col-md-3 col-6'>
+                      <label htmlFor='item' className='form-label'>
+                        Commodity
+                      </label>
+                      <select
+                        className='form-control '
+                        placeholder='Commodity'
+                        name='commodity'
+                        id='commodity'
+                        value={inputField.commodity}
+                        required
+                        onChange={(e) => handleInputChange(e, index)}
+                      >
+                        <option value=''>-------</option>
+                        {commoditiesData?.data?.map(
+                          (c) =>
+                            c.status === 'active' && (
+                              <option value={c._id} key={c._id}>
+                                {c.name}
+                              </option>
+                            )
+                        )}
+                      </select>
+                    </div>
+
+                    <div className='col-lg-2 col-md-3 col-6'>
+                      <label htmlFor='item' className='form-label'>
+                        Length (cm)
+                      </label>
+                      <input
+                        type='number'
+                        min={0}
+                        className='form-control '
+                        placeholder='Length'
+                        name='length'
+                        id='length'
+                        value={inputField.length}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </div>
+
+                    <div className='col-lg-2 col-md-3 col-6'>
+                      <label htmlFor='item' className='form-label'>
+                        Width (cm)
+                      </label>
+                      <input
+                        type='number'
+                        min={0}
+                        className='form-control '
+                        placeholder='Width'
+                        name='width'
+                        id='width'
+                        value={inputField.width}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </div>
+                    <div className='col-lg-2 col-md-3 col-6'>
+                      <label htmlFor='item' className='form-label'>
+                        Height (cm)
+                      </label>
+                      <input
+                        type='number'
+                        min={0}
+                        className='form-control '
+                        placeholder='Height'
+                        name='height'
+                        id='height'
+                        value={inputField.height}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                    </div>
+
+                    <div className='col-lg-2 col-md-3 col-6 mb-0 my-auto text-end'>
+                      <button
+                        type='button'
+                        onClick={() => handleRemoveField(index)}
+                        className='btn btn-danger'
+                      >
+                        <FaTrash className='mb-1' /> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div className='text-end mt-3'>
+                <button
+                  onClick={() => handleAddField()}
+                  type='button'
+                  className='btn btn-primary'
+                >
+                  <FaPlusCircle className='mb-1' /> Add Package
+                </button>
+              </div>
+            </div>
+          )}
         <button
           type='submit'
           className='btn btn-primary float-end'
