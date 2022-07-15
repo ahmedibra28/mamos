@@ -11,11 +11,14 @@ import useCountriesHook from '../../utils/api/countries'
 import useCommoditiesHook from '../../utils/api/commodities'
 
 import { Spinner, Message, Confirm } from '../../components'
-import { dynamicInputSelect, staticInputSelect } from '../../utils/dynamicForm'
 import {
-  TransportationItem,
-  TransportationItemFCL,
-} from '../../components/TransportationItem'
+  dynamicInputSelect,
+  inputCheckBox,
+  inputNumber,
+  inputText,
+  staticInputSelect,
+} from '../../utils/dynamicForm'
+import TransportationItem from '../../components/TransportationItem'
 import { FaMinusCircle, FaPlusCircle, FaTrash } from 'react-icons/fa'
 
 const Bookings = () => {
@@ -54,16 +57,19 @@ const Bookings = () => {
     watch,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
-    defaultValues: {},
+    defaultValues: {
+      isTemperatureControlled: true,
+    },
   })
 
   const submitHandler = (data) => {
     console.log({
       ...data,
       transportation: selectedTransportation,
-      container: selectContainer,
+      containerFCL: selectContainer,
+      containerLCL: inputFields,
     })
     transportationsMutateAsync({
       transportationType: data.transportationType,
@@ -138,12 +144,25 @@ const Bookings = () => {
     setInputFields(list)
   }
 
-  const TotalCBM = inputFields
+  const TOTAL_CBM = inputFields
     ?.reduce(
       (acc, curr) => acc + (curr.length * curr.width * curr.height) / 1000,
       0
     )
     ?.toFixed(2)
+
+  const airFreightKG =
+    selectContainer &&
+    selectContainer.reduce(
+      (acc, curr) => acc + curr.details?.airFreight * curr.quantity,
+      0
+    )
+
+  const USED_CBM = 16.33297 + Number(TOTAL_CBM)
+  const DEFAULT_CAPACITY = Number(
+    selectedTransportation?.container?.details?.CBM
+  )
+  const AVAILABLE_CBM = DEFAULT_CAPACITY - USED_CBM
 
   return (
     <>
@@ -214,98 +233,112 @@ const Bookings = () => {
                 })}
               </div>
             )}
+            {watch().transportationType === 'plane' && (
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {staticInputSelect({
+                  register,
+                  errors,
+                  label: 'Cargo type?',
+                  name: 'cargoType',
+                  data: [{ name: 'AIR' }],
+                })}
+              </div>
+            )}
           </div>
         </div>
-        <div className='bg-light p-3 my-2'>
-          <h3>Departure and Arrival Information</h3>
-          <div className='row'>
-            <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Pickup Country',
-                name: 'pickupCountry',
-                value: 'name',
-                data: countriesData?.data?.filter(
-                  (country) => country.status === 'active'
-                ),
-              })}
-            </div>
-            <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
-              {watch().transportationType === 'ship' &&
-                dynamicInputSelect({
+        {watch().transportationType && (
+          <div className='bg-light p-3 my-2'>
+            <h3>Departure and Arrival Information</h3>
+            <div className='row'>
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {dynamicInputSelect({
                   register,
                   errors,
-                  label: 'Pickup Seaport',
-                  name: 'pickupSeaport',
+                  label: 'Pickup Country',
+                  name: 'pickupCountry',
                   value: 'name',
-                  data: seaportsData?.data?.filter(
-                    (item) =>
-                      item?.country?._id === watch().pickupCountry &&
-                      item?.status === 'active' &&
-                      item._id !== watch().destinationSeaport
+                  data: countriesData?.data?.filter(
+                    (country) => country.status === 'active'
                   ),
                 })}
-              {watch().transportationType === 'plane' &&
-                dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Pickup Airport',
-                  name: 'pickupAirport',
-                  value: 'name',
-                  data: airportsData?.data?.filter(
-                    (item) =>
-                      item?.country?._id === watch().pickupCountry &&
-                      item?.status === 'active' &&
-                      item._id !== watch().destinationAirport
-                  ),
-                })}
-            </div>
+              </div>
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {watch().transportationType === 'ship' &&
+                  dynamicInputSelect({
+                    register,
+                    errors,
+                    label: 'Pickup Seaport',
+                    name: 'pickupSeaport',
+                    value: 'name',
+                    data: seaportsData?.data?.filter(
+                      (item) =>
+                        item?.country?._id === watch().pickupCountry &&
+                        item?.status === 'active' &&
+                        item._id !== watch().destinationSeaport
+                    ),
+                  })}
+                {watch().transportationType === 'plane' &&
+                  dynamicInputSelect({
+                    register,
+                    errors,
+                    label: 'Pickup Airport',
+                    name: 'pickupAirport',
+                    value: 'name',
+                    data: airportsData?.data?.filter(
+                      (item) =>
+                        item?.country?._id === watch().pickupCountry &&
+                        item?.status === 'active' &&
+                        item._id !== watch().destinationAirport
+                    ),
+                  })}
+              </div>
 
-            <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
-              {dynamicInputSelect({
-                register,
-                errors,
-                label: 'Destination Country',
-                name: 'destinationCountry',
-                value: 'name',
-                data: countriesData?.data?.filter(
-                  (country) => country.status === 'active'
-                ),
-              })}
-            </div>
-            <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
-              {watch().transportationType === 'ship' &&
-                dynamicInputSelect({
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {dynamicInputSelect({
                   register,
                   errors,
-                  label: 'Destination Seaport',
-                  name: 'destinationSeaport',
+                  label: 'Destination Country',
+                  name: 'destinationCountry',
                   value: 'name',
-                  data: seaportsData?.data?.filter(
-                    (item) =>
-                      item?.country?._id === watch().destinationCountry &&
-                      item?.status === 'active' &&
-                      item._id !== watch().pickupSeaport
+                  data: countriesData?.data?.filter(
+                    (country) => country.status === 'active'
                   ),
                 })}
-              {watch().transportationType === 'plane' &&
-                dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Destination Airport',
-                  name: 'destinationAirport',
-                  value: 'name',
-                  data: airportsData?.data?.filter(
-                    (item) =>
-                      item?.country?._id === watch().destinationCountry &&
-                      item?.status === 'active' &&
-                      item._id !== watch().pickupAirport
-                  ),
-                })}
+              </div>
+              <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                {watch().transportationType === 'ship' &&
+                  dynamicInputSelect({
+                    register,
+                    errors,
+                    label: 'Destination Seaport',
+                    name: 'destinationSeaport',
+                    value: 'name',
+                    data: seaportsData?.data?.filter(
+                      (item) =>
+                        item?.country?._id === watch().destinationCountry &&
+                        item?.status === 'active' &&
+                        item._id !== watch().pickupSeaport
+                    ),
+                  })}
+                {watch().transportationType === 'plane' &&
+                  dynamicInputSelect({
+                    register,
+                    errors,
+                    label: 'Destination Airport',
+                    name: 'destinationAirport',
+                    value: 'name',
+                    data: airportsData?.data?.filter(
+                      (item) =>
+                        item?.country?._id === watch().destinationCountry &&
+                        item?.status === 'active' &&
+                        item._id !== watch().pickupAirport
+                    ),
+                  })}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
         {isLoadingTransportations ? (
           <Spinner />
         ) : (
@@ -337,7 +370,7 @@ const Bookings = () => {
                     <p className='text-center text-danger'>
                       <span className='fw-bold'>Sorry! </span> There is no
                       available transportations. Please update your search or
-                      contact us filter.
+                      contact us.
                     </p>
                   )}
                 </div>
@@ -352,15 +385,42 @@ const Bookings = () => {
             (item) => item?.cargoType === watch().cargoType
           )?.length > 0 && (
             <div className='bg-light p-3 my-2'>
-              <h3>Cargo Information</h3>
+              <h3>Cargo Details</h3>
               <h6>
-                Total CBM [{TotalCBM} M<sup>3</sup>]
+                Total CBM [{TOTAL_CBM} M<sup>3</sup>]
               </h6>
               <label>Tell us a bit more about your cargo.</label>
               {inputFields.map((inputField, index) => (
                 <div key={index} className='mt-3'>
                   <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
                   <div className='row gy-3'>
+                    <div className='col-12'>
+                      <div className='progress ' style={{ height: '20px' }}>
+                        <div
+                          className={`progress-bar ${
+                            (USED_CBM * 100) / DEFAULT_CAPACITY > 90 &&
+                            'bg-danger'
+                          }`}
+                          role='progressbar'
+                          style={{
+                            width: `${(USED_CBM * 100) / DEFAULT_CAPACITY}%`,
+                          }}
+                          aria-valuenow={(USED_CBM * 100) / DEFAULT_CAPACITY}
+                          aria-valuemin='0'
+                          aria-valuemax={DEFAULT_CAPACITY}
+                        >
+                          {`${((USED_CBM * 100) / DEFAULT_CAPACITY).toFixed(
+                            2
+                          )}%`}
+                        </div>
+                      </div>
+                    </div>
+                    <div className='col-12'>
+                      <p className='text-danger text-center'>
+                        {AVAILABLE_CBM < 0 &&
+                          `You have reached the maximum available CBM `}
+                      </p>
+                    </div>
                     <div className='col-lg-2 col-md-3 col-6'>
                       <label htmlFor='item' className='form-label'>
                         Package Quantity
@@ -473,10 +533,77 @@ const Bookings = () => {
               </div>
             </div>
           )}
+        {selectContainer?.length > 0 &&
+          watch().cargoType === 'FCL' &&
+          transportationsData?.filter(
+            (item) => item?.cargoType === watch().cargoType
+          )?.length > 0 && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Cargo Details</h3>
+              <label>Tell us a bit more about your cargo.</label>
+              <div className='row'>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputText({
+                    register,
+                    errors,
+                    name: 'cargoDescription',
+                    label: 'Cargo Description',
+                    placeholder: 'Enter cargo description',
+                  })}
+                </div>
+
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {dynamicInputSelect({
+                    register,
+                    errors,
+                    label: 'Commodity *',
+                    name: 'commodity',
+                    value: 'name',
+                    data:
+                      commoditiesData &&
+                      commoditiesData?.data?.filter(
+                        (commodity) => commodity.status === 'active'
+                      ),
+                  })}
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputNumber({
+                    register,
+                    errors,
+                    name: 'noOfPackages',
+                    label: 'No. of Packages',
+                    placeholder: 'Enter number of packages',
+                  })}
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputNumber({
+                    register,
+                    errors,
+                    name: 'grossWeight',
+                    label: 'Gross Weight as KG',
+                    max: airFreightKG,
+                    placeholder: 'Enter gross weight as KG',
+                  })}
+                </div>
+                {console.log(airFreightKG)}
+                <div className='col-12'>
+                  {inputCheckBox({
+                    register,
+                    errors,
+                    name: 'isTemperatureControlled',
+                    isRequired: false,
+                    label:
+                      'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
         <button
           type='submit'
           className='btn btn-primary float-end'
-          // disabled={isLoadingPost || isLoadingUpdate}
+          // disabled={!isValid || AVAILABLE_CBM < 0}
         >
           {/* {isLoadingPost || isLoadingUpdate ? (
                     <span className='spinner-border spinner-border-sm' />

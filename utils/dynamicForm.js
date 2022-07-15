@@ -58,13 +58,29 @@ export const inputTextArea = (args) => {
 }
 
 export const inputNumber = (args) => {
-  const { register, placeholder, errors, name, label, isRequired = true } = args
+  const {
+    register,
+    placeholder,
+    errors,
+    name,
+    label,
+    isRequired = true,
+    max,
+  } = args
 
   return (
     <div className='mb-3'>
       <label htmlFor={name}>{label}</label>
       <input
-        {...register(name, isRequired && { required: `${label} is required` })}
+        {...register(name, {
+          required: isRequired ? `${label} is required` : null,
+          max: max
+            ? {
+                value: max,
+                message: `Your ${label} required to be less than or equal to ${max}`,
+              }
+            : null,
+        })}
         type='number'
         step='0.01'
         placeholder={`${placeholder}`}
