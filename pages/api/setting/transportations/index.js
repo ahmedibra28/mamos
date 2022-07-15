@@ -119,7 +119,7 @@ handler.post(async (req, res) => {
         status: 'active',
       })
       const arrival = await Seaport.findOne({
-        _id: airportSeaport,
+        _id: arrivalSeaport,
         status: 'active',
       })
       if (!departure || !arrival)

@@ -162,6 +162,13 @@ const clientPermissions = [
     auth: true,
     description: 'Tradelanes page',
   },
+  {
+    name: 'Bookings',
+    path: '/order/bookings',
+    menu: 'order',
+    auth: true,
+    description: 'Bookings page',
+  },
 ]
 
 const permissions = [
@@ -630,6 +637,43 @@ const permissions = [
     auth: true,
     name: 'Tradelane',
     method: 'DELETE',
+  },
+
+  // Booking endpoint
+  {
+    description: 'Get All Bookings',
+    route: '/api/order/bookings',
+    auth: true,
+    name: 'Booking',
+    method: 'GET',
+  },
+  {
+    description: 'Create Booking',
+    route: '/api/order/bookings',
+    auth: true,
+    name: 'Booking',
+    method: 'POST',
+  },
+  {
+    description: 'Update Booking',
+    route: '/api/order/bookings/:id',
+    auth: true,
+    name: 'Booking',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Booking',
+    route: '/api/order/bookings/:id',
+    auth: true,
+    name: 'Booking',
+    method: 'DELETE',
+  },
+  {
+    description: 'Get Available Transportations',
+    route: '/api/order/bookings/transportations',
+    auth: true,
+    name: 'Booking Transportation',
+    method: 'POST',
   },
 ]
 
