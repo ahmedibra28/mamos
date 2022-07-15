@@ -10,7 +10,7 @@ handler.use(fileUpload())
 handler.post(async (req, res) => {
   // check if there is no files
   if (!req.files)
-    return res.status(400).json({ msg: 'No files were uploaded.' })
+    return res.status(400).json({ error: 'No files were uploaded.' })
 
   // check if files are in array format and return if not make it array
   let files = Array.isArray(req.files.file) ? req.files.file : [req.files.file]
@@ -37,7 +37,7 @@ handler.post(async (req, res) => {
   // check if file type is allowed
   const isAllowedFileType = allowedFileTypes.includes(fileType)
   if (!isAllowedFileType)
-    return res.status(400).json({ msg: 'File type is not allowed.' })
+    return res.status(400).json({ error: 'File type is not allowed.' })
 
   // check if file is allowed
   const isAllowed = files.every((file) => {
@@ -50,7 +50,7 @@ handler.post(async (req, res) => {
   // stop all if one file is not allowed format
   if (!isAllowed)
     return res.status(400).json({
-      msg: `Allowed file formats are ${
+      error: `Allowed file formats are ${
         fileType === 'image'
           ? allowedImageExtensions
           : fileType === 'file' && allowedFileExtensions

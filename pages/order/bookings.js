@@ -9,12 +9,17 @@ import useSeaportsHook from '../../utils/api/seaports'
 import useAirportsHook from '../../utils/api/airports'
 import useCountriesHook from '../../utils/api/countries'
 import useCommoditiesHook from '../../utils/api/commodities'
+import useTownsHook from '../../utils/api/towns'
+import useUploadHook from '../../utils/api/upload'
 
 import { Spinner, Message, Confirm } from '../../components'
 import {
   dynamicInputSelect,
   inputCheckBox,
+  inputEmail,
+  inputFile,
   inputNumber,
+  inputTel,
   inputText,
   staticInputSelect,
 } from '../../utils/dynamicForm'
@@ -33,23 +38,58 @@ const Bookings = () => {
       height: '',
     },
   ])
+  const [file, setFile] = useState('')
+  const [fileLink, setFileLink] = useState(null)
 
   const { postBookings, postAvailableTransportations } = useBookingsHook({})
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
   const { getCountries } = useCountriesHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
+  const { getTowns } = useTownsHook({ limit: 1000000 })
+  const { postUpload } = useUploadHook()
 
   const { data: seaportsData } = getSeaports
   const { data: airportsData } = getAirports
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
+  const { data: townsData } = getTowns
+
+  const {
+    data: dataUpload,
+    isLoading: isLoadingUpload,
+    isError: isErrorUpload,
+    error: errorUpload,
+    mutateAsync: mutateAsyncUpload,
+    isSuccess: isSuccessUpload,
+  } = postUpload
 
   const {
     data: transportationsData,
     mutateAsync: transportationsMutateAsync,
     isLoading: isLoadingTransportations,
   } = postAvailableTransportations
+
+  useEffect(() => {
+    if (file) {
+      const formData = new FormData()
+      formData.append('file', file)
+      mutateAsyncUpload({ type: 'file', formData })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file])
+
+  useEffect(() => {
+    if (isSuccessUpload) {
+      setFileLink(
+        dataUpload &&
+          dataUpload.filePaths &&
+          dataUpload.filePaths[0] &&
+          dataUpload.filePaths[0].path
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessUpload])
 
   const {
     register,
@@ -61,6 +101,7 @@ const Bookings = () => {
   } = useForm({
     defaultValues: {
       isTemperatureControlled: true,
+      isHasInvoice: false,
     },
   })
 
@@ -70,6 +111,7 @@ const Bookings = () => {
       transportation: selectedTransportation,
       containerFCL: selectContainer,
       containerLCL: inputFields,
+      invoice: fileLink,
     })
     transportationsMutateAsync({
       transportationType: data.transportationType,
@@ -164,12 +206,21 @@ const Bookings = () => {
   )
   const AVAILABLE_CBM = DEFAULT_CAPACITY - USED_CBM
 
+  const movementTypes = {
+    pickUp: ['door to door', 'door to port', 'door to airport'],
+    dropOff: ['door to door', 'port to door', 'airport to door'],
+    seaport: ['port to port'],
+    airport: ['airport to airport'],
+  }
+
   return (
     <>
       <Head>
         <title>Book New Bookings</title>
         <meta property='og:title' content='Book New Bookings' key='title' />
       </Head>
+
+      {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>}
 
       <div className='bg-light p-3 my-2'>
         <h3>New Booking Form</h3>
@@ -209,17 +260,21 @@ const Bookings = () => {
                 errors,
                 label: 'Movement type?',
                 name: 'movementType',
-                data: [
-                  { name: 'door to door' },
-                  { name: 'door to airport' },
-                  { name: 'door to port' },
+                data:
+                  watch().transportationType === 'ship'
+                    ? [
+                        { name: 'door to door' },
+                        { name: 'door to port' },
+                        { name: 'port to port' },
+                        { name: 'port to door' },
+                      ]
+                    : [
+                        { name: 'door to door' },
 
-                  { name: 'airport to airport' },
-                  { name: 'airport to door' },
-
-                  { name: 'port to port' },
-                  { name: 'port to door' },
-                ],
+                        { name: 'airport to airport' },
+                        { name: 'door to airport' },
+                        { name: 'airport to door' },
+                      ],
               })}
             </div>
             {watch().transportationType !== 'plane' && (
@@ -397,7 +452,7 @@ const Bookings = () => {
                     <div className='col-12'>
                       <div className='progress ' style={{ height: '20px' }}>
                         <div
-                          className={`progress-bar ${
+                          className={`progress-bar bg-warning ${
                             (USED_CBM * 100) / DEFAULT_CAPACITY > 90 &&
                             'bg-danger'
                           }`}
@@ -600,25 +655,239 @@ const Bookings = () => {
             </div>
           )}
 
+        {(selectContainer?.length > 0 || selectedTransportation) &&
+          transportationsData?.filter(
+            (item) => item?.cargoType === watch().cargoType
+          )?.length > 0 && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Buyer Details</h3>
+              <label>
+                Enter the buyers details so they can be notified about the
+                shipment and track the process
+              </label>
+              <div className='row gy-3 mt-3'>
+                <div className='col-12'>
+                  <label className='fw-bold'>
+                    Person who will receive packages
+                  </label>
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputText({
+                    register,
+                    errors,
+                    name: 'buyerName',
+                    label: 'Who is your buyer?',
+                    placeholder: 'Enter buyer name',
+                  })}
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputTel({
+                    register,
+                    errors,
+                    name: 'buyerMobileNumber',
+                    label: 'Buyer mobile number',
+                    placeholder: 'Enter buyer mobile number',
+                  })}
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputEmail({
+                    register,
+                    errors,
+                    name: 'buyerEmail',
+                    label: 'Buyer email',
+                    placeholder: 'Enter buyer email address',
+                  })}
+                </div>
+                <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {inputText({
+                    register,
+                    errors,
+                    name: 'buyerAddress',
+                    label: 'Buyer address',
+                    placeholder: 'Enter buyer address',
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+        {transportationsData?.filter(
+          (item) => item?.cargoType === watch().cargoType
+        )?.length > 0 &&
+          (selectContainer?.length > 0 || selectedTransportation) &&
+          !['port to port', 'airport to airport'].includes(
+            watch().movementType
+          ) && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Location Details</h3>
+              <label>
+                Please make sure to use the correct address(es). We will
+                pick-up/or deliver the shipment here.
+              </label>
+              <div className='row gy-3 mt-3'>
+                {movementTypes.pickUp.includes(watch().movementType) && (
+                  <>
+                    <label className='fw-bold'>
+                      What is the pick-up address of your cargo?
+                    </label>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {dynamicInputSelect({
+                        register,
+                        errors,
+                        label: 'Pickup town',
+                        name: 'pickUpTown',
+                        value: 'name',
+                        data: townsData?.data?.filter((town) =>
+                          town.status === 'active' &&
+                          watch().transportationType === 'plane'
+                            ? town?.airport?._id === watch().pickupAirport
+                            : town?.seaport?._id === watch().pickupSeaport
+                        ),
+                      })}
+                    </div>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'pickUpWarehouseName',
+                        label: 'Warehouse Name',
+                        placeholder: 'Enter pickup warehouse name',
+                      })}
+                    </div>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'pickUpCity',
+                        label: 'City',
+                        placeholder: 'Enter pickup city',
+                      })}
+                    </div>
+
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'pickUpAddress',
+                        label: 'Address',
+                        placeholder: 'Enter pickup address',
+                      })}
+                    </div>
+                  </>
+                )}
+
+                {movementTypes.dropOff.includes(watch().movementType) && (
+                  <>
+                    <label className='fw-bold'>
+                      What is the drop-off address of your cargo?
+                    </label>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {dynamicInputSelect({
+                        register,
+                        errors,
+                        label: 'DropOff town',
+                        name: 'dropOffTown',
+                        value: 'name',
+                        data: townsData?.data?.filter((town) =>
+                          town.status === 'active' &&
+                          watch().transportationType === 'plane'
+                            ? town?.airport?._id === watch().destinationAirport
+                            : town?.seaport?._id === watch().destinationSeaport
+                        ),
+                      })}
+                    </div>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'dropOffWarehouseName',
+                        label: 'Warehouse Name',
+                        placeholder: 'Enter drop-off warehouse name',
+                      })}
+                    </div>
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'dropOffCity',
+                        label: 'City',
+                        placeholder: 'Enter drop-off city',
+                      })}
+                    </div>
+
+                    <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                      {inputText({
+                        register,
+                        errors,
+                        name: 'dropOffAddress',
+                        label: 'Address',
+                        placeholder: 'Enter drop-off address',
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+        {transportationsData?.filter(
+          (item) => item?.cargoType === watch().cargoType
+        )?.length > 0 &&
+          (selectContainer?.length > 0 || selectedTransportation) && (
+            <div className='bg-light p-3 my-2'>
+              <h3>Other Required Details</h3>
+              <label>Please answer all below asked questions.</label>
+              <div className='row gy-3 mt-3'>
+                <div className='col-12'>
+                  {inputCheckBox({
+                    register,
+                    errors,
+                    name: 'isHasInvoice',
+                    label: 'Do you have an invoice?',
+                    isRequired: false,
+                  })}
+                </div>
+
+                {watch().isHasInvoice ? (
+                  <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                    {inputFile({
+                      register,
+                      errors,
+                      name: 'invoiceFile',
+                      label: 'Upload Invoice',
+                      setFile,
+                    })}
+                  </div>
+                ) : (
+                  <>
+                    <label>
+                      If you do not have invoice, we will charge you additional
+                      service to creating new invoice for your cargo?
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
         <button
           type='submit'
-          className='btn btn-primary float-end'
-          // disabled={!isValid || AVAILABLE_CBM < 0}
+          className='btn btn-primary float-end mb-5 mt-3'
+          disabled={isLoadingUpload}
         >
-          {/* {isLoadingPost || isLoadingUpdate ? (
-                    <span className='spinner-border spinner-border-sm' />
-                  ) : (
-                    'Submit'
-                  )} */}
-          Submit
+          {isLoadingUpload ? (
+            <span className='spinner-border spinner-border-sm' />
+          ) : (
+            <>
+              <FaPlusCircle className='mb-1' /> Submit Your Booking
+            </>
+          )}
         </button>
       </form>
     </>
   )
 }
 
-// export default dynamic(() => Promise.resolve(withAuth(Bookings)), {
-//     ssr: false,
-//   })
-
-export default Bookings
+export default dynamic(() => Promise.resolve(withAuth(Bookings)), {
+  ssr: false,
+})
