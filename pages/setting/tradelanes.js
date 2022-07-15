@@ -4,27 +4,37 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
-import useContainersHook from '../../utils/api/containers'
+import useTradelanesHook from '../../utils/api/tradelanes'
+import useTransportationsHook from '../../utils/api/transportations'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
-import {
-  inputNumber,
-  inputText,
-  staticInputSelect,
-} from '../../utils/dynamicForm'
+import { dynamicInputSelect, staticInputSelect } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
-import FormView from '../../components/FormView'
+import TradelaneFormView from '../../components/TradelaneFormView'
+import moment from 'moment'
 
-const Containers = () => {
+const Tradelanes = () => {
   const [page, setPage] = useState(1)
   const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
   const [q, setQ] = useState('')
+  const [inputFields, setInputFields] = useState([
+    {
+      dateTime: '',
+      tradeType: '',
+      actionType: '',
+      location: '',
+      description: '',
+    },
+  ])
 
-  const { getContainers, postContainer, updateContainer, deleteContainer } =
-    useContainersHook({
+  const { getTradelanes, postTradelane, updateTradelane, deleteTradelane } =
+    useTradelanesHook({
       page,
       q,
     })
+  const { getTransportations } = useTransportationsHook({
+    limit: 100,
+  })
 
   const {
     register,
@@ -37,7 +47,8 @@ const Containers = () => {
     defaultValues: {},
   })
 
-  const { data, isLoading, isError, error, refetch } = getContainers
+  const { data, isLoading, isError, error, refetch } = getTradelanes
+  const { data: transportationsData } = getTransportations
 
   const {
     isLoading: isLoadingUpdate,
@@ -45,7 +56,7 @@ const Containers = () => {
     error: errorUpdate,
     isSuccess: isSuccessUpdate,
     mutateAsync: mutateAsyncUpdate,
-  } = updateContainer
+  } = updateTradelane
 
   const {
     isLoading: isLoadingDelete,
@@ -53,7 +64,7 @@ const Containers = () => {
     error: errorDelete,
     isSuccess: isSuccessDelete,
     mutateAsync: mutateAsyncDelete,
-  } = deleteContainer
+  } = deleteTradelane
 
   const {
     isLoading: isLoadingPost,
@@ -61,7 +72,7 @@ const Containers = () => {
     error: errorPost,
     isSuccess: isSuccessPost,
     mutateAsync: mutateAsyncPost,
-  } = postContainer
+  } = postTradelane
 
   useEffect(() => {
     if (isSuccessPost || isSuccessUpdate) formCleanHandler()
@@ -86,16 +97,9 @@ const Containers = () => {
 
   // TableView
   const table = {
-    header: [
-      'Name',
-      'Length (cm)',
-      'Width (cm)',
-      'Height (cm)',
-      'CBM (cubic meter)',
-      'Status',
-    ],
-    body: ['name', 'length', 'width', 'height', 'details.CBM', 'status'],
-    // createdAt: 'createdAt',
+    header: ['Transportation', 'Status'],
+    body: ['transportation.name', 'status'],
+    createdAt: 'createdAt',
     data: data,
   }
 
@@ -103,6 +107,27 @@ const Containers = () => {
     setId(item._id)
 
     table.body.map((t) => setValue(t, item[t]))
+    setValue('transportation', item?.transportation?._id)
+    setInputFields(
+      item.tradelane
+        ? item.tradelane.map((fields) => ({
+            dateTime: moment(fields.dateTime).format('YYYY-MM-DDTHH:mm:ss'),
+            tradeType: fields.tradeType,
+            actionType: fields.actionType,
+            location: fields.location,
+            description: fields.description,
+          }))
+        : [
+            {
+              dateTime: '',
+              tradeType: '',
+              actionType: '',
+              location: '',
+              description: '',
+            },
+          ]
+    )
+
     setEdit(true)
   }
 
@@ -110,58 +135,50 @@ const Containers = () => {
     confirmAlert(Confirm(() => mutateAsyncDelete(id)))
   }
 
-  const name = 'Containers List'
-  const label = 'Container'
-  const modal = 'container'
-  const searchPlaceholder = 'Search by name'
+  const name = 'Tradelanes List'
+  const label = 'Tradelane'
+  const modal = 'tradelane'
+  const searchPlaceholder = 'Search by shipper name'
 
-  // FormView
+  // TradelaneFormView
   const formCleanHandler = () => {
-    reset(), setEdit(false)
+    reset()
+    setEdit(false)
+    setInputFields([
+      {
+        dateTime: '',
+        tradeType: '',
+        actionType: '',
+        location: '',
+        description: '',
+      },
+    ])
   }
 
   const submitHandler = (data) => {
     edit
       ? mutateAsyncUpdate({
           _id: id,
-          name: data.name,
-          height: data.height,
-          width: data.width,
-          length: data.length,
+          transportation: data.transportation,
+          tradelane: inputFields,
           status: data.status,
         })
-      : mutateAsyncPost(data)
+      : mutateAsyncPost({ ...data, tradelane: inputFields })
   }
 
   const form = [
-    inputText({
+    dynamicInputSelect({
       register,
       errors,
-      label: 'Name',
-      name: 'name',
-      placeholder: 'Enter name',
+      label: 'Transportation',
+      name: 'transportation',
+      placeholder: 'Select transportation',
+      data: transportationsData?.data?.filter(
+        (item) => item.status === 'active'
+      ),
+      value: 'name',
     }),
-    inputNumber({
-      register,
-      errors,
-      label: 'Length',
-      name: 'length',
-      placeholder: 'Enter length (cm)',
-    }),
-    inputNumber({
-      register,
-      errors,
-      label: 'Width',
-      name: 'width',
-      placeholder: 'Enter width (cm)',
-    }),
-    inputNumber({
-      register,
-      errors,
-      label: 'Height',
-      name: 'height',
-      placeholder: 'Enter height (cm)',
-    }),
+
     staticInputSelect({
       register,
       errors,
@@ -172,15 +189,44 @@ const Containers = () => {
     }),
   ]
 
-  const row = false
+  const row = true
   const column = 'col-md-6 col-12'
-  const modalSize = 'modal-md'
+  const modalSize = 'modal-lg'
+
+  // dynamic input fields
+  const handleAddField = () => {
+    setInputFields([
+      ...inputFields,
+      {
+        dateTime: '',
+        tradeType: '',
+        actionType: '',
+        location: '',
+        description: '',
+      },
+    ])
+  }
+
+  const handleRemoveField = (index) => {
+    const list = [...inputFields]
+    list.splice(index, 1)
+    setInputFields(list)
+  }
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target
+    const old = inputFields[index]
+    const updated = { ...old, [name]: value }
+    var list = [...inputFields]
+    list[index] = updated
+    setInputFields(list)
+  }
 
   return (
     <>
       <Head>
-        <title>Containers</title>
-        <meta property='og:title' content='Containers' key='title' />
+        <title>Tradelanes</title>
+        <meta property='og:title' content='Tradelanes' key='title' />
       </Head>
 
       {isSuccessDelete && (
@@ -206,7 +252,7 @@ const Containers = () => {
         <Pagination data={table.data} setPage={setPage} />
       </div>
 
-      <FormView
+      <TradelaneFormView
         edit={edit}
         formCleanHandler={formCleanHandler}
         form={form}
@@ -220,6 +266,10 @@ const Containers = () => {
         column={column}
         row={row}
         modalSize={modalSize}
+        inputFields={inputFields}
+        handleInputChange={handleInputChange}
+        handleAddField={handleAddField}
+        handleRemoveField={handleRemoveField}
       />
 
       {isLoading ? (
@@ -247,6 +297,6 @@ const Containers = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Containers)), {
+export default dynamic(() => Promise.resolve(withAuth(Tradelanes)), {
   ssr: false,
 })

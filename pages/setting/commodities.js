@@ -101,7 +101,7 @@ const Commodities = () => {
 
   const name = 'Commodities List'
   const label = 'Commodity'
-  const modal = 'town'
+  const modal = 'commodity'
   const searchPlaceholder = 'Search by name'
 
   // FormView

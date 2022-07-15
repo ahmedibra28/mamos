@@ -101,7 +101,7 @@ const Countries = () => {
 
   const name = 'Countries List'
   const label = 'Country'
-  const modal = 'town'
+  const modal = 'country'
   const searchPlaceholder = 'Search by name'
 
   // FormView

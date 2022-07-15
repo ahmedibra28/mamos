@@ -1,6 +1,9 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
+import Airport from '../../../../models/Airport'
 import Container from '../../../../models/Container'
+import Seaport from '../../../../models/Seaport'
+import Tradelane from '../../../../models/Tradelane'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
 import { undefinedChecker } from '../../../../utils/helper'
@@ -51,6 +54,37 @@ handler.put(async (req, res) => {
     if (!containerObj)
       return res.status(404).json({ error: 'Container not found' })
 
+    // check if status is active
+    if (departureSeaport || arrivalSeaport) {
+      const departure = await Seaport.findOne({
+        _id: departureSeaport,
+        status: 'active',
+      })
+      const arrival = await Seaport.findOne({
+        _id: airportSeaport,
+        status: 'active',
+      })
+      if (!departure || !arrival)
+        return res
+          .status(404)
+          .json({ error: 'Departure or arrival seaport not found' })
+    }
+
+    if (departureAirport || arrivalAirport) {
+      const departure = await Airport.findOne({
+        _id: departureAirport,
+        status: 'active',
+      })
+      const arrival = await Airport.findOne({
+        _id: airportAirport,
+        status: 'active',
+      })
+      if (!departure || !arrival)
+        return res
+          .status(404)
+          .json({ error: 'Departure or arrival airport not found' })
+    }
+
     object.name = name
     object.transportationType = transportationType
     object.cargoType = cargoType
@@ -80,7 +114,11 @@ handler.delete(async (req, res) => {
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
+    const tradelane = await Tradelane.findOne({ transportation: id })
+
     await object.remove()
+    await tradelane.remove()
+
     res.status(200).send(`${schemaNameString} removed`)
   } catch (error) {
     res.status(500).json({ error: error.message })

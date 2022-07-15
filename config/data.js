@@ -155,6 +155,13 @@ const clientPermissions = [
     auth: true,
     description: 'Transportations page',
   },
+  {
+    name: 'Tradelanes',
+    path: '/setting/tradelanes',
+    menu: 'setting',
+    auth: true,
+    description: 'Tradelanes page',
+  },
 ]
 
 const permissions = [
@@ -592,6 +599,36 @@ const permissions = [
     route: '/api/setting/transportations/:id',
     auth: true,
     name: 'Transportation',
+    method: 'DELETE',
+  },
+
+  // Tradelane endpoint
+  {
+    description: 'Get All Tradelanes',
+    route: '/api/setting/tradelanes',
+    auth: true,
+    name: 'Tradelane',
+    method: 'GET',
+  },
+  {
+    description: 'Create Tradelane',
+    route: '/api/setting/tradelanes',
+    auth: true,
+    name: 'Tradelane',
+    method: 'POST',
+  },
+  {
+    description: 'Update Tradelane',
+    route: '/api/setting/tradelanes/:id',
+    auth: true,
+    name: 'Tradelane',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Tradelane',
+    route: '/api/setting/tradelanes/:id',
+    auth: true,
+    name: 'Tradelane',
     method: 'DELETE',
   },
 ]

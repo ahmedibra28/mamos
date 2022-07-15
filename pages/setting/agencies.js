@@ -126,7 +126,7 @@ const Agencies = () => {
 
   const name = 'Agencies List'
   const label = 'Agency'
-  const modal = 'town'
+  const modal = 'agency'
   const searchPlaceholder = 'Search by name'
 
   // FormView

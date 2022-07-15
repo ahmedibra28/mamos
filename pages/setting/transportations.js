@@ -19,6 +19,7 @@ import {
 } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
+import { reversePriceFormat } from '../../utils/priceFormat'
 
 const Transportations = () => {
   const [page, setPage] = useState(1)
@@ -141,8 +142,8 @@ const Transportations = () => {
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
     setValue('container', item?.container?._id)
-    setValue('cost', item?.cost?.replace('$', ''))
-    setValue('price', item?.price?.replace('$', ''))
+    setValue('cost', reversePriceFormat(item?.cost))
+    setValue('price', reversePriceFormat(item?.price))
     setEdit(true)
   }
 
@@ -152,7 +153,7 @@ const Transportations = () => {
 
   const name = 'Transportations List'
   const label = 'Transportation'
-  const modal = 'town'
+  const modal = 'transportation'
   const searchPlaceholder = 'Search by name'
 
   // FormView

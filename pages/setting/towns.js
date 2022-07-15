@@ -18,6 +18,7 @@ import {
 } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
+import { reversePriceFormat } from '../../utils/priceFormat'
 
 const Towns = () => {
   const [page, setPage] = useState(1)
@@ -134,8 +135,8 @@ const Towns = () => {
     setValue('seaport', item?.seaport?._id)
     setValue('airport', item?.airport?._id)
     setValue('isPort', item?.isPort)
-    setValue('cost', item?.cost?.replace('$', ''))
-    setValue('price', item?.price?.replace('$', ''))
+    setValue('cost', reversePriceFormat(item?.cost))
+    setValue('price', reversePriceFormat(item?.price))
 
     setEdit(true)
   }

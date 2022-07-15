@@ -4,3 +4,13 @@ export const priceFormat = (amount) => {
     currency: 'USD',
   }).format(amount)
 }
+
+export const reversePriceFormat = (amount) => {
+  let result = amount?.toString()?.replace('$', '')
+  if (result.includes(',')) {
+    result = result?.replace(',', '')
+    return result
+  }
+
+  return result
+}

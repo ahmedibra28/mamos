@@ -111,7 +111,7 @@ const Airports = () => {
 
   const name = 'Airports List'
   const label = 'Airport'
-  const modal = 'town'
+  const modal = 'airport'
   const searchPlaceholder = 'Search by name'
 
   // FormView

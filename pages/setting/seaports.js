@@ -111,7 +111,7 @@ const Seaports = () => {
 
   const name = 'Seaports List'
   const label = 'Seaport'
-  const modal = 'town'
+  const modal = 'seaport'
   const searchPlaceholder = 'Search by name'
 
   // FormView

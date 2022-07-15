@@ -6,6 +6,8 @@ import { isAuth } from '../../../../utils/auth'
 import { undefinedChecker } from '../../../../utils/helper'
 import moment from 'moment'
 import { priceFormat } from '../../../../utils/priceFormat'
+import Seaport from '../../../../models/Seaport'
+import Airport from '../../../../models/Airport'
 
 const schemaName = Transportation
 
@@ -109,6 +111,37 @@ handler.post(async (req, res) => {
     })
     if (!containerObj)
       return res.status(404).json({ error: 'Container not found' })
+
+    // check if status is active
+    if (departureSeaport || arrivalSeaport) {
+      const departure = await Seaport.findOne({
+        _id: departureSeaport,
+        status: 'active',
+      })
+      const arrival = await Seaport.findOne({
+        _id: airportSeaport,
+        status: 'active',
+      })
+      if (!departure || !arrival)
+        return res
+          .status(404)
+          .json({ error: 'Departure or arrival seaport not found' })
+    }
+
+    if (departureAirport || arrivalAirport) {
+      const departure = await Airport.findOne({
+        _id: departureAirport,
+        status: 'active',
+      })
+      const arrival = await Airport.findOne({
+        _id: airportAirport,
+        status: 'active',
+      })
+      if (!departure || !arrival)
+        return res
+          .status(404)
+          .json({ error: 'Departure or arrival airport not found' })
+    }
 
     const object = await schemaName.create({
       name,
