@@ -3,6 +3,7 @@ import User from './User'
 import Town from './Town'
 import Country from './Country'
 import Seaport from './Seaport'
+import Airport from './Airport'
 
 const orderScheme = mongoose.Schema(
   {
@@ -19,14 +20,16 @@ const orderScheme = mongoose.Schema(
       pickUpAddress: String,
       pickUpCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
       pickUpSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      pickUpAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     },
     dropOff: {
-      dropOffTown: String,
+      dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
       dropOffWarehouse: String,
       dropOffCity: String,
       dropOffAddress: String,
       dropOffCountry: { type: mongoose.Schema.Types.ObjectId, ref: Country },
       dropOffSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      dropOffAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     },
     other: {
       isTemperatureControlled: Boolean,
@@ -41,7 +44,7 @@ const orderScheme = mongoose.Schema(
       grossWeight: String,
       invoice: String,
       transportation: {}, // Not available FCL
-      containerLCL: [], // Not available FCL
+      containerLCL: [{}], // Not available FCL
       containerFCL: [], // Available only FCL
     },
 

@@ -138,15 +138,21 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
-    delete pickUp.pickUpSeaport
   }
+  delete pickUp.pickUpSeaport
+
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
-    delete dropOff.dropOffSeaport
   }
+  delete dropOff.dropOffSeaport
+
+  console.log(pickUp)
+  console.log(dropOff)
+  console.log(other.movementType)
+
   if (!other.isHasInvoice) {
     delete other.invoice
   }
@@ -158,8 +164,8 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
   other.transportation = other?.transportation?._id
 
   const object = await Transportation.find({
-    departureSeaport: pickUp.pickUpSeaport,
-    arrivalSeaport: dropOff.dropOffSeaport,
+    departureAirport: pickUp.pickUpAirport,
+    arrivalAirport: dropOff.dropOffAirport,
     cargoType: 'AIR',
     status: 'active',
     departureDate: { $gt: moment().format() },
@@ -194,6 +200,7 @@ handler.post(async (req, res) => {
       pickUpSeaport,
       dropOffCountry,
       dropOffSeaport,
+      dropOffAirport,
       cargoDescription,
       commodity,
       noOfPackages,
@@ -202,6 +209,7 @@ handler.post(async (req, res) => {
       buyerMobileNumber,
       buyerEmail,
       buyerAddress,
+      pickUpAirport,
       pickUpTown,
       pickUpWarehouse,
       pickUpCity,
@@ -230,6 +238,7 @@ handler.post(async (req, res) => {
       pickUpAddress,
       pickUpCountry,
       pickUpSeaport,
+      pickUpAirport,
     }
 
     const dropOff = {
@@ -239,6 +248,7 @@ handler.post(async (req, res) => {
       dropOffAddress,
       dropOffCountry,
       dropOffSeaport,
+      dropOffAirport,
     }
 
     const other = {
