@@ -1,5 +1,7 @@
+import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../../config/db'
+import Order from '../../../../models/Order'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
 
@@ -48,18 +50,20 @@ const movementTypes = {
   airport: ['airport to airport'],
 }
 
-const FCL = ({ buyer, pickUp, dropOff, other }) => {
+const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
   if (!movementTypes.pickUp.includes(other.movementType)) {
     delete pickUp.pickUpTown
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
+    delete pickUp.pickUpAirport
   }
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
+    delete dropOff.dropOffAirport
   }
   if (!other.isHasInvoice) {
     delete other.invoice
@@ -67,6 +71,17 @@ const FCL = ({ buyer, pickUp, dropOff, other }) => {
   delete other.transportation
   delete other.containerLCL
 
+  const object = await Transportation.find({
+    departureSeaport: pickUp.pickUpSeaport,
+    arrivalSeaport: dropOff.dropOffSeaport,
+    cargoType: 'FCL',
+    status: 'active',
+    departureDate: { $gt: moment().format() },
+  }).lean()
+
+  if (!object)
+    return res.status(404).json({ error: 'Transportation not found' })
+
   return {
     buyer,
     pickUp,
@@ -74,18 +89,20 @@ const FCL = ({ buyer, pickUp, dropOff, other }) => {
     other,
   }
 }
-const LCL = ({ buyer, pickUp, dropOff, other }) => {
+const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
   if (!movementTypes.pickUp.includes(other.movementType)) {
     delete pickUp.pickUpTown
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
+    delete pickUp.pickUpAirport
   }
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
+    delete dropOff.dropOffAirport
   }
   if (!other.isHasInvoice) {
     delete other.invoice
@@ -97,6 +114,17 @@ const LCL = ({ buyer, pickUp, dropOff, other }) => {
   delete other.grossWeight
   other.transportation = other?.transportation?._id
 
+  const object = await Transportation.find({
+    departureSeaport: pickUp.pickUpSeaport,
+    arrivalSeaport: dropOff.dropOffSeaport,
+    cargoType: 'LCL',
+    status: 'active',
+    departureDate: { $gt: moment().format() },
+  }).lean()
+
+  if (!object)
+    return res.status(404).json({ error: 'Transportation not found' })
+
   return {
     buyer,
     pickUp,
@@ -104,18 +132,20 @@ const LCL = ({ buyer, pickUp, dropOff, other }) => {
     other,
   }
 }
-const AIR = ({ buyer, pickUp, dropOff, other }) => {
+const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
   if (!movementTypes.pickUp.includes(other.movementType)) {
     delete pickUp.pickUpTown
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
+    delete pickUp.pickUpSeaport
   }
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
+    delete dropOff.dropOffSeaport
   }
   if (!other.isHasInvoice) {
     delete other.invoice
@@ -126,6 +156,17 @@ const AIR = ({ buyer, pickUp, dropOff, other }) => {
   delete other.noOfPackages
   delete other.grossWeight
   other.transportation = other?.transportation?._id
+
+  const object = await Transportation.find({
+    departureSeaport: pickUp.pickUpSeaport,
+    arrivalSeaport: dropOff.dropOffSeaport,
+    cargoType: 'AIR',
+    status: 'active',
+    departureDate: { $gt: moment().format() },
+  }).lean()
+
+  if (!object)
+    return res.status(404).json({ error: 'Transportation not found' })
 
   return {
     buyer,
@@ -207,6 +248,7 @@ handler.post(async (req, res) => {
       transportationType,
       movementType,
       cargoDescription,
+      cargoType,
       commodity,
       noOfPackages,
       grossWeight,
@@ -217,20 +259,32 @@ handler.post(async (req, res) => {
     }
 
     if (cargoType === 'FCL' && transportationType !== 'plane') {
-      const data = FCL({ buyer, pickUp, dropOff, other })
-      const object = await Order.create(data)
+      const data = await FCL({ buyer, pickUp, dropOff, other, res })
+      const object = await Order.create({
+        ...data,
+        createdBy: req.user.id,
+        trackingNo: '001',
+      })
       return res.status(200).send(object)
     }
 
     if (cargoType === 'LCL' && transportationType !== 'plane') {
-      const data = LCL({ buyer, pickUp, dropOff, other })
-      const object = await Order.create(data)
+      const data = await LCL({ buyer, pickUp, dropOff, other, res })
+      const object = await Order.create({
+        ...data,
+        createdBy: req.user.id,
+        trackingNo: '001',
+      })
       return res.status(200).send(object)
     }
 
     if (cargoType === 'AIR' && transportationType === 'plane') {
-      const data = AIR({ buyer, pickUp, dropOff, other })
-      const object = await Order.create(data)
+      const data = await AIR({ buyer, pickUp, dropOff, other, res })
+      const object = await Order.create({
+        ...data,
+        createdBy: req.user.id,
+        trackingNo: '001',
+      })
       return res.status(200).send(object)
     }
 
