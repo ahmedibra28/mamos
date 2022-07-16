@@ -14,18 +14,18 @@ handler.post(async (req, res) => {
   try {
     const {
       transportationType,
-      pickupAirport,
-      pickupSeaport,
-      destinationAirport,
-      destinationSeaport,
+      pickUpAirport,
+      pickUpSeaport,
+      dropOffAirport,
+      dropOffSeaport,
       cargoType,
     } = req.body
 
     if (transportationType === 'plane') {
       let object = await schemaName
         .find({
-          departureAirport: pickupAirport,
-          arrivalAirport: destinationAirport,
+          departureAirport: pickUpAirport,
+          arrivalAirport: dropOffAirport,
           cargoType,
           status: 'active',
           departureDate: { $gt: moment().format() },
@@ -48,8 +48,8 @@ handler.post(async (req, res) => {
     if (transportationType === 'ship') {
       let object = await schemaName
         .find({
-          departureSeaport: pickupSeaport,
-          arrivalSeaport: destinationSeaport,
+          departureSeaport: pickUpSeaport,
+          arrivalSeaport: dropOffSeaport,
           cargoType,
           status: 'active',
           departureDate: { $gt: moment().format() },

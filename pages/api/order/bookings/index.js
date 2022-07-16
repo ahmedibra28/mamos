@@ -41,22 +41,201 @@ handler.get(async (req, res) => {
   }
 })
 
+const movementTypes = {
+  pickUp: ['door to door', 'door to port', 'door to airport'],
+  dropOff: ['door to door', 'port to door', 'airport to door'],
+  seaport: ['port to port'],
+  airport: ['airport to airport'],
+}
+
+const FCL = ({ buyer, pickUp, dropOff, other }) => {
+  if (!movementTypes.pickUp.includes(other.movementType)) {
+    delete pickUp.pickUpTown
+    delete pickUp.pickUpWarehouse
+    delete pickUp.pickUpCity
+    delete pickUp.pickUpAddress
+  }
+  if (!movementTypes.dropOff.includes(other.movementType)) {
+    delete dropOff.dropOffTown
+    delete dropOff.dropOffWarehouse
+    delete dropOff.dropOffCity
+    delete dropOff.dropOffAddress
+  }
+  if (!other.isHasInvoice) {
+    delete other.invoice
+  }
+  delete other.transportation
+  delete other.containerLCL
+
+  return {
+    buyer,
+    pickUp,
+    dropOff,
+    other,
+  }
+}
+const LCL = ({ buyer, pickUp, dropOff, other }) => {
+  if (!movementTypes.pickUp.includes(other.movementType)) {
+    delete pickUp.pickUpTown
+    delete pickUp.pickUpWarehouse
+    delete pickUp.pickUpCity
+    delete pickUp.pickUpAddress
+  }
+  if (!movementTypes.dropOff.includes(other.movementType)) {
+    delete dropOff.dropOffTown
+    delete dropOff.dropOffWarehouse
+    delete dropOff.dropOffCity
+    delete dropOff.dropOffAddress
+  }
+  if (!other.isHasInvoice) {
+    delete other.invoice
+  }
+  delete other.containerFCL
+  delete other.cargoDescription
+  delete other.commodity
+  delete other.noOfPackages
+  delete other.grossWeight
+  other.transportation = other?.transportation?._id
+
+  return {
+    buyer,
+    pickUp,
+    dropOff,
+    other,
+  }
+}
+const AIR = ({ buyer, pickUp, dropOff, other }) => {
+  if (!movementTypes.pickUp.includes(other.movementType)) {
+    delete pickUp.pickUpTown
+    delete pickUp.pickUpWarehouse
+    delete pickUp.pickUpCity
+    delete pickUp.pickUpAddress
+  }
+  if (!movementTypes.dropOff.includes(other.movementType)) {
+    delete dropOff.dropOffTown
+    delete dropOff.dropOffWarehouse
+    delete dropOff.dropOffCity
+    delete dropOff.dropOffAddress
+  }
+  if (!other.isHasInvoice) {
+    delete other.invoice
+  }
+  delete other.containerFCL
+  delete other.cargoDescription
+  delete other.commodity
+  delete other.noOfPackages
+  delete other.grossWeight
+  other.transportation = other?.transportation?._id
+
+  return {
+    buyer,
+    pickUp,
+    dropOff,
+    other,
+  }
+}
+
 handler.post(async (req, res) => {
   await db()
   try {
-    // check existence of object
-    const exist = await schemaName.findOne({
-      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
-    })
+    const {
+      isTemperatureControlled,
+      isHasInvoice,
+      importExport,
+      transportationType,
+      movementType,
+      cargoType,
+      dropOffTown,
+      dropOffWarehouse,
+      dropOffCity,
+      dropOffAddress,
+      pickUpCountry,
+      pickUpSeaport,
+      dropOffCountry,
+      dropOffSeaport,
+      cargoDescription,
+      commodity,
+      noOfPackages,
+      grossWeight,
+      buyerName,
+      buyerMobileNumber,
+      buyerEmail,
+      buyerAddress,
+      pickUpTown,
+      pickUpWarehouse,
+      pickUpCity,
+      pickUpAddress,
+      invoice,
+      transportation, // Not available FCL
+      containerLCL, // Not available FCL
+      containerFCL, // Available only FCL
+    } = req.body
 
-    if (exist)
-      return res.status(400).json({ error: 'Duplicate value detected' })
+    const validCargoTypes = ['FCL', 'LCL', 'AIR']
+    if (!cargoType || !validCargoTypes.includes(cargoType))
+      return res.status(400).json({ error: 'Invalid cargo type' })
 
-    const object = await schemaName.create({
-      ...req.body,
-      createdBy: req.user.id,
-    })
-    res.status(200).send(object)
+    const buyer = {
+      buyerName,
+      buyerMobileNumber,
+      buyerEmail,
+      buyerAddress,
+    }
+
+    const pickUp = {
+      pickUpTown,
+      pickUpWarehouse,
+      pickUpCity,
+      pickUpAddress,
+      pickUpCountry,
+      pickUpSeaport,
+    }
+
+    const dropOff = {
+      dropOffTown,
+      dropOffWarehouse,
+      dropOffCity,
+      dropOffAddress,
+      dropOffCountry,
+      dropOffSeaport,
+    }
+
+    const other = {
+      isTemperatureControlled,
+      isHasInvoice,
+      importExport,
+      transportationType,
+      movementType,
+      cargoDescription,
+      commodity,
+      noOfPackages,
+      grossWeight,
+      invoice,
+      transportation, // Not available FCL
+      containerLCL, // Not available FCL
+      containerFCL, // Available only FCL
+    }
+
+    if (cargoType === 'FCL' && transportationType !== 'plane') {
+      const data = FCL({ buyer, pickUp, dropOff, other })
+      const object = await Order.create(data)
+      return res.status(200).send(object)
+    }
+
+    if (cargoType === 'LCL' && transportationType !== 'plane') {
+      const data = LCL({ buyer, pickUp, dropOff, other })
+      const object = await Order.create(data)
+      return res.status(200).send(object)
+    }
+
+    if (cargoType === 'AIR' && transportationType === 'plane') {
+      const data = AIR({ buyer, pickUp, dropOff, other })
+      const object = await Order.create(data)
+      return res.status(200).send(object)
+    }
+
+    console.log(req.body)
+    res.status(200).send(req.body)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

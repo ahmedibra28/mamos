@@ -1,0 +1,58 @@
+{
+  "isTemperatureControlled": true,
+  "isHasInvoice": true,
+  "importExport": "Import",
+  "transportationType": "ship",
+  "movementType": "door to port",
+  "cargoType": "FCL",
+  "pickUpCountry": "62cd3cfc832068fe2704acec",
+  "pickUpSeaport": "62cd51f9832068fe2704b33b",
+  "dropOffCountry": "62cd3cf0832068fe2704ace0",
+  "dropOffSeaport": "62cd4e61832068fe2704b1c5",
+  "cargoDescription": "Caano geel",
+  "commodity": "62cd5390832068fe2704b413",
+  "noOfPackages": "30",
+  "grossWeight": "32112",
+  "buyerName": "Abdi",
+  "buyerMobileNumber": "+252615301507",
+  "buyerEmail": "ahmaat19@gmail.com",
+  "buyerAddress": "Makka almukarama",
+  "pickUpTown": "62cd74d63ea8aa28999c72fc",
+  "pickUpWarehouse": "unknown address",
+  "pickUpCity": "umraniya",
+  "pickUpAddress": "na",
+  "invoiceFile": {},
+  "transportation": null,
+  "containerFCL": [
+    {
+      "_id": "62ceab61a35916738853c8a2",
+      "name": "45 HC",
+      "length": 137.16,
+      "width": 24.38,
+      "height": 28.96,
+      "details": {
+        "CBM": 96.84110476800001,
+        "airFreight": 16172.464496256001,
+        "seaFreight": 96841.104768,
+        "roadFreightNational": 29052.3314304,
+        "roadFreightInternational": 32248.087887744
+      },
+      "status": "active",
+      "createdBy": "62cd3b08832068fe2704abf7",
+      "createdAt": "2022-07-13T11:24:17.604Z",
+      "updatedAt": "2022-07-13T11:24:17.604Z",
+      "__v": 0,
+      "quantity": 2
+    }
+  ],
+  "containerLCL": [
+    {
+      "qty": 0,
+      "commodity": "",
+      "length": "",
+      "width": "",
+      "height": ""
+    }
+  ],
+  "invoice": "/uploads/cargocover-commdity-list-1657956747057.pdf"
+}

@@ -1,0 +1,92 @@
+{
+  "isTemperatureControlled": true,
+  "isHasInvoice": true,
+  "importExport": "Import",
+  "transportationType": "ship",
+  "movementType": "door to door",
+  "cargoType": "LCL",
+  "pickUpCountry": "62cd3cfc832068fe2704acec",
+  "pickUpSeaport": "62cd51f9832068fe2704b33b",
+  "dropOffCountry": "62cd3cf0832068fe2704ace0",
+  "dropOffSeaport": "62cd4e61832068fe2704b1c5",
+  "buyerName": "Abdi",
+  "buyerMobileNumber": "+252615301507",
+  "buyerEmail": "ahmaat19@gmail.com",
+  "buyerAddress": "Makka almukarama",
+  "pickUpTown": "62cd74d63ea8aa28999c72fc",
+  "pickUpWarehouse": "Unknown",
+  "pickUpCity": "Mogadishu",
+  "pickUpAddress": "Makka almukarama",
+  "dropOffTown": "62cd748e3ea8aa28999c729e",
+  "dropOffWarehouse": "Makka almukarama",
+  "dropOffCity": "Mogadishu",
+  "dropOffAddress": "Makka almukarama",
+  "invoiceFile": {},
+  "transportation": {
+    "_id": "62d00d379a00a261456eaec9",
+    "name": "Maersk",
+    "transportationType": "ship",
+    "cost": 599.99,
+    "price": "$1,499.99",
+    "cargoType": "LCL",
+    "container": {
+      "_id": "62ce82afa35916738853c49c",
+      "name": "20 FT",
+      "length": 58.9,
+      "width": 23.5,
+      "height": 23.6,
+      "details": {
+        "CBM": 32.66594,
+        "airFreight": 5455.21198,
+        "seaFreight": 32665.94,
+        "roadFreightNational": 9799.782,
+        "roadFreightInternational": 10877.75802
+      },
+      "status": "active",
+      "createdBy": "62cd3b08832068fe2704abf7",
+      "createdAt": "2022-07-13T08:30:39.124Z",
+      "updatedAt": "2022-07-15T14:48:56.045Z",
+      "__v": 0,
+      "updatedBy": "62d1696921f738e52f2a281a"
+    },
+    "departureSeaport": {
+      "_id": "62cd51f9832068fe2704b33b",
+      "name": "Port of Istanbul",
+      "country": "62cd3cfc832068fe2704acec",
+      "status": "active",
+      "createdBy": "62cd3b08832068fe2704abf7",
+      "createdAt": "2022-07-12T10:50:33.548Z",
+      "updatedAt": "2022-07-12T10:50:33.548Z",
+      "__v": 0
+    },
+    "arrivalSeaport": {
+      "_id": "62cd4e61832068fe2704b1c5",
+      "name": "Mogadishu Port",
+      "country": "62cd3cf0832068fe2704ace0",
+      "status": "active",
+      "createdBy": "62cd3b08832068fe2704abf7",
+      "createdAt": "2022-07-12T10:35:13.321Z",
+      "updatedAt": "2022-07-12T10:35:13.321Z",
+      "__v": 0
+    },
+    "departureDate": "2022-07-17T00:00:00.000Z",
+    "arrivalDate": "2022-07-23T00:00:00.000Z",
+    "status": "active",
+    "createdBy": "62d0030d9a00a261456ea86d",
+    "createdAt": "2022-07-14T12:33:59.418Z",
+    "updatedAt": "2022-07-16T10:13:44.531Z",
+    "__v": 0,
+    "updatedBy": "62d1696921f738e52f2a281a"
+  },
+  "containerFCL": [],
+  "containerLCL": [
+    {
+      "qty": 0,
+      "commodity": "62cd5390832068fe2704b413",
+      "length": "10",
+      "width": "50",
+      "height": "32"
+    }
+  ],
+  "invoice": "/uploads/cargocover-commdity-list-1657967949793.pdf"
+}

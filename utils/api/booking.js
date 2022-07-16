@@ -44,7 +44,8 @@ export default function useBookingsHook(props) {
     async (obj) => await dynamicAPI('post', `${url}/transportations`, obj),
     {
       retry: 0,
-      // onSuccess: () => queryClient.invalidateQueries(['transportations']),
+      onSuccess: () =>
+        queryClient.invalidateQueries(['booking transportations']),
     }
   )
 

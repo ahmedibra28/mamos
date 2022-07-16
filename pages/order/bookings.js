@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
-import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
 import useBookingsHook from '../../utils/api/booking'
 import useSeaportsHook from '../../utils/api/seaports'
@@ -12,7 +11,7 @@ import useCommoditiesHook from '../../utils/api/commodities'
 import useTownsHook from '../../utils/api/towns'
 import useUploadHook from '../../utils/api/upload'
 
-import { Spinner, Message, Confirm } from '../../components'
+import { Spinner, Message } from '../../components'
 import {
   dynamicInputSelect,
   inputCheckBox,
@@ -24,7 +23,7 @@ import {
   staticInputSelect,
 } from '../../utils/dynamicForm'
 import TransportationItem from '../../components/TransportationItem'
-import { FaMinusCircle, FaPlusCircle, FaTrash } from 'react-icons/fa'
+import { FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
 
 const Bookings = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
@@ -41,7 +40,8 @@ const Bookings = () => {
   const [file, setFile] = useState('')
   const [fileLink, setFileLink] = useState(null)
 
-  const { postBookings, postAvailableTransportations } = useBookingsHook({})
+  const { postBooking, postAvailableTransportations } = useBookingsHook({})
+
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
   const { getCountries } = useCountriesHook({ limit: 1000000 })
@@ -63,6 +63,14 @@ const Bookings = () => {
     mutateAsync: mutateAsyncUpload,
     isSuccess: isSuccessUpload,
   } = postUpload
+
+  const {
+    isSuccess: isSuccessPost,
+    isLoading: isLoadingPost,
+    isError: isErrorPost,
+    error: errorPost,
+    mutateAsync: mutateAsyncPost,
+  } = postBooking
 
   const {
     data: transportationsData,
@@ -95,15 +103,54 @@ const Bookings = () => {
     register,
     handleSubmit,
     watch,
-    setValue,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       isTemperatureControlled: true,
       isHasInvoice: false,
     },
   })
+
+  useEffect(() => {
+    if (isSuccessPost) {
+      reset()
+      setSelectedTransportation(null)
+      setFile('')
+      setFileLink(null)
+      setSelectContainer([])
+      setInputFields([
+        {
+          qty: 0,
+          commodity: '',
+          length: '',
+          width: '',
+          height: '',
+        },
+      ])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessPost])
+
+  const handleSearch = () => {
+    if (
+      watch().transportationType ||
+      watch().pickUpAirport ||
+      watch().pickUpSeaport ||
+      watch().dropOffAirport ||
+      watch().dropOffSeaport ||
+      watch().cargoType
+    ) {
+      transportationsMutateAsync({
+        transportationType: watch().transportationType,
+        pickUpAirport: watch().pickUpAirport,
+        pickUpSeaport: watch().pickUpSeaport,
+        dropOffAirport: watch().dropOffAirport,
+        dropOffSeaport: watch().dropOffSeaport,
+        cargoType: watch().cargoType,
+      })
+    }
+  }
 
   const submitHandler = (data) => {
     console.log({
@@ -113,13 +160,13 @@ const Bookings = () => {
       containerLCL: inputFields,
       invoice: fileLink,
     })
-    transportationsMutateAsync({
-      transportationType: data.transportationType,
-      pickupAirport: data.pickupAirport,
-      pickupSeaport: data.pickupSeaport,
-      destinationAirport: data.destinationAirport,
-      destinationSeaport: data.destinationSeaport,
-      cargoType: data.cargoType,
+
+    mutateAsyncPost({
+      ...data,
+      transportation: selectedTransportation,
+      containerFCL: selectContainer,
+      containerLCL: inputFields,
+      invoice: fileLink,
     })
   }
 
@@ -193,10 +240,10 @@ const Bookings = () => {
     )
     ?.toFixed(2)
 
-  const airFreightKG =
+  const seaFreightKG =
     selectContainer &&
     selectContainer.reduce(
-      (acc, curr) => acc + curr.details?.airFreight * curr.quantity,
+      (acc, curr) => acc + curr.details?.seaFreight * curr.quantity,
       0
     )
 
@@ -220,7 +267,14 @@ const Bookings = () => {
         <meta property='og:title' content='Book New Bookings' key='title' />
       </Head>
 
+      {isSuccessPost && (
+        <Message variant='success'>
+          Your order has been received successfully
+        </Message>
+      )}
+
       {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>}
+      {isErrorPost && <Message variant='danger'>{errorPost}</Message>}
 
       <div className='bg-light p-3 my-2'>
         <h3>New Booking Form</h3>
@@ -310,7 +364,7 @@ const Bookings = () => {
                   register,
                   errors,
                   label: 'Pickup Country',
-                  name: 'pickupCountry',
+                  name: 'pickUpCountry',
                   value: 'name',
                   data: countriesData?.data?.filter(
                     (country) => country.status === 'active'
@@ -323,13 +377,13 @@ const Bookings = () => {
                     register,
                     errors,
                     label: 'Pickup Seaport',
-                    name: 'pickupSeaport',
+                    name: 'pickUpSeaport',
                     value: 'name',
                     data: seaportsData?.data?.filter(
                       (item) =>
-                        item?.country?._id === watch().pickupCountry &&
+                        item?.country?._id === watch().pickUpCountry &&
                         item?.status === 'active' &&
-                        item._id !== watch().destinationSeaport
+                        item._id !== watch().dropOffSeaport
                     ),
                   })}
                 {watch().transportationType === 'plane' &&
@@ -337,13 +391,13 @@ const Bookings = () => {
                     register,
                     errors,
                     label: 'Pickup Airport',
-                    name: 'pickupAirport',
+                    name: 'pickUpAirport',
                     value: 'name',
                     data: airportsData?.data?.filter(
                       (item) =>
-                        item?.country?._id === watch().pickupCountry &&
+                        item?.country?._id === watch().pickUpCountry &&
                         item?.status === 'active' &&
-                        item._id !== watch().destinationAirport
+                        item._id !== watch().dropOffAirport
                     ),
                   })}
               </div>
@@ -353,7 +407,7 @@ const Bookings = () => {
                   register,
                   errors,
                   label: 'Destination Country',
-                  name: 'destinationCountry',
+                  name: 'dropOffCountry',
                   value: 'name',
                   data: countriesData?.data?.filter(
                     (country) => country.status === 'active'
@@ -366,13 +420,13 @@ const Bookings = () => {
                     register,
                     errors,
                     label: 'Destination Seaport',
-                    name: 'destinationSeaport',
+                    name: 'dropOffSeaport',
                     value: 'name',
                     data: seaportsData?.data?.filter(
                       (item) =>
-                        item?.country?._id === watch().destinationCountry &&
+                        item?.country?._id === watch().dropOffCountry &&
                         item?.status === 'active' &&
-                        item._id !== watch().pickupSeaport
+                        item._id !== watch().pickUpSeaport
                     ),
                   })}
                 {watch().transportationType === 'plane' &&
@@ -380,13 +434,13 @@ const Bookings = () => {
                     register,
                     errors,
                     label: 'Destination Airport',
-                    name: 'destinationAirport',
+                    name: 'dropOffAirport',
                     value: 'name',
                     data: airportsData?.data?.filter(
                       (item) =>
-                        item?.country?._id === watch().destinationCountry &&
+                        item?.country?._id === watch().dropOffCountry &&
                         item?.status === 'active' &&
-                        item._id !== watch().pickupAirport
+                        item._id !== watch().pickUpAirport
                     ),
                   })}
               </div>
@@ -636,11 +690,10 @@ const Bookings = () => {
                     errors,
                     name: 'grossWeight',
                     label: 'Gross Weight as KG',
-                    max: airFreightKG,
+                    max: seaFreightKG,
                     placeholder: 'Enter gross weight as KG',
                   })}
                 </div>
-                {console.log(airFreightKG)}
                 <div className='col-12'>
                   {inputCheckBox({
                     register,
@@ -740,8 +793,8 @@ const Bookings = () => {
                         data: townsData?.data?.filter((town) =>
                           town.status === 'active' &&
                           watch().transportationType === 'plane'
-                            ? town?.airport?._id === watch().pickupAirport
-                            : town?.seaport?._id === watch().pickupSeaport
+                            ? town?.airport?._id === watch().pickUpAirport
+                            : town?.seaport?._id === watch().pickUpSeaport
                         ),
                       })}
                     </div>
@@ -749,9 +802,9 @@ const Bookings = () => {
                       {inputText({
                         register,
                         errors,
-                        name: 'pickUpWarehouseName',
+                        name: 'pickUpWarehouse',
                         label: 'Warehouse Name',
-                        placeholder: 'Enter pickup warehouse name',
+                        placeholder: 'Enter pickUp warehouse name',
                       })}
                     </div>
                     <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
@@ -760,7 +813,7 @@ const Bookings = () => {
                         errors,
                         name: 'pickUpCity',
                         label: 'City',
-                        placeholder: 'Enter pickup city',
+                        placeholder: 'Enter pickUp city',
                       })}
                     </div>
 
@@ -770,7 +823,7 @@ const Bookings = () => {
                         errors,
                         name: 'pickUpAddress',
                         label: 'Address',
-                        placeholder: 'Enter pickup address',
+                        placeholder: 'Enter pickUp address',
                       })}
                     </div>
                   </>
@@ -791,8 +844,8 @@ const Bookings = () => {
                         data: townsData?.data?.filter((town) =>
                           town.status === 'active' &&
                           watch().transportationType === 'plane'
-                            ? town?.airport?._id === watch().destinationAirport
-                            : town?.seaport?._id === watch().destinationSeaport
+                            ? town?.airport?._id === watch().dropOffAirport
+                            : town?.seaport?._id === watch().dropOffSeaport
                         ),
                       })}
                     </div>
@@ -800,7 +853,7 @@ const Bookings = () => {
                       {inputText({
                         register,
                         errors,
-                        name: 'dropOffWarehouseName',
+                        name: 'dropOffWarehouse',
                         label: 'Warehouse Name',
                         placeholder: 'Enter drop-off warehouse name',
                       })}
@@ -870,16 +923,33 @@ const Bookings = () => {
             </div>
           )}
 
+        {(selectedTransportation || selectContainer.length > 0) && (
+          <button
+            type='submit'
+            className='btn btn-primary float-end mb-5 mt-3'
+            disabled={isLoadingUpload || isLoadingPost}
+          >
+            {isLoadingUpload || isLoadingPost ? (
+              <span className='spinner-border spinner-border-sm' />
+            ) : (
+              <>
+                <FaPlusCircle className='mb-1' /> Submit Your Booking
+              </>
+            )}
+          </button>
+        )}
+
         <button
-          type='submit'
-          className='btn btn-primary float-end mb-5 mt-3'
-          disabled={isLoadingUpload}
+          type='button'
+          onClick={() => handleSearch()}
+          className='btn btn-outline-primary btn-sm float-end mb-5 mt-3 me-3'
+          disabled={isLoadingUpload || isLoadingPost}
         >
-          {isLoadingUpload ? (
+          {isLoadingUpload || isLoadingPost ? (
             <span className='spinner-border spinner-border-sm' />
           ) : (
             <>
-              <FaPlusCircle className='mb-1' /> Submit Your Booking
+              <FaSearch className='mb-1' /> Search Available Transportors
             </>
           )}
         </button>
