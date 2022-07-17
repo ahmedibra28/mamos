@@ -1,9 +1,9 @@
 import moment from 'moment'
 import nc from 'next-connect'
-import db from '../../../../config/db'
-import Transportation from '../../../../models/Transportation'
-import { isAuth } from '../../../../utils/auth'
-import { priceFormat } from '../../../../utils/priceFormat'
+import db from '../../../config/db'
+import Transportation from '../../../models/Transportation'
+import { isAuth } from '../../../utils/auth'
+import { priceFormat } from '../../../utils/priceFormat'
 
 const schemaName = Transportation
 

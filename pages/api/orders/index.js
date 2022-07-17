@@ -1,12 +1,12 @@
 import moment from 'moment'
 import nc from 'next-connect'
-import db from '../../../../config/db'
-import Order from '../../../../models/Order'
-import Transportation from '../../../../models/Transportation'
-import { isAuth } from '../../../../utils/auth'
-import autoIncrement from '../../../../utils/autoIncrement'
+import db from '../../../config/db'
+import Order from '../../../models/Order'
+import Transportation from '../../../models/Transportation'
+import { isAuth } from '../../../utils/auth'
+import autoIncrement from '../../../utils/autoIncrement'
 
-const schemaName = Transportation
+const schemaName = Order
 
 const handler = nc()
 handler.use(isAuth)

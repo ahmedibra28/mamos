@@ -3,7 +3,7 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import { useForm } from 'react-hook-form'
-import useBookingsHook from '../../utils/api/booking'
+import useOrdersHook from '../../utils/api/orders'
 import useSeaportsHook from '../../utils/api/seaports'
 import useAirportsHook from '../../utils/api/airports'
 import useCountriesHook from '../../utils/api/countries'
@@ -25,7 +25,7 @@ import {
 import TransportationItem from '../../components/TransportationItem'
 import { FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
 
-const Bookings = () => {
+const Orders = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
   const [selectContainer, setSelectContainer] = useState([])
   const [inputFields, setInputFields] = useState([
@@ -40,7 +40,7 @@ const Bookings = () => {
   const [file, setFile] = useState('')
   const [fileLink, setFileLink] = useState(null)
 
-  const { postBooking, postAvailableTransportations } = useBookingsHook({})
+  const { postOrder, postAvailableTransportations } = useOrdersHook({})
 
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
@@ -70,7 +70,7 @@ const Bookings = () => {
     isError: isErrorPost,
     error: errorPost,
     mutateAsync: mutateAsyncPost,
-  } = postBooking
+  } = postOrder
 
   const {
     data: transportationsData,
@@ -153,14 +153,6 @@ const Bookings = () => {
   }
 
   const submitHandler = (data) => {
-    console.log({
-      ...data,
-      transportation: selectedTransportation,
-      containerFCL: selectContainer,
-      containerLCL: inputFields,
-      invoice: fileLink,
-    })
-
     mutateAsyncPost({
       ...data,
       transportation: selectedTransportation,
@@ -263,8 +255,8 @@ const Bookings = () => {
   return (
     <>
       <Head>
-        <title>Book New Bookings</title>
-        <meta property='og:title' content='Book New Bookings' key='title' />
+        <title>Book New Orders</title>
+        <meta property='og:title' content='Book New Orders' key='title' />
       </Head>
 
       {isSuccessPost && (
@@ -277,7 +269,7 @@ const Bookings = () => {
       {isErrorPost && <Message variant='danger'>{errorPost}</Message>}
 
       <div className='bg-light p-3 my-2'>
-        <h3>New Booking Form</h3>
+        <h3>Book New Order Form</h3>
         <p>Please complete as much as you can.</p>
       </div>
 
@@ -933,7 +925,7 @@ const Bookings = () => {
               <span className='spinner-border spinner-border-sm' />
             ) : (
               <>
-                <FaPlusCircle className='mb-1' /> Submit Your Booking
+                <FaPlusCircle className='mb-1' /> Submit Your Order
               </>
             )}
           </button>
@@ -958,6 +950,6 @@ const Bookings = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Bookings)), {
+export default dynamic(() => Promise.resolve(withAuth(Orders)), {
   ssr: false,
 })

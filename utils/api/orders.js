@@ -1,22 +1,22 @@
 import dynamicAPI from './dynamicAPI'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 
-const url = '/api/order/bookings'
+const url = '/api/orders'
 
-const queryKey = 'bookings'
+const queryKey = 'orders'
 
-export default function useBookingsHook(props) {
+export default function useOrdersHook(props) {
   const { page = 1, q = '', limit = 25 } = props
   const queryClient = useQueryClient()
 
-  const getBookings = useQuery(
+  const getOrders = useQuery(
     queryKey,
     async () =>
       await dynamicAPI('get', `${url}?page=${page}&q=${q}&limit=${limit}`, {}),
     { retry: 0 }
   )
 
-  const updateBooking = useMutation(
+  const updateOrder = useMutation(
     async (obj) => await dynamicAPI('put', `${url}/${obj._id}`, obj),
     {
       retry: 0,
@@ -24,7 +24,7 @@ export default function useBookingsHook(props) {
     }
   )
 
-  const deleteBooking = useMutation(
+  const deleteOrder = useMutation(
     async (id) => await dynamicAPI('delete', `${url}/${id}`, {}),
     {
       retry: 0,
@@ -32,8 +32,16 @@ export default function useBookingsHook(props) {
     }
   )
 
-  const postBooking = useMutation(
+  const postOrder = useMutation(
     async (obj) => await dynamicAPI('post', url, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+    }
+  )
+
+  const postOrdersList = useMutation(
+    async (obj) => await dynamicAPI('post', `${url}/lists`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([queryKey]),
@@ -44,16 +52,16 @@ export default function useBookingsHook(props) {
     async (obj) => await dynamicAPI('post', `${url}/transportations`, obj),
     {
       retry: 0,
-      onSuccess: () =>
-        queryClient.invalidateQueries(['booking transportations']),
+      onSuccess: () => queryClient.invalidateQueries(['order transportations']),
     }
   )
 
   return {
-    getBookings,
-    updateBooking,
-    deleteBooking,
-    postBooking,
+    getOrders,
+    updateOrder,
+    deleteOrder,
+    postOrder,
     postAvailableTransportations,
+    postOrdersList,
   }
 }
