@@ -4,6 +4,7 @@ import Town from './Town'
 import Country from './Country'
 import Seaport from './Seaport'
 import Airport from './Airport'
+import Transportation from './Transportation'
 
 const orderScheme = mongoose.Schema(
   {
@@ -51,7 +52,10 @@ const orderScheme = mongoose.Schema(
       noOfPackages: String,
       grossWeight: String,
       invoice: String,
-      transportation: {}, // Not available FCL
+      transportation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: Transportation,
+      }, // Not available FCL
       containerLCL: [{}], // Not available FCL
       containerFCL: [], // Available only FCL
     },
