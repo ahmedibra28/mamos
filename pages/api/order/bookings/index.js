@@ -4,6 +4,7 @@ import db from '../../../../config/db'
 import Order from '../../../../models/Order'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
+import autoIncrement from '../../../../utils/autoIncrement'
 
 const schemaName = Transportation
 
@@ -79,7 +80,7 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     departureDate: { $gt: moment().format() },
   }).lean()
 
-  if (!object)
+  if (object.length === 0)
     return res.status(404).json({ error: 'Transportation not found' })
 
   return {
@@ -122,7 +123,7 @@ const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     departureDate: { $gt: moment().format() },
   }).lean()
 
-  if (!object)
+  if (object.length === 0)
     return res.status(404).json({ error: 'Transportation not found' })
 
   return {
@@ -149,10 +150,6 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
   }
   delete dropOff.dropOffSeaport
 
-  console.log(pickUp)
-  console.log(dropOff)
-  console.log(other.movementType)
-
   if (!other.isHasInvoice) {
     delete other.invoice
   }
@@ -171,7 +168,7 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
     departureDate: { $gt: moment().format() },
   }).lean()
 
-  if (!object)
+  if (object.length === 0)
     return res.status(404).json({ error: 'Transportation not found' })
 
   return {
@@ -224,6 +221,9 @@ handler.post(async (req, res) => {
     if (!cargoType || !validCargoTypes.includes(cargoType))
       return res.status(400).json({ error: 'Invalid cargo type' })
 
+    if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
+      return res.status(400).json({ error: 'Buyer details are required' })
+
     const buyer = {
       buyerName,
       buyerMobileNumber,
@@ -268,12 +268,22 @@ handler.post(async (req, res) => {
       containerFCL, // Available only FCL
     }
 
+    const lastRecord = await Order.findOne(
+      {},
+      { trackingNo: 1 },
+      { sort: { createdAt: -1 } }
+    )
+
+    const trackingNo = lastRecord
+      ? autoIncrement(lastRecord.trackingNo)
+      : autoIncrement('MB000000')
+
     if (cargoType === 'FCL' && transportationType !== 'plane') {
       const data = await FCL({ buyer, pickUp, dropOff, other, res })
       const object = await Order.create({
         ...data,
         createdBy: req.user.id,
-        trackingNo: '001',
+        trackingNo,
       })
       return res.status(200).send(object)
     }
@@ -283,7 +293,7 @@ handler.post(async (req, res) => {
       const object = await Order.create({
         ...data,
         createdBy: req.user.id,
-        trackingNo: '001',
+        trackingNo,
       })
       return res.status(200).send(object)
     }
@@ -293,12 +303,11 @@ handler.post(async (req, res) => {
       const object = await Order.create({
         ...data,
         createdBy: req.user.id,
-        trackingNo: '001',
+        trackingNo,
       })
       return res.status(200).send(object)
     }
 
-    console.log(req.body)
     res.status(200).send(req.body)
   } catch (error) {
     res.status(500).json({ error: error.message })
