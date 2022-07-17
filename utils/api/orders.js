@@ -6,7 +6,7 @@ const url = '/api/orders'
 const queryKey = 'orders'
 
 export default function useOrdersHook(props) {
-  const { page = 1, q = '', limit = 25 } = props
+  const { page = 1, id, q = '', limit = 25 } = props
   const queryClient = useQueryClient()
 
   const getOrders = useQuery(
@@ -14,6 +14,12 @@ export default function useOrdersHook(props) {
     async () =>
       await dynamicAPI('get', `${url}?page=${page}&q=${q}&limit=${limit}`, {}),
     { retry: 0 }
+  )
+
+  const getOrderDetails = useQuery(
+    [`order ${id}`],
+    async () => await dynamicAPI('get', `${url}/${id}`, {}),
+    { retry: 3, enabled: !!id }
   )
 
   const updateOrder = useMutation(
@@ -63,5 +69,6 @@ export default function useOrdersHook(props) {
     postOrder,
     postAvailableTransportations,
     postOrdersList,
+    getOrderDetails,
   }
 }

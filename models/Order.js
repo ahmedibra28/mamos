@@ -5,6 +5,7 @@ import Country from './Country'
 import Seaport from './Seaport'
 import Airport from './Airport'
 import Transportation from './Transportation'
+import Commodity from './Commodity'
 
 const orderScheme = mongoose.Schema(
   {
@@ -48,7 +49,10 @@ const orderScheme = mongoose.Schema(
       movementType: { type: String, required: true },
       cargoDescription: String,
       cargoType: { type: String, required: true },
-      commodity: String,
+      commodity: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: Commodity,
+      },
       noOfPackages: String,
       grossWeight: String,
       invoice: String,

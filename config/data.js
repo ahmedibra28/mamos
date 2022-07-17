@@ -176,6 +176,13 @@ const clientPermissions = [
     auth: true,
     description: 'Order list page',
   },
+  {
+    name: 'Order Details',
+    path: '/orders/details/[id]',
+    menu: 'order',
+    auth: true,
+    description: 'Order details page',
+  },
 ]
 
 const permissions = [
@@ -674,6 +681,13 @@ const permissions = [
     auth: true,
     name: 'Orders',
     method: 'DELETE',
+  },
+  {
+    description: 'Get Order Details',
+    route: '/api/orders/:id',
+    auth: true,
+    name: 'Orders',
+    method: 'GET',
   },
   {
     description: 'Get Available Transportations',
