@@ -162,7 +162,7 @@ const Orders = () => {
     })
   }
 
-  const addContainer = (container) => {
+  const addContainer = (container, item) => {
     const existed = selectContainer.find((c) => c._id === container._id)
     if (existed) {
       const newSelectContainer = selectContainer.map((c) => {
@@ -170,13 +170,17 @@ const Orders = () => {
           return {
             ...container,
             quantity: c.quantity + 1,
+            transportation: item._id,
           }
         }
         return c
       })
       setSelectContainer(newSelectContainer)
     } else {
-      setSelectContainer([...selectContainer, { ...container, quantity: 1 }])
+      setSelectContainer([
+        ...selectContainer,
+        { ...container, quantity: 1, transportation: item._id },
+      ])
     }
   }
 
@@ -232,12 +236,10 @@ const Orders = () => {
     )
     ?.toFixed(2)
 
-  const seaFreightKG =
-    selectContainer &&
-    selectContainer.reduce(
-      (acc, curr) => acc + curr.details?.seaFreight * curr.quantity,
-      0
-    )
+  const seaFreightKG = selectContainer?.reduce(
+    (acc, curr) => acc + curr.details?.seaFreight * curr.quantity,
+    0
+  )
 
   const USED_CBM = 16.33297 + Number(TOTAL_CBM)
   const DEFAULT_CAPACITY = Number(

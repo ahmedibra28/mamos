@@ -82,7 +82,7 @@ const TransportationItem = ({
             </button>
 
             <button
-              onClick={() => addContainer(item?.container)}
+              onClick={() => addContainer(item?.container, item)}
               type='button'
               className='btn btn-success btn-sm'
             >
