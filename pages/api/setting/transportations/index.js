@@ -34,7 +34,7 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('container')
+      .populate('container.container')
       .populate({
         path: 'departureSeaport',
         populate: { path: 'country' },
@@ -58,8 +58,24 @@ handler.get(async (req, res) => {
       ...trans,
       departureDate: moment(trans.departureDate).format('YYYY-MM-DD'),
       arrivalDate: moment(trans.arrivalDate).format('YYYY-MM-DD'),
-      cost: priceFormat(trans.cost),
-      price: priceFormat(trans.price),
+      cost:
+        trans.cargoType === 'FCL'
+          ? priceFormat(
+              trans?.container?.reduce(
+                (acc, curr) => acc + Number(curr?.cost),
+                0
+              ) || 0
+            )
+          : priceFormat(trans.cost),
+      price:
+        trans.cargoType === 'FCL'
+          ? priceFormat(
+              trans?.container?.reduce(
+                (acc, curr) => acc + Number(curr?.price),
+                0
+              ) || 0
+            )
+          : priceFormat(trans.price),
     }))
 
     res.status(200).json({
@@ -85,7 +101,8 @@ handler.post(async (req, res) => {
       cargoType,
       cost,
       price,
-      container,
+      costContainer,
+      priceContainer,
       departureSeaport,
       arrivalSeaport,
       departureAirport,
@@ -94,23 +111,53 @@ handler.post(async (req, res) => {
       arrivalDate,
       status,
     } = req.body
+    let container = req.body.container
 
-    if (Number(cost) > Number(price))
-      return res
-        .status(404)
-        .json({ error: 'Cost must be greater than price amount' })
+    if (cargoType !== 'FCL') {
+      if (Number(cost) > Number(price))
+        return res
+          .status(404)
+          .json({ error: 'Cost must be greater than price amount' })
+    }
 
     if (arrivalDate < departureDate)
       return res
         .status(400)
         .json({ error: 'Arrival date must be after departure date' })
 
-    const containerObj = await Container.findOne({
-      _id: container,
-      status: 'active',
+    container = Array.isArray(container) ? container : [container]
+
+    container?.map(async (c) => {
+      const containerObj = await Container.findOne({
+        _id: c,
+        status: 'active',
+      })
+      if (!containerObj)
+        return res.status(404).json({ error: 'Container not found' })
     })
-    if (!containerObj)
-      return res.status(404).json({ error: 'Container not found' })
+
+    // FCL Container structuring
+    if (cargoType === 'FCL') {
+      const containerLength = container.length
+      const cost = costContainer.split(',')?.map((c) => c.trim())
+
+      const price = priceContainer.split(',')?.map((c) => c.trim())
+
+      if (containerLength !== cost.length || containerLength !== price.length) {
+        return res.status(400).json({ error: 'Container or price mismatched' })
+      }
+
+      const result = container.map((c, i) => ({
+        container: c,
+        cost: cost[i],
+        price: price[i],
+      }))
+      container = result
+    }
+
+    if (cargoType !== 'FCL') {
+      container = container.map((c) => ({ container: c }))
+    }
 
     // check if status is active
     if (departureSeaport || arrivalSeaport) {

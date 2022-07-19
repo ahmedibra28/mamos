@@ -12,7 +12,9 @@ import useAirportsHook from '../../utils/api/airports'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
   dynamicInputSelect,
+  inputCheckBox,
   inputDate,
+  inputMultipleCheckBox,
   inputNumber,
   inputText,
   staticInputSelect,
@@ -141,10 +143,21 @@ const Transportations = () => {
     setValue('arrivalAirport', item?.arrivalAirport?._id)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
-    setValue('container', item?.container?._id)
     setValue('cost', reversePriceFormat(item?.cost))
     setValue('price', reversePriceFormat(item?.price))
     setEdit(true)
+    setValue(
+      'container',
+      item?.container?.map((c) => c?.container?._id)
+    )
+    setValue(
+      'costContainer',
+      item.container.map((c) => c?.cost)
+    )
+    setValue(
+      'priceContainer',
+      item.container.map((c) => c?.price)
+    )
   }
 
   const deleteHandler = (id) => {
@@ -191,20 +204,7 @@ const Transportations = () => {
         { name: 'plane' },
       ],
     }),
-    inputNumber({
-      register,
-      errors,
-      label: 'Cost',
-      name: 'cost',
-      placeholder: 'Enter cost',
-    }),
-    inputNumber({
-      register,
-      errors,
-      label: 'Price',
-      name: 'price',
-      placeholder: 'Enter price',
-    }),
+
     staticInputSelect({
       register,
       errors,
@@ -213,15 +213,69 @@ const Transportations = () => {
       placeholder: 'Select cargo type',
       data: [{ name: 'FCL' }, { name: 'LCL' }, { name: 'AIR' }],
     }),
-    dynamicInputSelect({
-      register,
-      errors,
-      label: 'Container',
-      name: 'container',
-      placeholder: 'Select container',
-      value: 'name',
-      data: containersData?.data?.filter((item) => item.status === 'active'),
-    }),
+    watch().cargoType === 'FCL' && watch().transportationType === 'ship' ? (
+      <div>
+        {inputMultipleCheckBox({
+          register,
+          errors,
+          label: 'Container',
+          name: 'container',
+          value: 'name',
+          data: containersData?.data?.filter(
+            (item) => item.status === 'active'
+          ),
+        })}
+        <br />
+        <div className='row'>
+          <div className='col-6'>
+            {inputText({
+              register,
+              errors,
+              label: 'Cost Container',
+              name: 'costContainer',
+              placeholder: 'Enter cost container',
+            })}
+          </div>
+          <div className='col-6'>
+            {inputText({
+              register,
+              errors,
+              label: 'Price Container',
+              name: 'priceContainer',
+              placeholder: 'Enter price container',
+            })}
+          </div>
+        </div>
+      </div>
+    ) : (
+      dynamicInputSelect({
+        register,
+        errors,
+        label: 'Container',
+        name: 'container',
+        placeholder: 'Select container',
+        value: 'name',
+        data: containersData?.data?.filter((item) => item.status === 'active'),
+      })
+    ),
+
+    watch().cargoType !== 'FCL' &&
+      inputNumber({
+        register,
+        errors,
+        label: 'Cost',
+        name: 'cost',
+        placeholder: 'Enter cost',
+      }),
+    watch().cargoType !== 'FCL' &&
+      inputNumber({
+        register,
+        errors,
+        label: 'Price',
+        name: 'price',
+        placeholder: 'Enter price',
+      }),
+
     watch().cargoType === 'AIR' &&
       dynamicInputSelect({
         register,
