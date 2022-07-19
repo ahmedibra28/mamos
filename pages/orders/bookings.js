@@ -7,6 +7,7 @@ import useOrdersHook from '../../utils/api/orders'
 import useSeaportsHook from '../../utils/api/seaports'
 import useAirportsHook from '../../utils/api/airports'
 import useCountriesHook from '../../utils/api/countries'
+import useContainersHook from '../../utils/api/containers'
 import useCommoditiesHook from '../../utils/api/commodities'
 import useTownsHook from '../../utils/api/towns'
 import useUploadHook from '../../utils/api/upload'
@@ -23,7 +24,7 @@ import {
   staticInputSelect,
 } from '../../utils/dynamicForm'
 import TransportationItem from '../../components/TransportationItem'
-import { FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
+import { FaMinusCircle, FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
 
 const Orders = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
@@ -45,6 +46,7 @@ const Orders = () => {
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
   const { getCountries } = useCountriesHook({ limit: 1000000 })
+  const { getContainers } = useContainersHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
   const { getTowns } = useTownsHook({ limit: 1000000 })
   const { postUpload } = useUploadHook()
@@ -54,6 +56,7 @@ const Orders = () => {
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
   const { data: townsData } = getTowns
+  const { data: containersData } = getContainers
 
   const {
     data: dataUpload,
@@ -162,7 +165,7 @@ const Orders = () => {
     })
   }
 
-  const addContainer = (container, item) => {
+  const addContainer = (container) => {
     const existed = selectContainer.find((c) => c._id === container._id)
     if (existed) {
       const newSelectContainer = selectContainer.map((c) => {
@@ -170,17 +173,13 @@ const Orders = () => {
           return {
             ...container,
             quantity: c.quantity + 1,
-            transportation: item._id,
           }
         }
         return c
       })
       setSelectContainer(newSelectContainer)
     } else {
-      setSelectContainer([
-        ...selectContainer,
-        { ...container, quantity: 1, transportation: item._id },
-      ])
+      setSelectContainer([...selectContainer, { ...container, quantity: 1 }])
     }
   }
 
@@ -240,7 +239,6 @@ const Orders = () => {
     (acc, curr) => acc + curr.details?.seaFreight * curr.quantity,
     0
   )
-
   const USED_CBM = 16.33297 + Number(TOTAL_CBM)
   const DEFAULT_CAPACITY = Number(
     selectedTransportation?.container?.details?.CBM
@@ -468,6 +466,62 @@ const Orders = () => {
                       />
                     </div>
                   ))}
+
+                {selectedTransportation && (
+                  <div className='row mt-3'>
+                    {containersData?.data?.map((container) => (
+                      <div
+                        key={container._id}
+                        className='col-lg-3 col-md-6 col-12'
+                      >
+                        <div className='card border-0 shadow-sm'>
+                          <div className='card-body text-center'>
+                            <div className=''>
+                              {container.name} - Fits up to{' '}
+                              {container?.details?.seaFreight?.toFixed(2)} &{' '}
+                              {container?.details?.CBM}
+                            </div>
+                            <div className='text-center'>
+                              <button
+                                disabled={
+                                  !selectContainer.find(
+                                    (c) => c._id === container._id
+                                  )
+                                }
+                                onClick={() => removeContainer(container)}
+                                type='button'
+                                className='btn btn-danger btn-sm'
+                              >
+                                <FaMinusCircle className='mb-1' />
+                              </button>
+
+                              <button
+                                type='button'
+                                className='btn btn-light btn-sm'
+                              >
+                                {selectContainer.map(
+                                  (c) => c._id === container._id && c.quantity
+                                )}
+                                {!selectContainer.find(
+                                  (c) => c._id === container._id
+                                ) && 0}
+                              </button>
+
+                              <button
+                                onClick={() => addContainer(container)}
+                                type='button'
+                                className='btn btn-success btn-sm'
+                              >
+                                <FaPlusCircle className='mb-1' />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className='col-12'>
                   {transportationsData?.length === 0 && (
                     <p className='text-center text-danger'>
@@ -481,6 +535,7 @@ const Orders = () => {
             </div>
           )
         )}
+
         {watch().cargoType !== 'FCL' &&
           selectedTransportation &&
           selectedTransportation?.cargoType !== 'FCL' &&

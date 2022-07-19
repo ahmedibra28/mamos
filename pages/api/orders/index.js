@@ -69,7 +69,6 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
   if (!other.isHasInvoice) {
     delete other.invoice
   }
-  delete other.transportation
   delete other.containerLCL
 
   const object = await Transportation.find({

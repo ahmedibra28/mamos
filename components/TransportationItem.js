@@ -6,10 +6,6 @@ const TransportationItem = ({
   item,
   setSelectedTransportation,
   selectedTransportation,
-  addContainer,
-  removeContainer,
-  selectContainer,
-  cargoType,
 }) => {
   return (
     <div
@@ -60,44 +56,13 @@ const TransportationItem = ({
         </label>
       </div>
       <div className='card-footer p-0'>
-        {cargoType === 'FCL' ? (
-          <div className='text-center btn-group w-100'>
-            <button
-              disabled={
-                !selectContainer.find((c) => c?._id === item?.container._id)
-              }
-              onClick={() => removeContainer(item?.container)}
-              type='button'
-              className='btn btn-danger btn-sm'
-            >
-              <FaMinusCircle className='mb-1' />
-            </button>
-
-            <button type='button' className='btn btn-light btn-sm'>
-              {selectContainer.map(
-                (c) => c?._id === item?.container?._id && c?.quantity
-              )}
-              {!selectContainer.find((c) => c?._id === item?.container?._id) &&
-                0}
-            </button>
-
-            <button
-              onClick={() => addContainer(item?.container, item)}
-              type='button'
-              className='btn btn-success btn-sm'
-            >
-              <FaPlusCircle className='mb-1' />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setSelectedTransportation(item)}
-            type='button'
-            className='btn btn-primary btn-sm w-100'
-          >
-            <FaCheckCircle className='mb-1' /> SELECT
-          </button>
-        )}
+        <button
+          onClick={() => setSelectedTransportation(item)}
+          type='button'
+          className='btn btn-primary btn-sm w-100'
+        >
+          <FaCheckCircle className='mb-1' /> SELECT
+        </button>
       </div>
     </div>
   )

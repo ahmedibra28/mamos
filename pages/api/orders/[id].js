@@ -87,17 +87,17 @@ handler.get(async (req, res) => {
           ?.toFixed(2)
       )
 
-      const data = Promise.all(
-        order?.other?.containerFCL?.map(
-          async (tr) =>
-            await Transportation.findById(tr.transportation, {
-              price: 1,
-              cost: 1,
-            })
-        )
-      )
+      // const data = Promise.all(
+      //   order?.other?.containerFCL?.map(
+      //     async (tr) =>
+      //       await Transportation.findById(tr.transportation, {
+      //         price: 1,
+      //         cost: 1,
+      //       })
+      //   )
+      // )
 
-      console.log(await data)
+      // console.log(await data)
 
       // const container = await Container.findById(
       //   order?.other?.transportation?.container,
@@ -105,7 +105,7 @@ handler.get(async (req, res) => {
       // )
       // const containerCBM = container?.details?.CBM
 
-      // const containerPrice = order.other.transportation.price
+      const containerPrice = order.other.transportation.price
       const transportationPrice = (containerPrice / containerCBM) * customerCBM
 
       const price = {
