@@ -1,11 +1,8 @@
-import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../../HOC/withAuth'
-import { useForm } from 'react-hook-form'
 import useOrdersHook from '../../../utils/api/orders'
 import { Spinner, Message } from '../../../components'
-import { FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
 import { useRouter } from 'next/router'
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import moment from 'moment'
@@ -289,18 +286,50 @@ const Details = () => {
                 {data?.other?.invoice && (
                   <div>
                     <span className='fw-bold'>Invoice: </span>
-                    <span>{data?.other?.invoice} </span>
+                    <span>
+                      <a
+                        href={data?.other?.invoice}
+                        target='_blank'
+                        rel='noreferrer'
+                      >
+                        view
+                      </a>
+                    </span>
                   </div>
                 )}
               </div>
 
               {/* Pricing Info */}
               <div className='mb-4'>
-                {data?.other && <h4 className='fw-bold'>PRICING DETAILS</h4>}
-                {data?.other?.importExport && (
+                {data?.price && <h4 className='fw-bold'>PRICING DETAILS</h4>}
+                {data?.price?.invoicePrice && (
                   <div>
-                    <span className='fw-bold'>Import/Export: </span>
-                    <span>{data?.other?.importExport} </span>
+                    <span className='fw-bold'>Invoice Amount: </span>
+                    <span>{data?.price?.invoicePrice} </span>
+                  </div>
+                )}
+                {data?.price?.pickUpPrice && (
+                  <div>
+                    <span className='fw-bold'>Pick-up Amount: </span>
+                    <span>{data?.price?.pickUpPrice} </span>
+                  </div>
+                )}
+                {data?.price?.dropOffPrice && (
+                  <div>
+                    <span className='fw-bold'>Drop-off Amount: </span>
+                    <span>{data?.price?.dropOffPrice} </span>
+                  </div>
+                )}
+                {data?.price?.customerPrice && (
+                  <div>
+                    <span className='fw-bold'>Cargo Amount: </span>
+                    <span>{data?.price?.customerPrice} </span>
+                  </div>
+                )}
+                {data?.price?.customerCBM && (
+                  <div>
+                    <span className='fw-bold'>Total CBM: </span>
+                    <span>{data?.price?.customerCBM} </span>
                   </div>
                 )}
               </div>
