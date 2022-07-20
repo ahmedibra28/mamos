@@ -80,44 +80,38 @@ handler.get(async (req, res) => {
       const customerCBM = Number(
         order.other.containerFCL
           ?.reduce(
-            (acc, curr) =>
-              acc + (curr.length * curr.width * curr.height) / 1000,
+            (acc, curr) => acc + curr?.container?.details?.CBM * curr?.quantity,
             0
           )
           ?.toFixed(2)
       )
 
-      // const data = Promise.all(
-      //   order?.other?.containerFCL?.map(
-      //     async (tr) =>
-      //       await Transportation.findById(tr.transportation, {
-      //         price: 1,
-      //         cost: 1,
-      //       })
-      //   )
-      // )
+      const containerInfo = order?.other?.containerFCL?.map((c) => ({
+        name: c?.container?.name,
+        CBM: c?.container?.details?.CBM,
+        quantity: c?.quantity,
+        price: c?.price,
+      }))
 
-      // console.log(await data)
-
-      // const container = await Container.findById(
-      //   order?.other?.transportation?.container,
-      //   { details: 1 }
-      // )
-      // const containerCBM = container?.details?.CBM
-
-      const containerPrice = order.other.transportation.price
-      const customerPrice = (containerPrice / containerCBM) * customerCBM
+      const customerPrice = containerInfo?.reduce(
+        (acc, curr) => acc + Number(curr?.price) * Number(curr?.quantity),
+        0
+      )
+      const containerCBM = containerInfo?.reduce(
+        (acc, curr) => acc + Number(curr?.CBM) * Number(curr?.quantity),
+        0
+      )
 
       const price = {
         invoicePrice: priceFormat(invoicePrice),
         pickUpPrice: priceFormat(pickUpPrice),
         dropOffPrice: priceFormat(dropOffPrice),
-
         customerPrice: priceFormat(customerPrice),
-        containerPrice: priceFormat(containerPrice),
         customerCBM: `${customerCBM} cubic meter`,
-        // containerCBM: `${containerCBM} cubic meter`,
+        containerCBM: `${containerCBM} cubic meter`,
+        containerInfo: containerInfo,
       }
+
       return res.status(200).send({
         ...order,
         price,

@@ -15,7 +15,6 @@ const Details = () => {
   })
 
   const { data, isLoading, isError, error } = getOrderDetails
-
   return (
     <>
       <Head>
@@ -330,6 +329,20 @@ const Details = () => {
                   <div>
                     <span className='fw-bold'>Total CBM: </span>
                     <span>{data?.price?.customerCBM} </span>
+                  </div>
+                )}
+                {data?.price?.containerInfo && (
+                  <div>
+                    <span className='fw-bold'>Containers Info: </span> <br />
+                    {data?.price?.containerInfo?.map((i) => (
+                      <div key={i?.name} className='ms-2'>
+                        - <span className='fw-bold'>{i?.name} : </span>
+                        <span>
+                          {i?.quantity} x ${Number(i?.price).toFixed(2)} = $
+                          {(i?.quantity * Number(i?.price)).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
