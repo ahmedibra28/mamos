@@ -2,6 +2,7 @@ import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
 import Transportation from '../../../models/Transportation'
+import Order from '../../../models/Order'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
@@ -36,14 +37,43 @@ handler.post(async (req, res) => {
         .populate('arrivalAirport')
         .populate('departureSeaport')
         .populate('departureAirport')
-        .populate('container')
+        .populate('container.container')
 
       object = object.map((obj) => ({
         ...obj,
         price: priceFormat(obj.price),
       }))
 
-      res.status(200).send(object)
+      object = Promise.all(
+        object.map(async (obj) => {
+          const order = await Order.find(
+            {
+              transportation: obj._id,
+              'other.cargoType': 'AIR',
+              status: 'confirmed',
+            },
+            { 'other.containerLCL': 1 }
+          )
+
+          return {
+            ...obj,
+            USED_CBM: order
+              ?.map((o) => o?.other?.containerLCL)
+              ?.flat(Infinity)
+              ?.reduce(
+                (acc, curr) =>
+                  acc +
+                  (Number(curr.length) *
+                    Number(curr.width) *
+                    Number(curr.height)) /
+                    1000,
+                0
+              ),
+          }
+        })
+      )
+
+      res.status(200).send(await object)
     }
     if (transportationType === 'ship') {
       let object = await schemaName
@@ -60,14 +90,59 @@ handler.post(async (req, res) => {
         .populate('arrivalAirport')
         .populate('departureSeaport')
         .populate('departureAirport')
-        .populate('container')
+        .populate('container.container')
 
       object = object.map((obj) => ({
         ...obj,
-        price: priceFormat(obj.price),
+        cost:
+          obj.cargoType === 'FCL'
+            ? priceFormat(
+                obj?.container?.reduce(
+                  (acc, curr) => acc + Number(curr?.cost),
+                  0
+                ) || 0
+              )
+            : priceFormat(obj.cost),
+        price:
+          obj.cargoType === 'FCL'
+            ? priceFormat(
+                obj?.container?.reduce(
+                  (acc, curr) => acc + Number(curr?.price),
+                  0
+                ) || 0
+              )
+            : priceFormat(obj.price),
       }))
 
-      res.status(200).send(object)
+      object = Promise.all(
+        object.map(async (obj) => {
+          const order = await Order.find(
+            {
+              transportation: obj._id,
+              'other.cargoType': 'LCL',
+              status: 'confirmed',
+            },
+            { 'other.containerLCL': 1 }
+          )
+          return {
+            ...obj,
+            USED_CBM: order
+              ?.map((o) => o?.other?.containerLCL)
+              ?.flat(Infinity)
+              ?.reduce(
+                (acc, curr) =>
+                  acc +
+                  (Number(curr.length) *
+                    Number(curr.width) *
+                    Number(curr.height)) /
+                    1000,
+                0
+              ),
+          }
+        })
+      )
+
+      res.status(200).send(await object)
     }
   } catch (error) {
     res.status(500).json({ error: error.message })

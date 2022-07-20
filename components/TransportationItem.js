@@ -1,11 +1,12 @@
 import moment from 'moment'
 import React from 'react'
-import { FaCheckCircle, FaMinusCircle, FaPlusCircle } from 'react-icons/fa'
+import { FaCheckCircle } from 'react-icons/fa'
 
 const TransportationItem = ({
   item,
   setSelectedTransportation,
   selectedTransportation,
+  setSelectContainer,
 }) => {
   return (
     <div
@@ -26,12 +27,13 @@ const TransportationItem = ({
           <>
             <label>
               <span className='fw-bold'>Container: </span>
-              {item?.container?.name}
+              {item?.container[0]?.container?.name}
             </label>
             <br />
             <label>
               <span className='fw-bold'>CBM Capacity: </span>
-              {item?.container?.details?.CBM?.toFixed(0)} M<sup>3</sup>
+              {item?.container[0]?.container?.details?.CBM?.toFixed(0)} M
+              <sup>3</sup>
             </label>
             <br />
           </>
@@ -57,7 +59,9 @@ const TransportationItem = ({
       </div>
       <div className='card-footer p-0'>
         <button
-          onClick={() => setSelectedTransportation(item)}
+          onClick={() => {
+            setSelectContainer([]), setSelectedTransportation(item)
+          }}
           type='button'
           className='btn btn-primary btn-sm w-100'
         >

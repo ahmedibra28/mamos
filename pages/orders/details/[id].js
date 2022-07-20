@@ -19,8 +19,6 @@ const Details = () => {
 
   const { data, isLoading, isError, error } = getOrderDetails
 
-  console.log(data && data)
-
   return (
     <>
       <Head>

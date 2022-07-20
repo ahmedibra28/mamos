@@ -7,7 +7,6 @@ import useOrdersHook from '../../utils/api/orders'
 import useSeaportsHook from '../../utils/api/seaports'
 import useAirportsHook from '../../utils/api/airports'
 import useCountriesHook from '../../utils/api/countries'
-import useContainersHook from '../../utils/api/containers'
 import useCommoditiesHook from '../../utils/api/commodities'
 import useTownsHook from '../../utils/api/towns'
 import useUploadHook from '../../utils/api/upload'
@@ -40,13 +39,12 @@ const Orders = () => {
   ])
   const [file, setFile] = useState('')
   const [fileLink, setFileLink] = useState(null)
-
   const { postOrder, postAvailableTransportations } = useOrdersHook({})
+  const [transportationsData, setTransportationsData] = useState([])
 
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getAirports } = useAirportsHook({ limit: 1000000 })
   const { getCountries } = useCountriesHook({ limit: 1000000 })
-  const { getContainers } = useContainersHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
   const { getTowns } = useTownsHook({ limit: 1000000 })
   const { postUpload } = useUploadHook()
@@ -56,7 +54,6 @@ const Orders = () => {
   const { data: countriesData } = getCountries
   const { data: commoditiesData } = getCommodities
   const { data: townsData } = getTowns
-  const { data: containersData } = getContainers
 
   const {
     data: dataUpload,
@@ -76,10 +73,18 @@ const Orders = () => {
   } = postOrder
 
   const {
-    data: transportationsData,
+    data: transportationData,
     mutateAsync: transportationsMutateAsync,
     isLoading: isLoadingTransportations,
+    isSuccess: isSuccessTransactions,
   } = postAvailableTransportations
+
+  useEffect(() => {
+    if (isSuccessTransactions) {
+      setTransportationsData(transportationData)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessTransactions])
 
   useEffect(() => {
     if (file) {
@@ -122,6 +127,8 @@ const Orders = () => {
       setFile('')
       setFileLink(null)
       setSelectContainer([])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setTransportationsData([])
       setInputFields([
         {
           qty: 0,
@@ -235,13 +242,16 @@ const Orders = () => {
     )
     ?.toFixed(2)
 
-  const seaFreightKG = selectContainer?.reduce(
-    (acc, curr) => acc + curr.details?.seaFreight * curr.quantity,
-    0
-  )
-  const USED_CBM = 16.33297 + Number(TOTAL_CBM)
+  const seaFreightKG =
+    selectedTransportation?.cargoType === 'FCL' &&
+    selectContainer?.reduce(
+      (acc, curr) => acc + curr?.container?.details?.seaFreight * curr.quantity,
+      0
+    )
+
+  const USED_CBM = selectedTransportation?.USED_CBM + Number(TOTAL_CBM)
   const DEFAULT_CAPACITY = Number(
-    selectedTransportation?.container?.details?.CBM
+    selectedTransportation?.container[0]?.container?.details?.CBM
   )
   const AVAILABLE_CBM = DEFAULT_CAPACITY - USED_CBM
 
@@ -443,7 +453,10 @@ const Orders = () => {
         {isLoadingTransportations ? (
           <Spinner />
         ) : (
-          transportationsData && (
+          transportationsData &&
+          watch().cargoType &&
+          watch().movementType &&
+          watch().transportationType && (
             <div className='bg-light p-3 my-2'>
               <h3>Available transportations based on your lookup</h3>
 
@@ -459,68 +472,76 @@ const Orders = () => {
                         item={item}
                         setSelectedTransportation={setSelectedTransportation}
                         selectedTransportation={selectedTransportation}
-                        addContainer={addContainer}
-                        removeContainer={removeContainer}
-                        selectContainer={selectContainer}
+                        setSelectContainer={setSelectContainer}
                         cargoType={watch().cargoType}
                       />
                     </div>
                   ))}
 
-                {selectedTransportation && (
-                  <div className='row mt-3'>
-                    {containersData?.data?.map((container) => (
-                      <div
-                        key={container._id}
-                        className='col-lg-3 col-md-6 col-12'
-                      >
-                        <div className='card border-0 shadow-sm'>
-                          <div className='card-body text-center'>
-                            <div className=''>
-                              {container.name} - Fits up to{' '}
-                              {container?.details?.seaFreight?.toFixed(2)} &{' '}
-                              {container?.details?.CBM}
-                            </div>
-                            <div className='text-center'>
-                              <button
-                                disabled={
-                                  !selectContainer.find(
-                                    (c) => c._id === container._id
-                                  )
-                                }
-                                onClick={() => removeContainer(container)}
-                                type='button'
-                                className='btn btn-danger btn-sm'
-                              >
-                                <FaMinusCircle className='mb-1' />
-                              </button>
+                {selectedTransportation?.cargoType === 'FCL' &&
+                  watch().cargoType === 'FCL' && (
+                    <div className='row mt-3'>
+                      {selectedTransportation?.container?.map((container) => (
+                        <div
+                          key={container?.container._id}
+                          className='col-lg-3 col-md-6 col-12'
+                        >
+                          <div className='card border-0 shadow-sm'>
+                            <div className='card-body text-center'>
+                              <div className=''>
+                                {container?.container?.name} - Fits up to{' '}
+                                {container?.container?.details?.seaFreight?.toFixed(
+                                  2
+                                )}{' '}
+                                & {container?.container?.details?.CBM} M
+                                <sup>3</sup>
+                              </div>
+                              <div className='text-center'>
+                                <button
+                                  disabled={
+                                    !selectContainer.find(
+                                      (c) =>
+                                        c?.container._id ===
+                                        container?.container._id
+                                    )
+                                  }
+                                  onClick={() => removeContainer(container)}
+                                  type='button'
+                                  className='btn btn-danger btn-sm'
+                                >
+                                  <FaMinusCircle className='mb-1' />
+                                </button>
 
-                              <button
-                                type='button'
-                                className='btn btn-light btn-sm'
-                              >
-                                {selectContainer.map(
-                                  (c) => c._id === container._id && c.quantity
-                                )}
-                                {!selectContainer.find(
-                                  (c) => c._id === container._id
-                                ) && 0}
-                              </button>
+                                <button
+                                  type='button'
+                                  className='btn btn-light btn-sm'
+                                >
+                                  {selectContainer.map(
+                                    (c) =>
+                                      c?.container._id ===
+                                        container?.container._id && c.quantity
+                                  )}
+                                  {!selectContainer.find(
+                                    (c) =>
+                                      c?.container._id ===
+                                      container?.container?._id
+                                  ) && 0}
+                                </button>
 
-                              <button
-                                onClick={() => addContainer(container)}
-                                type='button'
-                                className='btn btn-success btn-sm'
-                              >
-                                <FaPlusCircle className='mb-1' />
-                              </button>
+                                <button
+                                  onClick={() => addContainer(container)}
+                                  type='button'
+                                  className='btn btn-success btn-sm'
+                                >
+                                  <FaPlusCircle className='mb-1' />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
                 <div className='col-12'>
                   {transportationsData?.length === 0 && (
@@ -576,7 +597,7 @@ const Orders = () => {
                     <div className='col-12'>
                       <p className='text-danger text-center'>
                         {AVAILABLE_CBM < 0 &&
-                          `You have reached the maximum available CBM `}
+                          `You have exceeded the maximum available CBM `}
                       </p>
                     </div>
                     <div className='col-lg-2 col-md-3 col-6'>
@@ -988,20 +1009,25 @@ const Orders = () => {
           </button>
         )}
 
-        <button
-          type='button'
-          onClick={() => handleSearch()}
-          className='btn btn-outline-primary btn-sm float-end mb-5 mt-3 me-3'
-          disabled={isLoadingUpload || isLoadingPost}
-        >
-          {isLoadingUpload || isLoadingPost ? (
-            <span className='spinner-border spinner-border-sm' />
-          ) : (
-            <>
-              <FaSearch className='mb-1' /> Search Available Transportors
-            </>
+        {transportationsData &&
+          watch().cargoType &&
+          watch().movementType &&
+          watch().transportationType && (
+            <button
+              type='button'
+              onClick={() => handleSearch()}
+              className='btn btn-outline-primary btn-sm float-end mb-5 mt-3 me-3'
+              disabled={isLoadingUpload || isLoadingPost}
+            >
+              {isLoadingUpload || isLoadingPost ? (
+                <span className='spinner-border spinner-border-sm' />
+              ) : (
+                <>
+                  <FaSearch className='mb-1' /> Search Available Transportors
+                </>
+              )}
+            </button>
           )}
-        </button>
       </form>
     </>
   )

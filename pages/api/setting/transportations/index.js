@@ -139,19 +139,31 @@ handler.post(async (req, res) => {
     // FCL Container structuring
     if (cargoType === 'FCL') {
       const containerLength = container.length
-      const cost = costContainer.split(',')?.map((c) => c.trim())
 
-      const price = priceContainer.split(',')?.map((c) => c.trim())
+      const cost = Array.isArray(costContainer)
+        ? costContainer
+        : costContainer.split(',')?.map((c) => c.trim())
+
+      const price = Array.isArray(priceContainer)
+        ? priceContainer
+        : priceContainer.split(',')?.map((c) => c.trim())
 
       if (containerLength !== cost.length || containerLength !== price.length) {
         return res.status(400).json({ error: 'Container or price mismatched' })
       }
 
-      const result = container.map((c, i) => ({
-        container: c,
-        cost: cost[i],
-        price: price[i],
-      }))
+      const result = container.map((c, i) => {
+        if (Number(cost[i]) > Number(price[i]))
+          return res
+            .status(404)
+            .json({ error: 'Cost must be greater than price amount' })
+
+        return {
+          container: c,
+          cost: cost[i],
+          price: price[i],
+        }
+      })
       container = result
     }
 

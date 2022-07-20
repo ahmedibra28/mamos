@@ -71,6 +71,13 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
   }
   delete other.containerLCL
 
+  other.transportation = other?.transportation?._id
+
+  if (other?.containerFCL?.length === 0)
+    return res
+      .status(404)
+      .json({ error: 'Please select at least one container' })
+
   const object = await Transportation.find({
     departureSeaport: pickUp.pickUpSeaport,
     arrivalSeaport: dropOff.dropOffSeaport,
@@ -112,6 +119,31 @@ const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
   delete other.commodity
   delete other.noOfPackages
   delete other.grossWeight
+
+  const USED_CBM = other?.transportation?.USED_CBM
+
+  const DEFAULT_CAPACITY_CONTAINERS = other?.transportation?.container?.reduce(
+    (acc, curr) =>
+      acc +
+      (Number(curr.container.length) *
+        Number(curr.container.width) *
+        Number(curr.container.height)) /
+        1000,
+    0
+  )
+
+  const REQUEST_CBM = other?.containerLCL?.reduce(
+    (acc, curr) =>
+      acc +
+      (Number(curr.length) * Number(curr.width) * Number(curr.height)) / 1000,
+    0
+  )
+
+  if (DEFAULT_CAPACITY_CONTAINERS < REQUEST_CBM + USED_CBM)
+    return res
+      .status(400)
+      .json({ error: 'You have exceeded the maximum available CBM' })
+
   other.transportation = other?.transportation?._id
 
   const object = await Transportation.find({
@@ -157,6 +189,31 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
   delete other.commodity
   delete other.noOfPackages
   delete other.grossWeight
+
+  const USED_CBM = other?.transportation?.USED_CBM
+
+  const DEFAULT_CAPACITY_CONTAINERS = other?.transportation?.container?.reduce(
+    (acc, curr) =>
+      acc +
+      (Number(curr.container.length) *
+        Number(curr.container.width) *
+        Number(curr.container.height)) /
+        1000,
+    0
+  )
+
+  const REQUEST_CBM = other?.containerLCL?.reduce(
+    (acc, curr) =>
+      acc +
+      (Number(curr.length) * Number(curr.width) * Number(curr.height)) / 1000,
+    0
+  )
+
+  if (DEFAULT_CAPACITY_CONTAINERS < REQUEST_CBM + USED_CBM)
+    return res
+      .status(400)
+      .json({ error: 'You have exceeded the maximum available CBM' })
+
   other.transportation = other?.transportation?._id
 
   const object = await Transportation.find({

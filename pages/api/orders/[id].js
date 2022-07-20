@@ -53,19 +53,19 @@ handler.get(async (req, res) => {
       )
 
       const container = await Container.findById(
-        order?.other?.transportation?.container,
+        order?.other?.transportation?.container[0]?.container,
         { details: 1 }
       )
       const containerCBM = container?.details?.CBM
 
       const containerPrice = order.other.transportation.price
-      const transportationPrice = (containerPrice / containerCBM) * customerCBM
+      const customerPrice = (containerPrice / containerCBM) * customerCBM
 
       const price = {
         invoicePrice: priceFormat(invoicePrice),
         pickUpPrice: priceFormat(pickUpPrice),
         dropOffPrice: priceFormat(dropOffPrice),
-        transportationPrice: priceFormat(transportationPrice),
+        customerPrice: priceFormat(customerPrice),
         containerPrice: priceFormat(containerPrice),
         customerCBM: `${customerCBM} cubic meter`,
         containerCBM: `${containerCBM} cubic meter`,
@@ -106,14 +106,14 @@ handler.get(async (req, res) => {
       // const containerCBM = container?.details?.CBM
 
       const containerPrice = order.other.transportation.price
-      const transportationPrice = (containerPrice / containerCBM) * customerCBM
+      const customerPrice = (containerPrice / containerCBM) * customerCBM
 
       const price = {
         invoicePrice: priceFormat(invoicePrice),
         pickUpPrice: priceFormat(pickUpPrice),
         dropOffPrice: priceFormat(dropOffPrice),
 
-        transportationPrice: priceFormat(transportationPrice),
+        customerPrice: priceFormat(customerPrice),
         containerPrice: priceFormat(containerPrice),
         customerCBM: `${customerCBM} cubic meter`,
         // containerCBM: `${containerCBM} cubic meter`,
