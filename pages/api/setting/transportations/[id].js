@@ -23,8 +23,6 @@ handler.put(async (req, res) => {
       cargoType,
       cost,
       price,
-      costContainer,
-      priceContainer,
       departureSeaport,
       arrivalSeaport,
       departureAirport,
@@ -43,7 +41,7 @@ handler.put(async (req, res) => {
       if (Number(cost) > Number(price))
         return res
           .status(404)
-          .json({ error: 'Cost must be greater than price amount' })
+          .json({ error: 'Cost must be less than price amount' })
     }
 
     if (arrivalDate < departureDate)
@@ -66,13 +64,13 @@ handler.put(async (req, res) => {
     if (cargoType === 'FCL') {
       const containerLength = container.length
 
-      const cost = Array.isArray(costContainer)
-        ? costContainer
-        : costContainer.split(',')?.map((c) => c.trim())
+      const cost = Array.isArray(cost)
+        ? cost
+        : cost.split(',')?.map((c) => c.trim())
 
-      const price = Array.isArray(priceContainer)
-        ? priceContainer
-        : priceContainer.split(',')?.map((c) => c.trim())
+      const price = Array.isArray(price)
+        ? price
+        : price.split(',')?.map((c) => c.trim())
 
       if (containerLength !== cost.length || containerLength !== price.length) {
         return res.status(400).json({ error: 'Container or price mismatched' })
@@ -94,7 +92,7 @@ handler.put(async (req, res) => {
     }
 
     if (cargoType !== 'FCL') {
-      container = container.map((c) => ({ container: c }))
+      container = container.map((c) => ({ container: c, cost, price }))
     }
 
     // check if status is active
@@ -131,8 +129,6 @@ handler.put(async (req, res) => {
     object.name = name
     object.transportationType = transportationType
     object.cargoType = cargoType
-    object.cost = cost
-    object.price = price
     object.container = container
     object.departureSeaport = undefinedChecker(departureSeaport)
     object.arrivalSeaport = undefinedChecker(arrivalSeaport)

@@ -143,19 +143,17 @@ const Transportations = () => {
     setValue('arrivalAirport', item?.arrivalAirport?._id)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
-    setValue('cost', reversePriceFormat(item?.cost))
-    setValue('price', reversePriceFormat(item?.price))
     setEdit(true)
     setValue(
       'container',
       item?.container?.map((c) => c?.container?._id)
     )
     setValue(
-      'costContainer',
+      'cost',
       item.container.map((c) => c?.cost)
     )
     setValue(
-      'priceContainer',
+      'price',
       item.container.map((c) => c?.price)
     )
   }
@@ -225,27 +223,6 @@ const Transportations = () => {
             (item) => item.status === 'active'
           ),
         })}
-        <br />
-        <div className='row'>
-          <div className='col-6'>
-            {inputText({
-              register,
-              errors,
-              label: 'Cost Container',
-              name: 'costContainer',
-              placeholder: 'Enter cost container',
-            })}
-          </div>
-          <div className='col-6'>
-            {inputText({
-              register,
-              errors,
-              label: 'Price Container',
-              name: 'priceContainer',
-              placeholder: 'Enter price container',
-            })}
-          </div>
-        </div>
       </div>
     ) : (
       dynamicInputSelect({
@@ -259,22 +236,26 @@ const Transportations = () => {
       })
     ),
 
-    watch().cargoType !== 'FCL' &&
-      inputNumber({
-        register,
-        errors,
-        label: 'Cost',
-        name: 'cost',
-        placeholder: 'Enter cost',
-      }),
-    watch().cargoType !== 'FCL' &&
-      inputNumber({
-        register,
-        errors,
-        label: 'Price',
-        name: 'price',
-        placeholder: 'Enter price',
-      }),
+    <div key='cost-price' className='row'>
+      <div className='col-6'>
+        {inputText({
+          register,
+          errors,
+          label: 'Cost',
+          name: 'cost',
+          placeholder: 'Enter cost container',
+        })}
+      </div>
+      <div className='col-6'>
+        {inputText({
+          register,
+          errors,
+          label: 'Price',
+          name: 'price',
+          placeholder: 'Enter price container',
+        })}
+      </div>
+    </div>,
 
     watch().cargoType === 'AIR' &&
       dynamicInputSelect({

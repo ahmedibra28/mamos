@@ -47,8 +47,6 @@ handler.get(async (req, res) => {
 const movementTypes = {
   pickUp: ['door to door', 'door to port', 'door to airport'],
   dropOff: ['door to door', 'port to door', 'airport to door'],
-  seaport: ['port to port'],
-  airport: ['airport to airport'],
 }
 
 const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
@@ -57,15 +55,17 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
-    delete pickUp.pickUpAirport
   }
+  delete pickUp.pickUpAirport
+
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
-    delete dropOff.dropOffAirport
   }
+  delete dropOff.dropOffAirport
+
   if (!other.isHasInvoice) {
     delete other.invoice
   }
@@ -102,15 +102,17 @@ const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete pickUp.pickUpWarehouse
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
-    delete pickUp.pickUpAirport
   }
+  delete pickUp.pickUpAirport
+
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
     delete dropOff.dropOffWarehouse
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
-    delete dropOff.dropOffAirport
   }
+  delete dropOff.dropOffAirport
+
   if (!other.isHasInvoice) {
     delete other.invoice
   }
@@ -274,6 +276,7 @@ handler.post(async (req, res) => {
     } = req.body
 
     const validCargoTypes = ['FCL', 'LCL', 'AIR']
+
     if (!cargoType || !validCargoTypes.includes(cargoType))
       return res.status(400).json({ error: 'Invalid cargo type' })
 

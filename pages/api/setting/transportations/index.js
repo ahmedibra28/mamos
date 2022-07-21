@@ -58,24 +58,14 @@ handler.get(async (req, res) => {
       ...trans,
       departureDate: moment(trans.departureDate).format('YYYY-MM-DD'),
       arrivalDate: moment(trans.arrivalDate).format('YYYY-MM-DD'),
-      cost:
-        trans.cargoType === 'FCL'
-          ? priceFormat(
-              trans?.container?.reduce(
-                (acc, curr) => acc + Number(curr?.cost),
-                0
-              ) || 0
-            )
-          : priceFormat(trans.cost),
-      price:
-        trans.cargoType === 'FCL'
-          ? priceFormat(
-              trans?.container?.reduce(
-                (acc, curr) => acc + Number(curr?.price),
-                0
-              ) || 0
-            )
-          : priceFormat(trans.price),
+      cost: priceFormat(
+        trans?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) ||
+          0
+      ),
+      price: priceFormat(
+        trans?.container?.reduce((acc, curr) => acc + Number(curr?.price), 0) ||
+          0
+      ),
     }))
 
     res.status(200).json({
@@ -101,8 +91,6 @@ handler.post(async (req, res) => {
       cargoType,
       cost,
       price,
-      costContainer,
-      priceContainer,
       departureSeaport,
       arrivalSeaport,
       departureAirport,
@@ -117,7 +105,7 @@ handler.post(async (req, res) => {
       if (Number(cost) > Number(price))
         return res
           .status(404)
-          .json({ error: 'Cost must be greater than price amount' })
+          .json({ error: 'Cost must be less than price amount' })
     }
 
     if (arrivalDate < departureDate)
@@ -140,13 +128,13 @@ handler.post(async (req, res) => {
     if (cargoType === 'FCL') {
       const containerLength = container.length
 
-      const cost = Array.isArray(costContainer)
-        ? costContainer
-        : costContainer.split(',')?.map((c) => c.trim())
+      const cost = Array.isArray(cost)
+        ? cost
+        : cost.split(',')?.map((c) => c.trim())
 
-      const price = Array.isArray(priceContainer)
-        ? priceContainer
-        : priceContainer.split(',')?.map((c) => c.trim())
+      const price = Array.isArray(price)
+        ? price
+        : price.split(',')?.map((c) => c.trim())
 
       if (containerLength !== cost.length || containerLength !== price.length) {
         return res.status(400).json({ error: 'Container or price mismatched' })
@@ -156,7 +144,7 @@ handler.post(async (req, res) => {
         if (Number(cost[i]) > Number(price[i]))
           return res
             .status(404)
-            .json({ error: 'Cost must be greater than price amount' })
+            .json({ error: 'Cost must be less than price amount' })
 
         return {
           container: c,
@@ -168,7 +156,7 @@ handler.post(async (req, res) => {
     }
 
     if (cargoType !== 'FCL') {
-      container = container.map((c) => ({ container: c }))
+      container = container.map((c) => ({ container: c, cost, price }))
     }
 
     // check if status is active
@@ -206,8 +194,6 @@ handler.post(async (req, res) => {
       name,
       transportationType,
       cargoType,
-      cost,
-      price,
       container,
       departureSeaport: undefinedChecker(departureSeaport),
       arrivalSeaport: undefinedChecker(arrivalSeaport),

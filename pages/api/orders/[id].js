@@ -2,7 +2,6 @@ import nc from 'next-connect'
 import db from '../../../config/db'
 import Container from '../../../models/Container'
 import Order from '../../../models/Order'
-import Transportation from '../../../models/Transportation'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
@@ -77,21 +76,17 @@ handler.get(async (req, res) => {
     }
 
     if (order.other.cargoType === 'FCL') {
-      const customerCBM = Number(
-        order.other.containerFCL
-          ?.reduce(
-            (acc, curr) => acc + curr?.container?.details?.CBM * curr?.quantity,
-            0
-          )
-          ?.toFixed(2)
-      )
-
       const containerInfo = order?.other?.containerFCL?.map((c) => ({
         name: c?.container?.name,
         CBM: c?.container?.details?.CBM,
         quantity: c?.quantity,
         price: c?.price,
       }))
+
+      const customerCBM = containerInfo?.reduce(
+        (acc, curr) => acc + Number(curr?.CBM) * Number(curr?.quantity),
+        0
+      )
 
       const customerPrice = containerInfo?.reduce(
         (acc, curr) => acc + Number(curr?.price) * Number(curr?.quantity),
@@ -117,8 +112,6 @@ handler.get(async (req, res) => {
         price,
       })
     }
-
-    res.status(200).send(order)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

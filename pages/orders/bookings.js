@@ -569,37 +569,36 @@ const Orders = () => {
                 Total CBM [{TOTAL_CBM} M<sup>3</sup>]
               </h6>
               <label>Tell us a bit more about your cargo.</label>
+
+              <div className='col-12'>
+                <div className='progress ' style={{ height: '20px' }}>
+                  <div
+                    className={`progress-bar bg-warning ${
+                      (USED_CBM * 100) / DEFAULT_CAPACITY > 90 && 'bg-danger'
+                    }`}
+                    role='progressbar'
+                    style={{
+                      width: `${(USED_CBM * 100) / DEFAULT_CAPACITY}%`,
+                    }}
+                    aria-valuenow={(USED_CBM * 100) / DEFAULT_CAPACITY}
+                    aria-valuemin='0'
+                    aria-valuemax={DEFAULT_CAPACITY}
+                  >
+                    {`${((USED_CBM * 100) / DEFAULT_CAPACITY).toFixed(2)}%`}
+                  </div>
+                </div>
+              </div>
+              <div className='col-12'>
+                <p className='text-danger text-center'>
+                  {AVAILABLE_CBM < 0 &&
+                    `You have exceeded the maximum available CBM `}
+                </p>
+              </div>
+
               {inputFields.map((inputField, index) => (
                 <div key={index} className='mt-3'>
                   <h6 className='font-monospace'>{`Package #${index + 1}`}</h6>
                   <div className='row gy-3'>
-                    <div className='col-12'>
-                      <div className='progress ' style={{ height: '20px' }}>
-                        <div
-                          className={`progress-bar bg-warning ${
-                            (USED_CBM * 100) / DEFAULT_CAPACITY > 90 &&
-                            'bg-danger'
-                          }`}
-                          role='progressbar'
-                          style={{
-                            width: `${(USED_CBM * 100) / DEFAULT_CAPACITY}%`,
-                          }}
-                          aria-valuenow={(USED_CBM * 100) / DEFAULT_CAPACITY}
-                          aria-valuemin='0'
-                          aria-valuemax={DEFAULT_CAPACITY}
-                        >
-                          {`${((USED_CBM * 100) / DEFAULT_CAPACITY).toFixed(
-                            2
-                          )}%`}
-                        </div>
-                      </div>
-                    </div>
-                    <div className='col-12'>
-                      <p className='text-danger text-center'>
-                        {AVAILABLE_CBM < 0 &&
-                          `You have exceeded the maximum available CBM `}
-                      </p>
-                    </div>
                     <div className='col-lg-2 col-md-3 col-6'>
                       <label htmlFor='item' className='form-label'>
                         Package Quantity

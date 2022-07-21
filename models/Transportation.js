@@ -12,8 +12,6 @@ const transportationScheme = mongoose.Schema(
       required: true,
       enum: ['track', 'ship', 'train', 'plane'],
     },
-    cost: { type: Number, default: 0 },
-    price: { type: Number, default: 0 },
     cargoType: { type: String, enum: ['FCL', 'LCL', 'AIR'], required: true },
     container: [
       {

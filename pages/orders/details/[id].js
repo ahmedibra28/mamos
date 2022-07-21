@@ -18,8 +18,12 @@ const Details = () => {
   return (
     <>
       <Head>
-        <title>Book New Orders</title>
-        <meta property='og:title' content='Book New Orders' key='title' />
+        <title>Booking Details {data?.trackingNo}</title>
+        <meta
+          property='og:title'
+          content={`Booking Details ${data?.trackingNo}`}
+          key='title'
+        />
       </Head>
 
       {isLoading ? (
