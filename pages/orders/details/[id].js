@@ -4,8 +4,26 @@ import withAuth from '../../../HOC/withAuth'
 import useOrdersHook from '../../../utils/api/orders'
 import { Spinner, Message } from '../../../components'
 import { useRouter } from 'next/router'
-import { FaCheckCircle, FaTimesCircle, FaEdit } from 'react-icons/fa'
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaEdit,
+  FaExclamationCircle,
+} from 'react-icons/fa'
 import moment from 'moment'
+import FormView from '../../../components/FormView'
+import {
+  inputCheckBox,
+  inputEmail,
+  inputFile,
+  inputTel,
+  inputText,
+  staticInputSelect,
+} from '../../../utils/dynamicForm'
+import { useEffect, useState } from 'react'
+
+import { useForm } from 'react-hook-form'
+import useUploadHook from '../../../utils/api/upload'
 
 const Details = () => {
   const router = useRouter()
@@ -13,20 +31,273 @@ const Details = () => {
   const { getOrderDetails } = useOrdersHook({
     id,
   })
+  const [file, setFile] = useState('')
+  const [fileLink, setFileLink] = useState(null)
+
+  const { postUpload } = useUploadHook()
 
   const { data, isLoading, isError, error } = getOrderDetails
+
+  const {
+    data: dataUpload,
+    isLoading: isLoadingUpload,
+    isError: isErrorUpload,
+    error: errorUpload,
+    mutateAsync: mutateAsyncUpload,
+    isSuccess: isSuccessUpload,
+  } = postUpload
+
+  useEffect(() => {
+    if (isSuccessUpload) {
+      setFileLink(
+        dataUpload &&
+          dataUpload.filePaths &&
+          dataUpload.filePaths[0] &&
+          dataUpload.filePaths[0].path
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessUpload])
+
+  useEffect(() => {
+    if (file) {
+      const formData = new FormData()
+      formData.append('file', file)
+      mutateAsyncUpload({ type: 'file', formData })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file])
 
   const confirmOrderHandler = () => {
     console.log({ status: 'Order has been confirmed' })
   }
   const editBuyerHandler = () => {
-    console.log({ status: 'Buyer has been confirmed' })
+    setValueBuyer('buyerName', data?.buyer?.buyerName)
+    setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
+    setValueBuyer('buyerEmail', data?.buyer?.buyerEmail)
+    setValueBuyer('buyerAddress', data?.buyer?.buyerAddress)
   }
   const editPickUpHandler = () => {
-    console.log({ status: 'Pick up has been confirmed' })
+    setValuePickUp('pickUpWarehouse', data?.pickUp?.pickUpWarehouse)
+    setValuePickUp('pickUpCity', data?.pickUp?.pickUpCity)
+    setValuePickUp('pickUpAddress', data?.pickUp?.pickUpAddress)
   }
   const editDropOffHandler = () => {
-    console.log({ status: 'Drop off has been confirmed' })
+    setValueDropOff('dropOffWarehouse', data?.dropOff?.dropOffWarehouse)
+    setValueDropOff('dropOffCity', data?.dropOff?.dropOffCity)
+    setValueDropOff('dropOffAddress', data?.dropOff?.dropOffAddress)
+  }
+  const editOtherHandler = () => {
+    setValueOther('importExport', data?.other?.importExport)
+  }
+
+  const {
+    register: registerBuyer,
+    handleSubmit: handleSubmitBuyer,
+    watch: watchBuyer,
+    setValue: setValueBuyer,
+    reset: resetBuyer,
+    formState: { errors: errorsBuyer },
+  } = useForm({
+    defaultValues: {},
+  })
+
+  const {
+    register: registerPickUp,
+    handleSubmit: handleSubmitPickUp,
+    watch: watchPickUp,
+    setValue: setValuePickUp,
+    reset: resetPickUp,
+    formState: { errors: errorsPickUp },
+  } = useForm({
+    defaultValues: {},
+  })
+
+  const {
+    register: registerDropOff,
+    handleSubmit: handleSubmitDropOff,
+    watch: watchDropOff,
+    setValue: setValueDropOff,
+    reset: resetDropOff,
+    formState: { errors: errorsDropOff },
+  } = useForm({
+    defaultValues: {},
+  })
+
+  const {
+    register: registerOther,
+    handleSubmit: handleSubmitOther,
+    watch: watchOther,
+    setValue: setValueOther,
+    reset: resetOther,
+    formState: { errors: errorsOther },
+  } = useForm({
+    defaultValues: {},
+  })
+
+  const formBuyer = [
+    inputText({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Name',
+      name: 'buyerName',
+      placeholder: 'Enter name',
+    }),
+    inputTel({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Mobile',
+      name: 'buyerMobileNumber',
+      placeholder: 'Enter mobile',
+    }),
+    inputEmail({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Email',
+      name: 'buyerEmail',
+      placeholder: 'Enter email',
+    }),
+    inputText({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Address',
+      name: 'buyerAddress',
+      placeholder: 'Enter address',
+    }),
+  ]
+
+  const formPickUp = [
+    inputText({
+      register: registerPickUp,
+      errors: errorsPickUp,
+      label: 'Warehouse',
+      name: 'pickUpWarehouse',
+      placeholder: 'Enter warehouse',
+    }),
+    inputText({
+      register: registerPickUp,
+      errors: errorsPickUp,
+      label: 'City',
+      name: 'pickUpCity',
+      placeholder: 'Enter city',
+    }),
+    inputText({
+      register: registerPickUp,
+      errors: errorsPickUp,
+      label: 'Address',
+      name: 'pickUpAddress',
+      placeholder: 'Enter address',
+    }),
+  ]
+
+  const formDropOff = [
+    inputText({
+      register: registerDropOff,
+      errors: errorsDropOff,
+      label: 'Warehouse',
+      name: 'pickUpWarehouse',
+      placeholder: 'Enter warehouse',
+    }),
+    inputText({
+      register: registerDropOff,
+      errors: errorsDropOff,
+      label: 'City',
+      name: 'pickUpCity',
+      placeholder: 'Enter city',
+    }),
+    inputText({
+      register: registerDropOff,
+      errors: errorsDropOff,
+      label: 'Address',
+      name: 'pickUpAddress',
+      placeholder: 'Enter address',
+    }),
+  ]
+
+  const formOther = [
+    staticInputSelect({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Import/Export',
+      name: 'importExport',
+      data: [{ name: 'Import' }, { name: 'Export' }],
+    }),
+    inputCheckBox({
+      register: registerOther,
+      errors: errorsOther,
+      name: 'isTemperatureControlled',
+      isRequired: false,
+      label:
+        'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
+    }),
+    inputCheckBox({
+      register: registerOther,
+      errors: errorsOther,
+      name: 'isHasInvoice',
+      label: 'Do you have an invoice?',
+      isRequired: false,
+    }),
+
+    watchOther().isHasInvoice &&
+      inputFile({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'invoiceFile',
+        label: 'Upload Invoice',
+        setFile,
+      }),
+  ]
+
+  const row = false
+  const column = 'col-md-6 col-12'
+  const modalSize = 'modal-md'
+
+  const labelBuyer = 'Buyer'
+  const modalBuyer = 'buyer'
+
+  const labelPickUp = 'Pick-up'
+  const modalPickUp = 'pickUp'
+
+  const labelDropOff = 'Drop-off'
+  const modalDropOff = 'dropOff'
+
+  const labelOther = 'Other'
+  const modalOther = 'other'
+
+  const formCleanHandler = () => {
+    resetBuyer()
+    resetPickUp()
+    resetDropOff()
+    resetOther()
+  }
+
+  // useEffect(() => {
+  //   if (isSuccessUpdate) formCleanHandler()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isSuccessUpdate])
+
+  const isLoadingUpdate = false
+  const isLoadingPost = false
+
+  const submitHandlerBuyer = (data) => {
+    console.log(data)
+  }
+  const submitHandlerPickUp = (data) => {
+    console.log(data)
+  }
+
+  const submitHandlerDropOff = (data) => {
+    console.log(data)
+  }
+  const submitHandlerOther = (data) => {
+    console.log({ ...data, fileLink })
+    // mutateAsyncPost({
+    //   ...data,
+    //   transportation: selectedTransportation,
+    //   containerFCL: selectContainer,
+    //   containerLCL: inputFields,
+    //   invoice: fileLink,
+    // })
   }
 
   return (
@@ -40,18 +311,94 @@ const Details = () => {
         />
       </Head>
 
+      {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>}
+
+      {/* Buyer Modal Form */}
+      <FormView
+        edit={true}
+        formCleanHandler={formCleanHandler}
+        form={formBuyer}
+        watch={watchBuyer}
+        isLoadingUpdate={isLoadingUpdate}
+        isLoadingPost={isLoadingPost}
+        handleSubmit={handleSubmitBuyer}
+        submitHandler={submitHandlerBuyer}
+        modal={modalBuyer}
+        label={labelBuyer}
+        column={column}
+        row={row}
+        modalSize={modalSize}
+      />
+
+      {/* PickUp Modal Form */}
+      <FormView
+        edit={true}
+        formCleanHandler={formCleanHandler}
+        form={formPickUp}
+        watch={watchPickUp}
+        isLoadingUpdate={isLoadingUpdate}
+        isLoadingPost={isLoadingPost}
+        handleSubmit={handleSubmitPickUp}
+        submitHandler={submitHandlerPickUp}
+        modal={modalPickUp}
+        label={labelPickUp}
+        column={column}
+        row={row}
+        modalSize={modalSize}
+      />
+
+      {/* DropOff Modal Form */}
+      <FormView
+        edit={true}
+        formCleanHandler={formCleanHandler}
+        form={formDropOff}
+        watch={watchDropOff}
+        isLoadingUpdate={isLoadingUpdate}
+        isLoadingPost={isLoadingPost}
+        handleSubmit={handleSubmitDropOff}
+        submitHandler={submitHandlerDropOff}
+        modal={modalDropOff}
+        label={labelDropOff}
+        column={column}
+        row={row}
+        modalSize={modalSize}
+      />
+
+      {/* Other Modal Form */}
+      <FormView
+        edit={true}
+        formCleanHandler={formCleanHandler}
+        form={formOther}
+        watch={watchOther}
+        isLoadingUpdate={isLoadingUpload}
+        isLoadingPost={isLoadingPost}
+        handleSubmit={handleSubmitOther}
+        submitHandler={submitHandlerOther}
+        modal={modalOther}
+        label={labelOther}
+        column={column}
+        row={row}
+        modalSize={modalSize}
+      />
+
       {isLoading ? (
         <Spinner />
       ) : isError ? (
         <Message variant='danger'>{error}</Message>
       ) : (
         <div className='bg-light p-3 my-2'>
-          <button
-            onClick={() => confirmOrderHandler()}
-            className='btn btn-outline-success float-end'
-          >
-            <FaCheckCircle className='mb-1' /> Confirm Order
-          </button>
+          <div className='alert alert-warning'>
+            <FaExclamationCircle className='mb-1 me-2' />
+            You can not edit this order after confirmed
+          </div>
+          {data?.status === 'pending' && (
+            <button
+              onClick={() => confirmOrderHandler()}
+              className='btn btn-outline-success float-end'
+            >
+              <FaCheckCircle className='mb-1' /> Confirm Order
+            </button>
+          )}
           <div className='row'>
             <div className='col-md-6 col-12'>
               {/* Order Info */}
@@ -89,7 +436,19 @@ const Details = () => {
 
               {/* Buyer Info */}
               <div className='mb-4'>
-                {data?.buyer && <h4 className='fw-bold'>BUYER DETAILS</h4>}
+                {data?.buyer && (
+                  <h4 className='fw-bold'>
+                    BUYER DETAILS
+                    {data?.status === 'pending' && (
+                      <FaEdit
+                        data-bs-toggle='modal'
+                        data-bs-target={`#${modalBuyer}`}
+                        onClick={editBuyerHandler}
+                        className='mb-1 text-warning ms-2'
+                      />
+                    )}
+                  </h4>
+                )}
                 {data?.buyer?.buyerName && (
                   <div>
                     <span className='fw-bold'>Name: </span>
@@ -118,7 +477,19 @@ const Details = () => {
 
               {/* PickUp Info */}
               <div className='mb-4'>
-                {data?.pickUp && <h4 className='fw-bold'>PICK-UP DETAILS</h4>}
+                {data?.pickUp && (
+                  <h4 className='fw-bold'>
+                    PICK-UP DETAILS
+                    {data?.status === 'pending' && data?.pickUp?.pickUpTown && (
+                      <FaEdit
+                        data-bs-toggle='modal'
+                        data-bs-target={`#${modalPickUp}`}
+                        onClick={editPickUpHandler}
+                        className='mb-1 text-warning ms-2'
+                      />
+                    )}
+                  </h4>
+                )}
                 {data?.pickUp?.pickUpCountry && (
                   <div>
                     <span className='fw-bold'>Country: </span>
@@ -165,7 +536,20 @@ const Details = () => {
 
               {/* DropOff Info */}
               <div className='mb-4'>
-                {data?.dropOff && <h4 className='fw-bold'>DROP-OFF DETAILS</h4>}
+                {data?.dropOff && (
+                  <h4 className='fw-bold'>
+                    DROP-OFF DETAILS
+                    {data?.status === 'pending' &&
+                      data?.dropOff?.dropOffTown && (
+                        <FaEdit
+                          data-bs-toggle='modal'
+                          data-bs-target={`#${modalDropOff}`}
+                          onClick={editDropOffHandler}
+                          className='mb-1 text-warning ms-2'
+                        />
+                      )}
+                  </h4>
+                )}
                 {data?.dropOff?.dropOffCountry && (
                   <div>
                     <span className='fw-bold'>Country: </span>
@@ -213,7 +597,19 @@ const Details = () => {
             <div className='col-md-6 col-12'>
               {/* Other Info */}
               <div className='mb-4'>
-                {data?.other && <h4 className='fw-bold'>OTHER DETAILS</h4>}
+                {data?.other && (
+                  <h4 className='fw-bold'>
+                    OTHER DETAILS
+                    {data?.status === 'pending' && (
+                      <FaEdit
+                        data-bs-toggle='modal'
+                        data-bs-target={`#${modalOther}`}
+                        onClick={editOtherHandler}
+                        className='mb-1 text-warning ms-2'
+                      />
+                    )}
+                  </h4>
+                )}
 
                 {data?.other?.importExport && (
                   <div>

@@ -1,37 +1,19 @@
-import { Spinner, Message } from '..'
-import { dynamicInputSelect } from '../utils/dynamicForm'
-
-const FormUserRoles = ({
-  edit,
-  formCleanHandler,
-  isLoading,
-  register,
-  isError,
-  errors,
-  watch,
-  isLoadingUpdate,
-  isLoadingPost,
-  handleSubmit,
-  submitHandler,
-  error,
-  dataRoles,
-  dataUsers,
-}) => {
+const EditModalForm = ({ modal, label }) => {
   return (
     <div
       className='modal fade'
-      id='userRoleModal'
+      id={`${modal}`}
       data-bs-backdrop='static'
       data-bs-keyboard='false'
       tabIndex='-1'
-      aria-labelledby='userRoleModalLabel'
+      aria-labelledby={`${modal}Label`}
       aria-hidden='true'
     >
       <div className='modal-dialog'>
         <div className='modal-content modal-background'>
           <div className='modal-header'>
-            <h3 className='modal-title ' id='userRoleModalLabel'>
-              {edit ? 'Edit UserRole' : 'Post UserRole'}
+            <h3 className='modal-title ' id={`${modal}Label`}>
+              {label}
             </h3>
             <button
               type='button'
@@ -105,4 +87,4 @@ const FormUserRoles = ({
   )
 }
 
-export default FormUserRoles
+export default EditModalForm
