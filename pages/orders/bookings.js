@@ -995,7 +995,7 @@ const Orders = () => {
         {(selectedTransportation || selectContainer.length > 0) && (
           <button
             type='submit'
-            className='btn btn-primary float-end mb-5 mt-3'
+            className='btn btn-primary btn-sm float-end mb-5 mt-3'
             disabled={isLoadingUpload || isLoadingPost}
           >
             {isLoadingUpload || isLoadingPost ? (

@@ -101,8 +101,11 @@ handler.post(async (req, res) => {
     } = req.body
     let container = req.body.container
 
+    const tempCost = Array.isArray(cost) ? cost[0] : cost
+    const tempPrice = Array.isArray(price) ? price[0] : price
+
     if (cargoType !== 'FCL') {
-      if (Number(cost) > Number(price))
+      if (Number(tempCost) > Number(tempPrice))
         return res
           .status(404)
           .json({ error: 'Cost must be less than price amount' })
@@ -128,35 +131,42 @@ handler.post(async (req, res) => {
     if (cargoType === 'FCL') {
       const containerLength = container.length
 
-      const cost = Array.isArray(cost)
+      const costAmount = Array.isArray(cost)
         ? cost
         : cost.split(',')?.map((c) => c.trim())
 
-      const price = Array.isArray(price)
+      const priceAmount = Array.isArray(price)
         ? price
         : price.split(',')?.map((c) => c.trim())
 
-      if (containerLength !== cost.length || containerLength !== price.length) {
+      if (
+        containerLength !== costAmount.length ||
+        containerLength !== priceAmount.length
+      ) {
         return res.status(400).json({ error: 'Container or price mismatched' })
       }
 
       const result = container.map((c, i) => {
-        if (Number(cost[i]) > Number(price[i]))
+        if (Number(costAmount[i]) > Number(priceAmount[i]))
           return res
             .status(404)
-            .json({ error: 'Cost must be less than price amount' })
+            .json({ error: 'Cost must be greater than price amount' })
 
         return {
           container: c,
-          cost: cost[i],
-          price: price[i],
+          cost: costAmount[i],
+          price: priceAmount[i],
         }
       })
       container = result
     }
 
     if (cargoType !== 'FCL') {
-      container = container.map((c) => ({ container: c, cost, price }))
+      container = container.map((c) => ({
+        container: c,
+        cost: tempCost,
+        price: tempPrice,
+      }))
     }
 
     // check if status is active

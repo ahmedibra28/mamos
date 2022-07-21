@@ -4,7 +4,7 @@ import withAuth from '../../../HOC/withAuth'
 import useOrdersHook from '../../../utils/api/orders'
 import { Spinner, Message } from '../../../components'
 import { useRouter } from 'next/router'
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
+import { FaCheckCircle, FaTimesCircle, FaEdit } from 'react-icons/fa'
 import moment from 'moment'
 
 const Details = () => {
@@ -15,6 +15,20 @@ const Details = () => {
   })
 
   const { data, isLoading, isError, error } = getOrderDetails
+
+  const confirmOrderHandler = () => {
+    console.log({ status: 'Order has been confirmed' })
+  }
+  const editBuyerHandler = () => {
+    console.log({ status: 'Buyer has been confirmed' })
+  }
+  const editPickUpHandler = () => {
+    console.log({ status: 'Pick up has been confirmed' })
+  }
+  const editDropOffHandler = () => {
+    console.log({ status: 'Drop off has been confirmed' })
+  }
+
   return (
     <>
       <Head>
@@ -32,8 +46,47 @@ const Details = () => {
         <Message variant='danger'>{error}</Message>
       ) : (
         <div className='bg-light p-3 my-2'>
+          <button
+            onClick={() => confirmOrderHandler()}
+            className='btn btn-outline-success float-end'
+          >
+            <FaCheckCircle className='mb-1' /> Confirm Order
+          </button>
           <div className='row'>
             <div className='col-md-6 col-12'>
+              {/* Order Info */}
+              <div className='mb-4'>
+                {data?.other && <h4 className='fw-bold'>ORDER DETAILS</h4>}
+                {data?.trackingNo && (
+                  <div>
+                    <span className='fw-bold'>Tracking No: </span>
+                    <span>{data?.trackingNo} </span>
+                  </div>
+                )}
+                {data?.createdBy && (
+                  <div>
+                    <span className='fw-bold'>Ordered By: </span>
+                    <span>{data?.createdBy?.name} </span>
+                  </div>
+                )}
+                {data?.status && (
+                  <div>
+                    <span className='fw-bold'>Status: </span>
+                    <span>
+                      {data?.status === 'pending' && (
+                        <span className='badge bg-warning'>{data?.status}</span>
+                      )}
+                      {data?.status === 'confirmed' && (
+                        <span className='badge bg-success'>{data?.status}</span>
+                      )}
+                      {data?.status === 'deleted' && (
+                        <span className='badge bg-danger'>{data?.status}</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Buyer Info */}
               <div className='mb-4'>
                 {data?.buyer && <h4 className='fw-bold'>BUYER DETAILS</h4>}
@@ -158,38 +211,6 @@ const Details = () => {
               </div>
             </div>
             <div className='col-md-6 col-12'>
-              {/* Order Info */}
-              <div className='mb-4'>
-                {data?.other && <h4 className='fw-bold'>ORDER DETAILS</h4>}
-                {data?.trackingNo && (
-                  <div>
-                    <span className='fw-bold'>Tracking No: </span>
-                    <span>{data?.trackingNo} </span>
-                  </div>
-                )}
-                {data?.createdBy && (
-                  <div>
-                    <span className='fw-bold'>Ordered By: </span>
-                    <span>{data?.createdBy?.name} </span>
-                  </div>
-                )}
-                {data?.status && (
-                  <div>
-                    <span className='fw-bold'>Status: </span>
-                    <span>
-                      {data?.status === 'pending' && (
-                        <span className='badge bg-warning'>{data?.status}</span>
-                      )}
-                      {data?.status === 'confirmed' && (
-                        <span className='badge bg-success'>{data?.status}</span>
-                      )}
-                      {data?.status === 'deleted' && (
-                        <span className='badge bg-danger'>{data?.status}</span>
-                      )}
-                    </span>
-                  </div>
-                )}
-              </div>
               {/* Other Info */}
               <div className='mb-4'>
                 {data?.other && <h4 className='fw-bold'>OTHER DETAILS</h4>}
@@ -347,6 +368,12 @@ const Details = () => {
                         </span>
                       </div>
                     ))}
+                  </div>
+                )}
+                {data?.price?.totalPrice && (
+                  <div>
+                    <span className='fw-bold'>Total Amount: </span>
+                    <span>{data?.price?.totalPrice} </span>
                   </div>
                 )}
               </div>

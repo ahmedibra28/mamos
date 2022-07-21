@@ -68,6 +68,12 @@ handler.get(async (req, res) => {
         containerPrice: priceFormat(containerPrice),
         customerCBM: `${customerCBM} cubic meter`,
         containerCBM: `${containerCBM} cubic meter`,
+        totalPrice: priceFormat(
+          Number(invoicePrice) +
+            Number(pickUpPrice) +
+            Number(dropOffPrice) +
+            Number(customerPrice)
+        ),
       }
       return res.status(200).send({
         ...order,
@@ -105,6 +111,12 @@ handler.get(async (req, res) => {
         customerCBM: `${customerCBM} cubic meter`,
         containerCBM: `${containerCBM} cubic meter`,
         containerInfo: containerInfo,
+        totalPrice: priceFormat(
+          Number(invoicePrice) +
+            Number(pickUpPrice) +
+            Number(dropOffPrice) +
+            Number(customerPrice)
+        ),
       }
 
       return res.status(200).send({
