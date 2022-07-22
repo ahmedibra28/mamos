@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import db from '../../../config/db'
 import Container from '../../../models/Container'
 import Order from '../../../models/Order'
+import Transportation from '../../../models/Transportation'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
@@ -15,7 +16,7 @@ handler.get(async (req, res) => {
   try {
     const { id } = req.query
 
-    const order = await schemaName
+    let order = await schemaName
       .findById(id)
       .lean()
       .populate('createdBy', ['name'])
@@ -28,11 +29,17 @@ handler.get(async (req, res) => {
       .populate('dropOff.dropOffSeaport')
       .populate('dropOff.dropOffAirport')
       .populate('other.transportation')
-      .populate('other.transportation.container')
+      .populate('other.transportation.container.container')
+      .populate('other.commodity')
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
 
-    const invoicePrice = order.isHasInvoice ? 0.0 : 200.0
+    order.other.transportation = await Transportation.findById(
+      order.other.transportation._id
+    ).populate('container.container')
+
+    const invoicePrice = order.other.isHasInvoice ? 0.0 : 200.0
+
     const pickUpPrice = order.pickUp.pickUpTown
       ? order.pickUp.pickUpTown.price
       : 0.0
@@ -57,8 +64,42 @@ handler.get(async (req, res) => {
       )
       const containerCBM = container?.details?.CBM
 
-      const containerPrice = order.other.transportation.price
+      const containerPrice = order?.other?.transportation?.container[0]?.price
       const customerPrice = (containerPrice / containerCBM) * customerCBM
+
+      let oldOrders = []
+      if (order.other.cargoType === 'AIR') {
+        oldOrders = await Order.find(
+          {
+            transportation: order._id,
+            'other.cargoType': 'AIR',
+            status: 'confirmed',
+          },
+          { 'other.containerLCL': 1 }
+        )
+      }
+
+      if (order.other.cargoType === 'LCL') {
+        oldOrders = await Order.find(
+          {
+            transportation: order._id,
+            'other.cargoType': 'LCL',
+            status: 'confirmed',
+          },
+          { 'other.containerLCL': 1 }
+        )
+      }
+
+      const USED_CBM = oldOrders
+        ?.map((o) => o?.other?.containerLCL)
+        ?.flat(Infinity)
+        ?.reduce(
+          (acc, curr) =>
+            acc +
+            (Number(curr.length) * Number(curr.width) * Number(curr.height)) /
+              1000,
+          0
+        )
 
       const price = {
         invoicePrice: priceFormat(invoicePrice),
@@ -68,6 +109,7 @@ handler.get(async (req, res) => {
         containerPrice: priceFormat(containerPrice),
         customerCBM: `${customerCBM} cubic meter`,
         containerCBM: `${containerCBM} cubic meter`,
+        USED_CBM: USED_CBM,
         totalPrice: priceFormat(
           Number(invoicePrice) +
             Number(pickUpPrice) +
@@ -75,6 +117,7 @@ handler.get(async (req, res) => {
             Number(customerPrice)
         ),
       }
+
       return res.status(200).send({
         ...order,
         price,

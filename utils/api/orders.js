@@ -62,6 +62,37 @@ export default function useOrdersHook(props) {
     }
   )
 
+  const updateOrderBuyer = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/edit/${obj._id}/buyer`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+  const updateOrderPickUp = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/edit/${obj._id}/pickup`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+  const updateOrderDropOff = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/edit/${obj._id}/dropoff`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+  const updateOrderOther = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/edit/${obj._id}/other`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -70,5 +101,9 @@ export default function useOrdersHook(props) {
     postAvailableTransportations,
     postOrdersList,
     getOrderDetails,
+    updateOrderBuyer,
+    updateOrderPickUp,
+    updateOrderDropOff,
+    updateOrderOther,
   }
 }
