@@ -93,7 +93,7 @@ handler.put(async (req, res) => {
     object.airport = isPort ? undefined : airport
     object.seaport = isPort ? seaport : undefined
     object.status = status
-    object.updatedBy = req.user.id
+    object.updatedBy = req.user._id
     await object.save()
     res.status(200).send(`${schemaNameString} updated`)
   } catch (error) {

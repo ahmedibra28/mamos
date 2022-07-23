@@ -94,7 +94,7 @@ handler.post(async (req, res) => {
 
     const object = await schemaName.create({
       ...req.body,
-      createdBy: req.user.id,
+      createdBy: req.user._id,
     })
     if (!object)
       return res.status(400).json({ error: 'Invalid registration agency' })

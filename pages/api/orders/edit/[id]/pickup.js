@@ -2,12 +2,12 @@ import nc from 'next-connect'
 import db from '../../../../../config/db'
 import Order from '../../../../../models/Order'
 import Town from '../../../../../models/Town'
-// import { isAuth } from '../../../../../utils/auth'
+import { isAuth } from '../../../../../utils/auth'
 
 const schemaName = Order
 
 const handler = nc()
-// handler.use(isAuth)
+handler.use(isAuth)
 handler.put(async (req, res) => {
   await db()
   try {

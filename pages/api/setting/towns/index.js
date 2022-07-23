@@ -128,7 +128,7 @@ handler.post(async (req, res) => {
       isPort,
       airport: isPort ? undefined : airport,
       seaport: isPort ? seaport : undefined,
-      createdBy: req.user.id,
+      createdBy: req.user._id,
     }
 
     const object = await schemaName.create(requestObj)

@@ -79,7 +79,7 @@ handler.post(async (req, res) => {
         transportation,
         tradelane,
         status,
-        createdBy: req.user.id,
+        createdBy: req.user._id,
       })
       return res.status(200).send(result)
     }
@@ -88,7 +88,7 @@ handler.post(async (req, res) => {
       return res.status(400).json({ error: 'Tradelane is not active' })
 
     object.tradelane = [...object.tradelane, ...tradelane]
-    object.updatedBy = req.user.id
+    object.updatedBy = req.user._id
     const result = await object.save()
 
     res.status(200).send(result)

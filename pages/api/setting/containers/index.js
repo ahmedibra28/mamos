@@ -80,7 +80,7 @@ handler.post(async (req, res) => {
       height,
       details: additionalData,
       status,
-      createdBy: req.user.id,
+      createdBy: req.user._id,
     })
     res.status(200).send(object)
   } catch (error) {

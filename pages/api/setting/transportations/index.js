@@ -212,7 +212,7 @@ handler.post(async (req, res) => {
       departureDate,
       arrivalDate,
       status,
-      createdBy: req.user.id,
+      createdBy: req.user._id,
     })
     res.status(200).send(object)
   } catch (error) {

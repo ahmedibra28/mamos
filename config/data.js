@@ -703,6 +703,48 @@ const permissions = [
     name: 'Search Orders',
     method: 'POST',
   },
+  {
+    description: 'Update Order To Confirm',
+    route: '/api/orders/edit/:id/confirm',
+    auth: true,
+    name: 'Confirm Order',
+    method: 'PUT',
+  },
+  {
+    description: 'Update Order To Cancel',
+    route: '/api/orders/edit/:id/cancel',
+    auth: true,
+    name: 'Cancel Order',
+    method: 'PUT',
+  },
+  {
+    description: 'Update Order Buyer',
+    route: '/api/orders/edit/:id/buyer',
+    auth: true,
+    name: 'Buyer Order',
+    method: 'PUT',
+  },
+  {
+    description: 'Update Order Drop-Off',
+    route: '/api/orders/edit/:id/dropoff',
+    auth: true,
+    name: 'Drop-Off Order',
+    method: 'PUT',
+  },
+  {
+    description: 'Update Order Pick-Up',
+    route: '/api/orders/edit/:id/pickup',
+    auth: true,
+    name: 'Pick-Up Order',
+    method: 'PUT',
+  },
+  {
+    description: 'Update Order Other',
+    route: '/api/orders/edit/:id/other',
+    auth: true,
+    name: 'Other Order',
+    method: 'PUT',
+  },
 ]
 
 export { roles, users, profile, permissions, clientPermissions }

@@ -11,21 +11,16 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
 
     const order = await schemaName.findOne({ _id: id, status: 'pending' })
 
-    if (!order || !order.buyer.buyerName)
-      return res.status(404).json({ error: 'Order not found' })
+    if (!order) return res.status(404).json({ error: 'Order not found' })
 
-    order.buyer.buyerName = buyerName
-    order.buyer.buyerEmail = buyerEmail
-    order.buyer.buyerMobileNumber = buyerMobileNumber
-    order.buyer.buyerAddress = buyerAddress
+    order.status = 'confirmed'
 
     await order.save()
 
-    return res.status(200).send(order)
+    return res.status(200).send('Order confirmed successfully')
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

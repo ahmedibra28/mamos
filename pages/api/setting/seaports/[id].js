@@ -41,7 +41,7 @@ handler.put(async (req, res) => {
     object.name = name
     object.country = country
     object.status = status
-    object.updatedBy = req.user.id
+    object.updatedBy = req.user._id
     await object.save()
     res.status(200).send(`${schemaNameString} updated`)
   } catch (error) {

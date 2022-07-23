@@ -2,13 +2,12 @@ import nc from 'next-connect'
 import db from '../../../../../config/db'
 import Container from '../../../../../models/Container'
 import Order from '../../../../../models/Order'
-import Town from '../../../../../models/Town'
-// import { isAuth } from '../../../../../utils/auth'
+import { isAuth } from '../../../../../utils/auth'
 
 const schemaName = Order
 
 const handler = nc()
-// handler.use(isAuth)
+handler.use(isAuth)
 handler.put(async (req, res) => {
   await db()
   try {
@@ -116,7 +115,6 @@ handler.put(async (req, res) => {
       await order.save()
       return res.status(200).send(order)
     }
-    console.log(req.body)
     return res.status(404).json({ error: 'Invalid cargo type' })
   } catch (error) {
     res.status(500).json({ error: error.message })

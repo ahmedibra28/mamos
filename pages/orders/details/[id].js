@@ -4,12 +4,7 @@ import withAuth from '../../../HOC/withAuth'
 import useOrdersHook from '../../../utils/api/orders'
 import { Spinner, Message } from '../../../components'
 import { useRouter } from 'next/router'
-import {
-  FaCheckCircle,
-  FaTimesCircle,
-  FaEdit,
-  FaExclamationCircle,
-} from 'react-icons/fa'
+import { FaEdit, FaExclamationCircle } from 'react-icons/fa'
 import moment from 'moment'
 import FormView from '../../../components/FormView'
 import {
@@ -29,6 +24,7 @@ import useUploadHook from '../../../utils/api/upload'
 import useTownsHook from '../../../utils/api/towns'
 import useCommoditiesHook from '../../../utils/api/commodities'
 import CustomFormView from '../../../components/CustomFormView'
+import Tabs from '../../../features/order/Tabs'
 
 const Details = () => {
   const router = useRouter()
@@ -54,6 +50,8 @@ const Details = () => {
     updateOrderPickUp,
     updateOrderDropOff,
     updateOrderOther,
+    updateOrderToConfirm,
+    updateOrderToDelete,
   } = useOrdersHook({
     id,
   })
@@ -103,6 +101,20 @@ const Details = () => {
     mutateAsync: mutateAsyncUpdateOther,
     isSuccess: isSuccessUpdateOther,
   } = updateOrderOther
+  const {
+    isLoading: isLoadingUpdateToConfirm,
+    isError: isErrorUpdateToConfirm,
+    error: errorUpdateToConfirm,
+    mutateAsync: mutateAsyncUpdateToConfirm,
+    isSuccess: isSuccessUpdateToConfirm,
+  } = updateOrderToConfirm
+  const {
+    isLoading: isLoadingUpdateToDelete,
+    isError: isErrorUpdateToDelete,
+    error: errorUpdateToDelete,
+    mutateAsync: mutateAsyncUpdateToDelete,
+    isSuccess: isSuccessUpdateToDelete,
+  } = updateOrderToDelete
 
   useEffect(() => {
     if (isSuccessUpload) {
@@ -126,8 +138,12 @@ const Details = () => {
   }, [file])
 
   const confirmOrderHandler = () => {
-    console.log({ status: 'Order has been confirmed' })
+    mutateAsyncUpdateToConfirm({ _id: id })
   }
+  const cancelOrderHandler = () => {
+    mutateAsyncUpdateToDelete({ _id: id })
+  }
+
   const editBuyerHandler = () => {
     setValueBuyer('buyerName', data?.buyer?.buyerName)
     setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
@@ -139,7 +155,6 @@ const Details = () => {
     setValuePickUp('pickUpCity', data?.pickUp?.pickUpCity)
     setValuePickUp('pickUpAddress', data?.pickUp?.pickUpAddress)
     setValuePickUp('pickUpTown', data?.pickUp?.pickUpTown?._id)
-    console.log(data?.pickUp)
   }
   const editDropOffHandler = () => {
     setValueDropOff('dropOffWarehouse', data?.dropOff?.dropOffWarehouse)
@@ -442,7 +457,9 @@ const Details = () => {
       isSuccessUpdateBuyer ||
       isSuccessUpdatePickUp ||
       isSuccessUpdateDropOff ||
-      isSuccessUpdateOther
+      isSuccessUpdateOther ||
+      isSuccessUpdateToConfirm ||
+      isSuccessUpdateToDelete
     )
       formCleanHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -451,6 +468,8 @@ const Details = () => {
     isSuccessUpdatePickUp,
     isSuccessUpdateDropOff,
     isSuccessUpdateOther,
+    isSuccessUpdateToConfirm,
+    isSuccessUpdateToDelete,
   ])
 
   const handleAddField = () => {
@@ -522,26 +541,16 @@ const Details = () => {
   }
 
   const submitHandlerBuyer = (data) => {
-    console.log(data)
     mutateAsyncUpdateBuyer({ ...data, _id: id })
   }
   const submitHandlerPickUp = (data) => {
-    console.log(data)
     mutateAsyncUpdatePickUp({ ...data, _id: id })
   }
 
   const submitHandlerDropOff = (data) => {
-    console.log(data)
     mutateAsyncUpdateDropOff({ ...data, _id: id })
   }
   const submitHandlerOther = (dataObj) => {
-    console.log({
-      ...dataObj,
-      invoice: fileLink,
-      _id: id,
-      containerLCL: inputFields,
-      USED_CBM: data?.price?.USED_CBM,
-    })
     mutateAsyncUpdateOther({
       ...dataObj,
       invoice: fileLink,
@@ -613,6 +622,24 @@ const Details = () => {
       )}
       {isErrorUpdateOther && (
         <Message variant='danger'>{errorUpdateOther}</Message>
+      )}
+
+      {isSuccessUpdateToConfirm && (
+        <Message variant='success'>
+          Order has been confirmed successfully
+        </Message>
+      )}
+      {isErrorUpdateToConfirm && (
+        <Message variant='danger'>{errorUpdateToConfirm}</Message>
+      )}
+
+      {isSuccessUpdateToDelete && (
+        <Message variant='success'>
+          Order has been cancelled successfully
+        </Message>
+      )}
+      {isErrorUpdateToDelete && (
+        <Message variant='danger'>{errorUpdateToDelete}</Message>
       )}
 
       {/* Buyer Modal Form */}
@@ -706,390 +733,63 @@ const Details = () => {
             <FaExclamationCircle className='mb-1 me-2' />
             You can not edit this order after confirmed
           </div>
-          {data?.status === 'pending' && (
-            <button
-              onClick={() => confirmOrderHandler()}
-              className='btn btn-outline-success float-end'
-            >
-              <FaCheckCircle className='mb-1' /> Confirm Order
-            </button>
-          )}
           <div className='row'>
-            <div className='col-md-6 col-12'>
-              {/* Order Info */}
-              <div className='mb-4'>
-                {data?.other && <h4 className='fw-bold'>ORDER DETAILS</h4>}
-                {data?.trackingNo && (
-                  <div>
-                    <span className='fw-bold'>Tracking No: </span>
-                    <span>{data?.trackingNo} </span>
-                  </div>
-                )}
-                {data?.createdBy && (
-                  <div>
-                    <span className='fw-bold'>Ordered By: </span>
-                    <span>{data?.createdBy?.name} </span>
-                  </div>
-                )}
-                {data?.status && (
-                  <div>
-                    <span className='fw-bold'>Status: </span>
-                    <span>
-                      {data?.status === 'pending' && (
-                        <span className='badge bg-warning'>{data?.status}</span>
-                      )}
-                      {data?.status === 'confirmed' && (
-                        <span className='badge bg-success'>{data?.status}</span>
-                      )}
-                      {data?.status === 'deleted' && (
-                        <span className='badge bg-danger'>{data?.status}</span>
-                      )}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Buyer Info */}
-              <div className='mb-4'>
-                {data?.buyer && (
-                  <h4 className='fw-bold'>
-                    BUYER DETAILS
-                    {data?.status === 'pending' && (
-                      <FaEdit
-                        data-bs-toggle='modal'
-                        data-bs-target={`#${modalBuyer}`}
-                        onClick={editBuyerHandler}
-                        className='mb-1 text-warning ms-2'
-                      />
-                    )}
-                  </h4>
-                )}
-                {data?.buyer?.buyerName && (
-                  <div>
-                    <span className='fw-bold'>Name: </span>
-                    <span>{data?.buyer?.buyerName} </span>
-                  </div>
-                )}
-                {data?.buyer?.buyerMobileNumber && (
-                  <div>
-                    <span className='fw-bold'>Mobile: </span>
-                    <span>{data?.buyer?.buyerMobileNumber} </span>
-                  </div>
-                )}
-                {data?.buyer?.buyerEmail && (
-                  <div>
-                    <span className='fw-bold'>Email: </span>
-                    <span>{data?.buyer?.buyerEmail} </span>
-                  </div>
-                )}
-                {data?.buyer?.buyerAddress && (
-                  <div>
-                    <span className='fw-bold'>Address: </span>
-                    <span>{data?.buyer?.buyerAddress} </span>
-                  </div>
-                )}
-              </div>
-
-              {/* PickUp Info */}
-              <div className='mb-4'>
-                {data?.pickUp && (
-                  <h4 className='fw-bold'>
-                    PICK-UP DETAILS
-                    {data?.status === 'pending' && data?.pickUp?.pickUpTown && (
-                      <FaEdit
-                        data-bs-toggle='modal'
-                        data-bs-target={`#${modalPickUp}`}
-                        onClick={editPickUpHandler}
-                        className='mb-1 text-warning ms-2'
-                      />
-                    )}
-                  </h4>
-                )}
-                {data?.pickUp?.pickUpCountry && (
-                  <div>
-                    <span className='fw-bold'>Country: </span>
-                    <span>{data?.pickUp?.pickUpCountry?.name} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpSeaport && (
-                  <div>
-                    <span className='fw-bold'>Seaport: </span>
-                    <span>{data?.pickUp?.pickUpSeaport?.name} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpAirport && (
-                  <div>
-                    <span className='fw-bold'>Airport: </span>
-                    <span>{data?.pickUp?.pickUpAirport?.name} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpTown && (
-                  <div>
-                    <span className='fw-bold'>Town: </span>
-                    <span>{data?.pickUp?.pickUpTown?.name} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpWarehouse && (
-                  <div>
-                    <span className='fw-bold'>Warehouse: </span>
-                    <span>{data?.pickUp?.pickUpWarehouse} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpCity && (
-                  <div>
-                    <span className='fw-bold'>City: </span>
-                    <span>{data?.pickUp?.pickUpCity} </span>
-                  </div>
-                )}
-                {data?.pickUp?.pickUpAddress && (
-                  <div>
-                    <span className='fw-bold'>Address: </span>
-                    <span>{data?.pickUp?.pickUpAddress} </span>
-                  </div>
-                )}
-              </div>
-
-              {/* DropOff Info */}
-              <div className='mb-4'>
-                {data?.dropOff && (
-                  <h4 className='fw-bold'>
-                    DROP-OFF DETAILS
-                    {data?.status === 'pending' &&
-                      data?.dropOff?.dropOffTown && (
-                        <FaEdit
-                          data-bs-toggle='modal'
-                          data-bs-target={`#${modalDropOff}`}
-                          onClick={editDropOffHandler}
-                          className='mb-1 text-warning ms-2'
-                        />
-                      )}
-                  </h4>
-                )}
-                {data?.dropOff?.dropOffCountry && (
-                  <div>
-                    <span className='fw-bold'>Country: </span>
-                    <span>{data?.dropOff?.dropOffCountry?.name} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffSeaport && (
-                  <div>
-                    <span className='fw-bold'>Seaport: </span>
-                    <span>{data?.dropOff?.dropOffSeaport?.name} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffAirport && (
-                  <div>
-                    <span className='fw-bold'>Airport: </span>
-                    <span>{data?.dropOff?.dropOffAirport?.name} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffTown && (
-                  <div>
-                    <span className='fw-bold'>Town: </span>
-                    <span>{data?.dropOff?.dropOffTown?.name} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffWarehouse && (
-                  <div>
-                    <span className='fw-bold'>Warehouse: </span>
-                    <span>{data?.dropOff?.dropOffWarehouse} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffCity && (
-                  <div>
-                    <span className='fw-bold'>City: </span>
-                    <span>{data?.dropOff?.dropOffCity} </span>
-                  </div>
-                )}
-                {data?.dropOff?.dropOffAddress && (
-                  <div>
-                    <span className='fw-bold'>Address: </span>
-                    <span>{data?.dropOff?.dropOffAddress} </span>
-                  </div>
-                )}
-              </div>
+            <div className='col-lg-3 col-md-4 col-12'>
+              <h6>Shipment Binder </h6>
+              <p className='fw-bold'>{data?.trackingNo}</p>
+              <p className='fw-bold'>
+                TOTAL PRICE:{' '}
+                <span className='bg-dark text-light p-1 rounded-pill'>
+                  {data?.price?.totalPrice}
+                </span>{' '}
+              </p>
             </div>
-            <div className='col-md-6 col-12'>
-              {/* Other Info */}
-              <div className='mb-4'>
-                {data?.other && (
-                  <h4 className='fw-bold'>
-                    OTHER DETAILS
-                    {data?.status === 'pending' && (
-                      <FaEdit
-                        data-bs-toggle='modal'
-                        data-bs-target={`#${modalOther}`}
-                        onClick={editOtherHandler}
-                        className='mb-1 text-warning ms-2'
-                      />
-                    )}
-                  </h4>
+            <div className='col-lg-3 col-md-4 col-12'>
+              <h6>Transporter </h6>
+              <p>{data?.other?.transportation?.name}</p>
+            </div>
+            <div className='col-lg-3 col-md-4 col-12'>
+              <h6>
+                Departing on{' '}
+                {moment(data?.other?.transportation?.departureDate).format(
+                  'll'
                 )}
-
-                {data?.other?.importExport && (
-                  <div>
-                    <span className='fw-bold'>Import/Export: </span>
-                    <span>{data?.other?.importExport} </span>
-                  </div>
-                )}
-                {data?.other?.transportationType && (
-                  <div>
-                    <span className='fw-bold'>Transportation Type: </span>
-                    <span>{data?.other?.transportationType} </span>
-                  </div>
-                )}
-                {data?.other?.movementType && (
-                  <div>
-                    <span className='fw-bold'>Movement Type: </span>
-                    <span>{data?.other?.movementType} </span>
-                  </div>
-                )}
-                {data?.other?.cargoType && (
-                  <div>
-                    <span className='fw-bold'>Cargo Type: </span>
-                    <span>{data?.other?.cargoType} </span>
-                  </div>
-                )}
-                {data?.other?.cargoDescription && (
-                  <div>
-                    <span className='fw-bold'>Cargo Description: </span>
-                    <span>{data?.other?.cargoDescription} </span>
-                  </div>
-                )}
-                {data?.other?.noOffPackages && (
-                  <div>
-                    <span className='fw-bold'>No. Off Packages: </span>
-                    <span>{data?.other?.noOffPackages} </span>
-                  </div>
-                )}
-                {data?.other?.grossWeight && (
-                  <div>
-                    <span className='fw-bold'>Gross Weight: </span>
-                    <span>{data?.other?.grossWeight} </span>
-                  </div>
-                )}
-                {data?.other?.commodity && (
-                  <div>
-                    <span className='fw-bold'>Commodity: </span>
-                    <span>{data?.other?.commodity?.name} </span>
-                  </div>
-                )}
-                {data?.other?.transportation && (
-                  <>
-                    <div>
-                      <span className='fw-bold'>Transportor: </span>
-                      <span>{data?.other?.transportation?.name} </span>
-                    </div>
-                    <div>
-                      <span className='fw-bold'>Departure Date: </span>
-                      <span>
-                        {moment(data?.other?.departureDate).format('ll')}
-                      </span>
-                    </div>
-                    <div>
-                      <span className='fw-bold'>Arrival Date: </span>
-                      <span>
-                        {moment(data?.other?.arrivalDate).format('ll')}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {data?.other && (
-                  <div>
-                    <span className='fw-bold'>Is Temperature Controlled? </span>
-                    <span>
-                      {data?.other?.isTemperatureControlled ? (
-                        <FaCheckCircle className='text-success' />
-                      ) : (
-                        <FaTimesCircle className='text-danger' />
-                      )}
-                    </span>
-                  </div>
-                )}
-                {data?.other && (
-                  <div>
-                    <span className='fw-bold'>Is Has Invoice? </span>
-                    <span>
-                      {data?.other?.isHasInvoice ? (
-                        <FaCheckCircle className='text-success' />
-                      ) : (
-                        <FaTimesCircle className='text-danger' />
-                      )}
-                    </span>
-                  </div>
-                )}
-                {data?.other?.invoice && (
-                  <div>
-                    <span className='fw-bold'>Invoice: </span>
-                    <span>
-                      <a
-                        href={data?.other?.invoice}
-                        target='_blank'
-                        rel='noreferrer'
-                      >
-                        view
-                      </a>
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Pricing Info */}
-              <div className='mb-4'>
-                {data?.price && <h4 className='fw-bold'>PRICING DETAILS</h4>}
-                {data?.price?.invoicePrice && (
-                  <div>
-                    <span className='fw-bold'>Invoice Amount: </span>
-                    <span>{data?.price?.invoicePrice} </span>
-                  </div>
-                )}
-                {data?.price?.pickUpPrice && (
-                  <div>
-                    <span className='fw-bold'>Pick-up Amount: </span>
-                    <span>{data?.price?.pickUpPrice} </span>
-                  </div>
-                )}
-                {data?.price?.dropOffPrice && (
-                  <div>
-                    <span className='fw-bold'>Drop-off Amount: </span>
-                    <span>{data?.price?.dropOffPrice} </span>
-                  </div>
-                )}
-                {data?.price?.customerPrice && (
-                  <div>
-                    <span className='fw-bold'>Cargo Amount: </span>
-                    <span>{data?.price?.customerPrice} </span>
-                  </div>
-                )}
-                {data?.price?.customerCBM && (
-                  <div>
-                    <span className='fw-bold'>Total CBM: </span>
-                    <span>{data?.price?.customerCBM} </span>
-                  </div>
-                )}
-                {data?.price?.containerInfo && (
-                  <div>
-                    <span className='fw-bold'>Containers Info: </span> <br />
-                    {data?.price?.containerInfo?.map((i) => (
-                      <div key={i?.name} className='ms-2'>
-                        - <span className='fw-bold'>{i?.name} : </span>
-                        <span>
-                          {i?.quantity} x ${Number(i?.price).toFixed(2)} = $
-                          {(i?.quantity * Number(i?.price)).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {data?.price?.totalPrice && (
-                  <div>
-                    <span className='fw-bold'>Total Amount: </span>
-                    <span>{data?.price?.totalPrice} </span>
-                  </div>
-                )}
-              </div>
+              </h6>
+              <p>
+                {data?.pickUp?.pickUpSeaport?.name ||
+                  data?.pickUp?.pickUpAirport?.name}
+                , {data?.pickUp?.pickUpCountry?.name}
+              </p>
+            </div>
+            <div className='col-lg-3 col-md-4 col-12'>
+              <h6>
+                Arriving on{' '}
+                {moment(data?.other?.transportation?.arrivalDate).format('ll')}
+              </h6>
+              <p>
+                {data?.dropOff?.dropOffSeaport?.name ||
+                  data?.dropOff?.dropOffAirport?.name}
+                , {data?.dropOff?.dropOffCountry?.name}
+              </p>
             </div>
           </div>
+
+          <Tabs
+            data={data}
+            confirmOrderHandler={confirmOrderHandler}
+            FaEdit={FaEdit}
+            modalBuyer={modalBuyer}
+            editBuyerHandler={editBuyerHandler}
+            modalPickUp={modalPickUp}
+            editPickUpHandler={editPickUpHandler}
+            modalDropOff={modalDropOff}
+            editDropOffHandler={editDropOffHandler}
+            modalOther={modalOther}
+            editOtherHandler={editOtherHandler}
+            cancelOrderHandler={cancelOrderHandler}
+            isLoadingUpdateToConfirm={isLoadingUpdateToConfirm}
+            isLoadingUpdateToDelete={isLoadingUpdateToDelete}
+          />
         </div>
       )}
     </>

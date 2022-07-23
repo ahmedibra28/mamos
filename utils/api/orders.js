@@ -92,6 +92,22 @@ export default function useOrdersHook(props) {
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
+  const updateOrderToConfirm = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/edit/${obj._id}/confirm`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+  const updateOrderToDelete = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/edit/${obj._id}/cancel`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
 
   return {
     getOrders,
@@ -105,5 +121,7 @@ export default function useOrdersHook(props) {
     updateOrderPickUp,
     updateOrderDropOff,
     updateOrderOther,
+    updateOrderToConfirm,
+    updateOrderToDelete,
   }
 }
