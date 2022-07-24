@@ -745,6 +745,13 @@ const permissions = [
     name: 'Other Order',
     method: 'PUT',
   },
+  {
+    description: 'Update Order Document',
+    route: '/api/orders/document/:id',
+    auth: true,
+    name: 'Document Order',
+    method: 'PUT',
+  },
 ]
 
 export { roles, users, profile, permissions, clientPermissions }

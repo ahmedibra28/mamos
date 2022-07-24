@@ -52,6 +52,7 @@ const Details = () => {
     updateOrderOther,
     updateOrderToConfirm,
     updateOrderToDelete,
+    updateOrderDocument,
   } = useOrdersHook({
     id,
   })
@@ -115,6 +116,13 @@ const Details = () => {
     mutateAsync: mutateAsyncUpdateToDelete,
     isSuccess: isSuccessUpdateToDelete,
   } = updateOrderToDelete
+  const {
+    isLoading: isLoadingUpdateDocument,
+    isError: isErrorUpdateDocument,
+    error: errorUpdateDocument,
+    mutateAsync: mutateAsyncUpdateDocument,
+    isSuccess: isSuccessUpdateDocument,
+  } = updateOrderDocument
 
   useEffect(() => {
     if (isSuccessUpload) {
@@ -168,21 +176,22 @@ const Details = () => {
       'isTemperatureControlled',
       data?.other?.isTemperatureControlled
     )
-    setValueOther('isHasInvoice', data?.other?.isHasInvoice)
-    setValueOther('isHasInvoice', data?.other?.isHasInvoice)
-
-    if (data?.other?.isHasInvoice) {
-      setFileLink(data?.other?.invoice)
-    }
     setInputFields(data?.other?.containerLCL)
-
     setSelectedTransportation(data?.other?.transportation)
     setSelectContainer(data?.other?.containerFCL)
-
     setValueOther('commodity', data?.other?.commodity?._id)
     setValueOther('grossWeight', data?.other?.grossWeight)
     setValueOther('cargoDescription', data?.other?.cargoDescription)
     setValueOther('noOfPackages', data?.other?.noOfPackages)
+  }
+
+  const editDocumentHandler = () => {
+    setValueDocument('invoice', data?.other?.invoice)
+    setValueDocument('isHasInvoice', data?.other?.isHasInvoice)
+
+    if (data?.other?.isHasInvoice) {
+      setFileLink(data?.other?.invoice)
+    }
   }
 
   const {
@@ -225,6 +234,17 @@ const Details = () => {
     setValue: setValueOther,
     reset: resetOther,
     formState: { errors: errorsOther },
+  } = useForm({
+    defaultValues: {},
+  })
+
+  const {
+    register: registerDocument,
+    handleSubmit: handleSubmitDocument,
+    watch: watchDocument,
+    setValue: setValueDocument,
+    reset: resetDocument,
+    formState: { errors: errorsDocument },
   } = useForm({
     defaultValues: {},
   })
@@ -356,30 +376,6 @@ const Details = () => {
       label:
         'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
     }),
-    inputCheckBox({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'isHasInvoice',
-      label: 'Do you have an invoice?',
-      isRequired: false,
-    }),
-
-    fileLink && (
-      <div key={'fileLink'} className='text-warning'>
-        This order has already uploaded invoice, just click submit button if you
-        don not what upload new one again
-      </div>
-    ),
-
-    watchOther().isHasInvoice &&
-      inputFile({
-        register: registerOther,
-        errors: errorsOther,
-        name: 'invoiceFile',
-        label: 'Upload Invoice',
-        isRequired: false,
-        setFile,
-      }),
 
     data?.other?.cargoType === 'LCL' &&
       dynamicInputSelect({
@@ -421,6 +417,33 @@ const Details = () => {
       }),
   ]
 
+  const formDocument = [
+    inputCheckBox({
+      register: registerDocument,
+      errors: errorsDocument,
+      name: 'isHasInvoice',
+      label: 'Do you have an invoice?',
+      isRequired: false,
+    }),
+
+    fileLink && (
+      <div key={'fileLink'} className='text-warning'>
+        This order has already uploaded invoice, just click submit button if you
+        don not what upload new one again
+      </div>
+    ),
+
+    watchDocument().isHasInvoice &&
+      inputFile({
+        register: registerDocument,
+        errors: errorsDocument,
+        name: 'invoiceFile',
+        label: 'Upload Invoice',
+        isRequired: false,
+        setFile,
+      }),
+  ]
+
   const row = false
   const column = 'col-md-6 col-12'
   const modalSize = 'modal-md'
@@ -437,11 +460,15 @@ const Details = () => {
   const labelOther = 'Other'
   const modalOther = 'other'
 
+  const labelDocument = 'Document'
+  const modalDocument = 'document'
+
   const formCleanHandler = () => {
     resetBuyer()
     resetPickUp()
     resetDropOff()
     resetOther()
+    resetDocument()
     setFileLink(null)
     setSelectedTransportation(null)
     setSelectContainer([])
@@ -463,7 +490,8 @@ const Details = () => {
       isSuccessUpdateDropOff ||
       isSuccessUpdateOther ||
       isSuccessUpdateToConfirm ||
-      isSuccessUpdateToDelete
+      isSuccessUpdateToDelete ||
+      isSuccessUpdateDocument
     )
       formCleanHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -474,6 +502,7 @@ const Details = () => {
     isSuccessUpdateOther,
     isSuccessUpdateToConfirm,
     isSuccessUpdateToDelete,
+    isSuccessUpdateDocument,
   ])
 
   const handleAddField = () => {
@@ -557,12 +586,18 @@ const Details = () => {
   const submitHandlerOther = (dataObj) => {
     mutateAsyncUpdateOther({
       ...dataObj,
-      invoice: fileLink,
       _id: id,
       containerLCL: inputFields,
       USED_CBM: data?.price?.USED_CBM,
       transportation: selectedTransportation,
       containerFCL: selectContainer,
+    })
+  }
+  const submitHandlerDocument = (dataObj) => {
+    mutateAsyncUpdateDocument({
+      ...dataObj,
+      invoice: fileLink,
+      _id: id,
     })
   }
 
@@ -646,6 +681,10 @@ const Details = () => {
         <Message variant='danger'>{errorUpdateToDelete}</Message>
       )}
 
+      {isErrorUpdateDocument && (
+        <Message variant='danger'>{errorUpdateDocument}</Message>
+      )}
+
       {/* Buyer Modal Form */}
       <FormView
         edit={true}
@@ -704,7 +743,7 @@ const Details = () => {
         form={formOther}
         watch={watchOther}
         isLoadingUpdate={isLoadingUpdateOther}
-        isLoadingPost={isLoadingUpload}
+        isLoadingPost={false}
         handleSubmit={handleSubmitOther}
         submitHandler={submitHandlerOther}
         modal={modalOther}
@@ -725,6 +764,23 @@ const Details = () => {
         selectContainer={selectContainer}
         removeContainer={removeContainer}
         addContainer={addContainer}
+      />
+
+      {/* Document Modal Form */}
+      <FormView
+        edit={true}
+        formCleanHandler={formCleanHandler}
+        form={formDocument}
+        watch={watchDocument}
+        isLoadingUpdate={isLoadingUpdateDocument}
+        isLoadingPost={isLoadingUpload}
+        handleSubmit={handleSubmitDocument}
+        submitHandler={submitHandlerDocument}
+        modal={modalDocument}
+        label={labelDocument}
+        column={column}
+        row={row}
+        modalSize={modalSize}
       />
 
       {isLoading ? (
@@ -790,6 +846,8 @@ const Details = () => {
             editDropOffHandler={editDropOffHandler}
             modalOther={modalOther}
             editOtherHandler={editOtherHandler}
+            modalDocument={modalDocument}
+            editDocumentHandler={editDocumentHandler}
             cancelOrderHandler={cancelOrderHandler}
             isLoadingUpdateToConfirm={isLoadingUpdateToConfirm}
             isLoadingUpdateToDelete={isLoadingUpdateToDelete}

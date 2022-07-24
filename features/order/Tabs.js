@@ -1,6 +1,12 @@
 import React from 'react'
 import moment from 'moment'
-import { FaCheckCircle, FaTimesCircle, FaTrash } from 'react-icons/fa'
+import {
+  FaCheckCircle,
+  FaCloudDownloadAlt,
+  FaDownload,
+  FaTimesCircle,
+  FaTrash,
+} from 'react-icons/fa'
 
 const Tabs = ({
   data,
@@ -15,6 +21,8 @@ const Tabs = ({
   editPickUpHandler,
   modalOther,
   editOtherHandler,
+  modalDocument,
+  editDocumentHandler,
   isLoadingUpdateToConfirm,
   isLoadingUpdateToDelete,
 }) => {
@@ -25,6 +33,7 @@ const Tabs = ({
     'Pick-Up',
     'Drop-Off',
     'Prices',
+    'Documents',
     'Other',
   ]
   return (
@@ -143,22 +152,6 @@ const Tabs = ({
                   </button>
                 )}
               </div>
-              <div className='mt-3'>
-                <h6 className='fw-bold'>Other actions</h6>
-
-                <button
-                  disabled={!isPending}
-                  data-bs-toggle='modal'
-                  data-bs-target={`#${modalOther}`}
-                  onClick={editOtherHandler}
-                  className='btn btn-primary w-100 mb-2'
-                >
-                  <span className='float-start'>
-                    <FaEdit className='mb-1' />
-                  </span>
-                  UPDATE OTHER DETAILS
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -275,21 +268,22 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-12'>
-              <h6 className='fw-bold'>Other actions</h6>
-
               {data?.pickUp?.pickUpTown?._id && (
-                <button
-                  disabled={!isPending}
-                  data-bs-toggle='modal'
-                  data-bs-target={`#${modalPickUp}`}
-                  onClick={editPickUpHandler}
-                  className='btn btn-primary w-100 mb-2'
-                >
-                  <span className='float-start'>
-                    <FaEdit className='mb-1' />
-                  </span>
-                  UPDATE PICK-UP DETAILS
-                </button>
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalPickUp}`}
+                    onClick={editPickUpHandler}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    UPDATE PICK-UP DETAILS
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -351,21 +345,22 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-'>
-              <h6 className='fw-bold'>Other actions</h6>
-
               {data?.dropOff?.dropOffTown?._id && (
-                <button
-                  disabled={!isPending}
-                  data-bs-toggle='modal'
-                  data-bs-target={`#${modalDropOff}`}
-                  onClick={editDropOffHandler}
-                  className='btn btn-primary w-100 mb-2'
-                >
-                  <span className='float-start'>
-                    <FaEdit className='mb-1' />
-                  </span>
-                  UPDATE DROP-OFF DETAILS
-                </button>
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalDropOff}`}
+                    onClick={editDropOffHandler}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    UPDATE DROP-OFF DETAILS
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -440,6 +435,60 @@ const Tabs = ({
                       ))}
                     </tbody>
                   </table>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div
+          className='tab-pane fade'
+          id='nav-Documents'
+          role='tabpanel'
+          aria-labelledby='nav-Documents-tab'
+          tabIndex='0'
+        >
+          <div className='row gy-3'>
+            <div className='col-md-8 col-12'>
+              <table className='table table-striped table-borderless mt-2'>
+                <tbody>
+                  <tr>
+                    <td className='fw-bold'>Invoice: </td>
+                    <td>
+                      {data?.other?.isHasInvoice ? (
+                        <a
+                          href={data?.other?.invoice}
+                          target='_blank'
+                          rel='noreferrer'
+                        >
+                          <button className='btn btn-success btn-sm'>
+                            <FaCloudDownloadAlt className='mb-1' /> download
+                          </button>
+                        </a>
+                      ) : (
+                        <FaTimesCircle className='text-danger' />
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className='col-md-4 col-'>
+              {data?.other && (
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalDocument}`}
+                    onClick={editDocumentHandler}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    UPDATE DOCUMENTS DETAILS
+                  </button>
                 </>
               )}
             </div>
@@ -523,34 +572,24 @@ const Tabs = ({
                       </td>
                     </tr>
                   )}
-                  {data?.other && (
-                    <tr>
-                      <td className='fw-bold'>Is Has Invoice? </td>
-                      <td>
-                        {data?.other?.isHasInvoice ? (
-                          <FaCheckCircle className='text-success' />
-                        ) : (
-                          <FaTimesCircle className='text-danger' />
-                        )}
-                      </td>
-                    </tr>
-                  )}
-                  {data?.other?.invoice && (
-                    <tr>
-                      <td className='fw-bold'>Invoice: </td>
-                      <td>
-                        <a
-                          href={data?.other?.invoice}
-                          target='_blank'
-                          rel='noreferrer'
-                        >
-                          view
-                        </a>
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
+            </div>
+            <div className='col-md-4 col-12'>
+              <h6 className='fw-bold'>Other actions</h6>
+
+              <button
+                disabled={!isPending}
+                data-bs-toggle='modal'
+                data-bs-target={`#${modalOther}`}
+                onClick={editOtherHandler}
+                className='btn btn-primary w-100 mb-2'
+              >
+                <span className='float-start'>
+                  <FaEdit className='mb-1' />
+                </span>
+                UPDATE OTHER DETAILS
+              </button>
             </div>
           </div>
         </div>

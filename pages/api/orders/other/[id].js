@@ -15,8 +15,6 @@ handler.put(async (req, res) => {
     let {
       importExport,
       isTemperatureControlled,
-      isHasInvoice,
-      invoice,
       containerLCL,
       USED_CBM,
       transportation,
@@ -74,18 +72,7 @@ handler.put(async (req, res) => {
 
       order.other.importExport = importExport
       order.other.isTemperatureControlled = isTemperatureControlled
-      if (isHasInvoice && !order.other.invoice) {
-        order.other.isHasInvoice = isHasInvoice
-        order.other.invoice = invoice
-      }
-      if (isHasInvoice && invoice) {
-        order.other.invoice = invoice
-        order.other.isHasInvoice = isHasInvoice
-      }
-      if (!isHasInvoice) {
-        order.other.invoice = null
-        order.other.isHasInvoice = isHasInvoice
-      }
+
       order.other.containerLCL = containerLCL
 
       await order.save()
@@ -101,18 +88,6 @@ handler.put(async (req, res) => {
 
       order.other.importExport = importExport
       order.other.isTemperatureControlled = isTemperatureControlled
-      if (isHasInvoice && !order.other.invoice) {
-        order.other.isHasInvoice = isHasInvoice
-        order.other.invoice = invoice
-      }
-      if (isHasInvoice && invoice) {
-        order.other.invoice = invoice
-        order.other.isHasInvoice = isHasInvoice
-      }
-      if (!isHasInvoice) {
-        order.other.invoice = null
-        order.other.isHasInvoice = isHasInvoice
-      }
       order.other.containerFCL = containerFCL
       order.other.transportation = transportation
       order.other.commodity = commodity
