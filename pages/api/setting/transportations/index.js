@@ -87,6 +87,7 @@ handler.post(async (req, res) => {
   try {
     const {
       name,
+      reference,
       transportationType,
       cargoType,
       cost,
@@ -199,6 +200,11 @@ handler.post(async (req, res) => {
           .status(404)
           .json({ error: 'Departure or arrival airport not found' })
     }
+
+    const trans = await schemaName.findOne({
+      reference: reference.toUpperCase(),
+    })
+    if (trans) return res.status(400).json({ error: 'Reference already exist' })
 
     const object = await schemaName.create({
       name,

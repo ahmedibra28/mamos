@@ -20,6 +20,7 @@ handler.put(async (req, res) => {
     const {
       name,
       transportationType,
+      reference,
       cargoType,
       cost,
       price,
@@ -36,6 +37,14 @@ handler.put(async (req, res) => {
     const object = await schemaName.findById(id)
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
+
+    // check existence of object
+    const exist = await schemaName.findOne({
+      reference: { $regex: `^${req.body?.reference?.trim()}$`, $options: 'i' },
+      _id: { $ne: id },
+    })
+    if (exist)
+      return res.status(400).json({ error: 'Duplicate value detected' })
 
     const tempCost = Array.isArray(cost) ? cost[0] : cost
     const tempPrice = Array.isArray(price) ? price[0] : price
@@ -140,6 +149,7 @@ handler.put(async (req, res) => {
     object.transportationType = transportationType
     object.cargoType = cargoType
     object.container = container
+    object.reference = reference
     object.departureSeaport = undefinedChecker(departureSeaport)
     object.arrivalSeaport = undefinedChecker(arrivalSeaport)
     object.departureAirport = undefinedChecker(departureAirport)

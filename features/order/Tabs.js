@@ -3,7 +3,9 @@ import moment from 'moment'
 import {
   FaCheckCircle,
   FaCloudDownloadAlt,
-  FaDownload,
+  FaShip,
+  FaPlane,
+  FaTruck,
   FaTimesCircle,
   FaTrash,
 } from 'react-icons/fa'
@@ -69,6 +71,12 @@ const Tabs = ({
             <div className='col-md-8 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
+                  {data?.trackingNo && (
+                    <tr>
+                      <td className='fw-bold'>Booking Reference</td>
+                      <td>{data?.trackingNo}</td>
+                    </tr>
+                  )}
                   {data?.createdAt && (
                     <tr>
                       <td className='fw-bold'>Booking Date</td>
@@ -107,29 +115,71 @@ const Tabs = ({
                   )}
                 </tbody>
               </table>
+
+              <h5 className='fw-bold mt-5'>Transport Plan</h5>
+              {data?.tradelane ? (
+                <table className='table table-striped table-borderless caption-top'>
+                  <caption>
+                    All dates/times are given as reasonable estimates only and
+                    subject to change without prior notice.
+                  </caption>
+                  <tbody>
+                    {data?.tradelane?.map((trade) => (
+                      <tr key={trade?._id}>
+                        <td>
+                          {trade?.tradeType === 'ship' && (
+                            <FaShip className='text-primary fs-1' />
+                          )}
+                          {trade?.tradeType === 'track' && (
+                            <FaTruck className='text-primary fs-1' />
+                          )}
+                          {trade?.tradeType === 'plane' && (
+                            <FaPlane className='text-primary fs-1' />
+                          )}
+                        </td>
+                        <td>{moment(trade?.dateTime).format('MMM Do YY')}</td>
+                        <td>{moment(trade?.dateTime).format('LT')}</td>
+                        <td>
+                          <span className='fw-bold'>
+                            {trade?.actionType} {trade?.location}
+                          </span>
+                          <br />
+                          <span>Terminal: {trade?.description}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className='text-danger'>
+                  Sorry, the tradelane for this transport is not available yet!
+                </div>
+              )}
             </div>
             <div className='col-md-4 col-12'>
               <div>
-                <h6 className='fw-bold'>Booking actions</h6>
                 {isPending && (
-                  <button
-                    disabled={
-                      !isPending || isLoadingUpdateToConfirm ? true : false
-                    }
-                    onClick={() => confirmOrderHandler()}
-                    className='btn btn-success w-100 mb-2'
-                  >
-                    {isLoadingUpdateToConfirm ? (
-                      <span className='spinner-border spinner-border-sm' />
-                    ) : (
-                      <>
-                        <span className='float-start'>
-                          <FaCheckCircle className='mb-1' />
-                        </span>
-                        CONFIRM BOOKING
-                      </>
-                    )}
-                  </button>
+                  <>
+                    <h6 className='fw-bold'>Booking actions</h6>
+                    <button
+                      disabled={
+                        !isPending || isLoadingUpdateToConfirm ? true : false
+                      }
+                      onClick={() => confirmOrderHandler()}
+                      className='btn btn-success w-100 mb-2'
+                    >
+                      {isLoadingUpdateToConfirm ? (
+                        <span className='spinner-border spinner-border-sm' />
+                      ) : (
+                        <>
+                          <span className='float-start'>
+                            <FaCheckCircle className='mb-1' />
+                          </span>
+                          CONFIRM BOOKING
+                        </>
+                      )}
+                    </button>
+                  </>
                 )}
                 {data?.status !== 'deleted' && (
                   <button
@@ -546,12 +596,6 @@ const Tabs = ({
                     <tr>
                       <td className='fw-bold'>Gross Weight: </td>
                       <td>{data?.other?.grossWeight} </td>
-                    </tr>
-                  )}
-                  {data?.other?.commodity && (
-                    <tr>
-                      <td className='fw-bold'>Commodity: </td>
-                      <td>{data?.other?.commodity?.name} </td>
                     </tr>
                   )}
                   {data?.other?.commodity && (

@@ -5,7 +5,13 @@ export const config = { api: { bodyParser: false } }
 const __dirname = path.resolve()
 
 const handler = nc()
-handler.use(fileUpload())
+handler.use(
+  fileUpload({
+    limits: { fileSize: 50 * 1024 * 1024 },
+    abortOnLimit: true,
+    responseOnLimit: JSON.stringify({ error: 'File size has been reached!' }),
+  })
+)
 
 handler.post(async (req, res) => {
   // check if there is no files

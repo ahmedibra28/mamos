@@ -75,6 +75,7 @@ handler.post(async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .populate('createdBy', ['name'])
+      .populate('other.transportation')
 
     const result = await query
 

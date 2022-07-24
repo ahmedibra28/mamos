@@ -3,6 +3,7 @@ import db from '../../../config/db'
 import Container from '../../../models/Container'
 import Order from '../../../models/Order'
 import Transportation from '../../../models/Transportation'
+import Tradelane from '../../../models/Tradelane'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
@@ -37,6 +38,15 @@ handler.get(async (req, res) => {
       .populate('other.commodity')
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
+
+    const tradelane = await Tradelane.findOne(
+      {
+        transportation: order?.other?.transportation?._id,
+      },
+      { tradelane: 1 }
+    ).lean()
+
+    order = { ...order, tradelane: tradelane?.tradelane }
 
     order.other.transportation = await Transportation.findById(
       order.other.transportation._id

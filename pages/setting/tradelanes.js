@@ -97,8 +97,8 @@ const Tradelanes = () => {
 
   // TableView
   const table = {
-    header: ['Transportation', 'Status'],
-    body: ['transportation.name', 'status'],
+    header: ['Transportation', 'Reference', 'Status'],
+    body: ['transportation.name', 'transportation.reference', 'status'],
     createdAt: 'createdAt',
     data: data,
   }
@@ -176,7 +176,7 @@ const Tradelanes = () => {
       data: transportationsData?.data?.filter(
         (item) => item.status === 'active'
       ),
-      value: 'name',
+      value: 'reference',
     }),
 
     staticInputSelect({

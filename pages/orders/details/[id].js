@@ -594,6 +594,8 @@ const Details = () => {
     })
   }
   const submitHandlerDocument = (dataObj) => {
+    if (!fileLink) return
+
     mutateAsyncUpdateDocument({
       ...dataObj,
       invoice: fileLink,
@@ -789,14 +791,18 @@ const Details = () => {
         <Message variant='danger'>{error}</Message>
       ) : (
         <div className='bg-light p-3 my-2'>
-          <div className='alert alert-warning'>
-            <FaExclamationCircle className='mb-1 me-2' />
-            You can not edit this order after confirmed
-          </div>
+          {data?.status === 'pending' && (
+            <div className='alert alert-warning'>
+              <FaExclamationCircle className='mb-1 me-2' />
+              You can not edit this order after confirmed
+            </div>
+          )}
           <div className='row'>
             <div className='col-lg-3 col-md-4 col-12'>
               <h6>Shipment Binder </h6>
-              <p className='fw-bold'>{data?.trackingNo}</p>
+              <p className='fw-bold'>
+                {data?.other?.transportation?.reference}
+              </p>
               <p className='fw-bold'>
                 TOTAL PRICE:{' '}
                 <span className='bg-dark text-light p-1 rounded-pill'>

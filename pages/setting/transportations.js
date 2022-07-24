@@ -114,6 +114,7 @@ const Transportations = () => {
     header: [
       'Name',
       'Transportation',
+      'Reference',
       'Cargo',
       'Cost',
       'Price',
@@ -124,6 +125,7 @@ const Transportations = () => {
     body: [
       'name',
       'transportationType',
+      'reference',
       'cargoType',
       'cost',
       'price',
@@ -256,6 +258,14 @@ const Transportations = () => {
         })}
       </div>
     </div>,
+
+    inputText({
+      register,
+      errors,
+      label: 'Reference',
+      name: 'reference',
+      placeholder: 'Enter reference',
+    }),
 
     watch().cargoType === 'AIR' &&
       dynamicInputSelect({

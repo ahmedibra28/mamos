@@ -7,6 +7,7 @@ import Airport from './Airport'
 const transportationScheme = mongoose.Schema(
   {
     name: { type: String, required: true },
+    reference: { type: String, required: true, uppercase: true },
     transportationType: {
       type: String,
       required: true,

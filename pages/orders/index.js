@@ -104,10 +104,11 @@ const OrderOrders = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <td>Tracking ID</td>
+                <td>Booking No.</td>
                 <td>Ordered By</td>
                 <td>Order Date</td>
                 <td>Transportation</td>
+                <td>Reference</td>
                 <td>Cargo Type</td>
                 <td>Status</td>
                 <td>Details</td>
@@ -122,6 +123,7 @@ const OrderOrders = () => {
                     <td>{item?.createdBy?.name}</td>
                     <td>{moment(item?.createdAt).format('lll')}</td>
                     <td>{item?.other?.transportationType}</td>
+                    <td>{item?.other?.transportation?.reference}</td>
                     <td>{item?.other?.cargoType}</td>
                     <td>{item?.status}</td>
                     <td>
