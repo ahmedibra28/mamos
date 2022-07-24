@@ -16,8 +16,12 @@ handler.get(async (req, res) => {
   try {
     const { id } = req.query
 
+    const { role, _id } = req.user
+
+    const admin = role === 'SUPER_ADMIN' && true
+
     let order = await schemaName
-      .findById(id)
+      .findOne(admin ? { _id: id } : { _id: id, createdBy: _id })
       .lean()
       .populate('createdBy', ['name'])
       .populate('pickUp.pickUpTown')
@@ -172,6 +176,7 @@ handler.get(async (req, res) => {
   }
 })
 
+// Not used endpoint
 handler.put(async (req, res) => {
   await db()
   try {
@@ -201,6 +206,7 @@ handler.put(async (req, res) => {
   }
 })
 
+// Not used endpoint
 handler.delete(async (req, res) => {
   await db()
   try {

@@ -15,7 +15,6 @@ const Tabs = ({
   editPickUpHandler,
   modalOther,
   editOtherHandler,
-
   isLoadingUpdateToConfirm,
   isLoadingUpdateToDelete,
 }) => {
@@ -146,46 +145,7 @@ const Tabs = ({
               </div>
               <div className='mt-3'>
                 <h6 className='fw-bold'>Other actions</h6>
-                <button
-                  disabled={!isPending}
-                  data-bs-toggle='modal'
-                  data-bs-target={`#${modalBuyer}`}
-                  onClick={editBuyerHandler}
-                  className='btn btn-primary w-100 mb-2'
-                >
-                  <span className='float-start'>
-                    <FaEdit className='mb-1' />
-                  </span>
-                  UPDATE BUYER DETAILS
-                </button>
-                {data?.pickUp?.pickUpTown?._id && (
-                  <button
-                    disabled={!isPending}
-                    data-bs-toggle='modal'
-                    data-bs-target={`#${modalPickUp}`}
-                    onClick={editPickUpHandler}
-                    className='btn btn-primary w-100 mb-2'
-                  >
-                    <span className='float-start'>
-                      <FaEdit className='mb-1' />
-                    </span>
-                    UPDATE PICK-UP DETAILS
-                  </button>
-                )}
-                {data?.dropOff?.dropOffTown?._id && (
-                  <button
-                    disabled={!isPending}
-                    data-bs-toggle='modal'
-                    data-bs-target={`#${modalDropOff}`}
-                    onClick={editDropOffHandler}
-                    className='btn btn-primary w-100 mb-2'
-                  >
-                    <span className='float-start'>
-                      <FaEdit className='mb-1' />
-                    </span>
-                    UPDATE DROP-OFF DETAILS
-                  </button>
-                )}
+
                 <button
                   disabled={!isPending}
                   data-bs-toggle='modal'
@@ -240,6 +200,21 @@ const Tabs = ({
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className='col-md-4 col-'>
+              <h6 className='fw-bold'>Other actions</h6>
+              <button
+                disabled={!isPending}
+                data-bs-toggle='modal'
+                data-bs-target={`#${modalBuyer}`}
+                onClick={editBuyerHandler}
+                className='btn btn-primary w-100 mb-2'
+              >
+                <span className='float-start'>
+                  <FaEdit className='mb-1' />
+                </span>
+                UPDATE BUYER DETAILS
+              </button>
             </div>
           </div>
         </div>
@@ -299,6 +274,24 @@ const Tabs = ({
                 </tbody>
               </table>
             </div>
+            <div className='col-md-4 col-12'>
+              <h6 className='fw-bold'>Other actions</h6>
+
+              {data?.pickUp?.pickUpTown?._id && (
+                <button
+                  disabled={!isPending}
+                  data-bs-toggle='modal'
+                  data-bs-target={`#${modalPickUp}`}
+                  onClick={editPickUpHandler}
+                  className='btn btn-primary w-100 mb-2'
+                >
+                  <span className='float-start'>
+                    <FaEdit className='mb-1' />
+                  </span>
+                  UPDATE PICK-UP DETAILS
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div
@@ -356,6 +349,24 @@ const Tabs = ({
                   )}
                 </tbody>
               </table>
+            </div>
+            <div className='col-md-4 col-'>
+              <h6 className='fw-bold'>Other actions</h6>
+
+              {data?.dropOff?.dropOffTown?._id && (
+                <button
+                  disabled={!isPending}
+                  data-bs-toggle='modal'
+                  data-bs-target={`#${modalDropOff}`}
+                  onClick={editDropOffHandler}
+                  className='btn btn-primary w-100 mb-2'
+                >
+                  <span className='float-start'>
+                    <FaEdit className='mb-1' />
+                  </span>
+                  UPDATE DROP-OFF DETAILS
+                </button>
+              )}
             </div>
           </div>
         </div>

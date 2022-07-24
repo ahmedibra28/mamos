@@ -14,40 +14,15 @@ handler.get(async (req, res) => {
   await db()
   try {
     const q = req.query && req.query.q
-    const { role, _id } = req.user
 
-    const admin = role === 'SUPER_ADMINs' && true
+    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
 
-    let query
-    if (admin) {
-      query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
-    }
-
-    if (!admin) {
-      query = schemaName.find(
-        q
-          ? { name: { $regex: q, $options: 'i' }, createdAt: _id }
-          : { createdAt: _id }
-      )
-    }
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
-    let total
-
-    if (admin) {
-      total = await schemaName.countDocuments(
-        q ? { name: { $regex: q, $options: 'i' } } : {}
-      )
-    }
-
-    if (!admin) {
-      total = await schemaName.countDocuments(
-        q
-          ? { name: { $regex: q, $options: 'i' }, createdBy: _id }
-          : { createdBy: _id }
-      )
-    }
+    let total = await schemaName.countDocuments(
+      q ? { name: { $regex: q, $options: 'i' } } : {}
+    )
 
     const pages = Math.ceil(total / pageSize)
 

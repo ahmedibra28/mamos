@@ -63,46 +63,42 @@ export default function useOrdersHook(props) {
   )
 
   const updateOrderBuyer = useMutation(
-    async (obj) => await dynamicAPI('put', `${url}/edit/${obj._id}/buyer`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/buyer/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
   const updateOrderPickUp = useMutation(
-    async (obj) =>
-      await dynamicAPI('put', `${url}/edit/${obj._id}/pickup`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/pickup/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
   const updateOrderDropOff = useMutation(
-    async (obj) =>
-      await dynamicAPI('put', `${url}/edit/${obj._id}/dropoff`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/dropoff/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
   const updateOrderOther = useMutation(
-    async (obj) => await dynamicAPI('put', `${url}/edit/${obj._id}/other`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/other/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
   const updateOrderToConfirm = useMutation(
-    async (obj) =>
-      await dynamicAPI('put', `${url}/edit/${obj._id}/confirm`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/confirm/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
   const updateOrderToDelete = useMutation(
-    async (obj) =>
-      await dynamicAPI('put', `${url}/edit/${obj._id}/cancel`, obj),
+    async (obj) => await dynamicAPI('put', `${url}/cancel/${obj._id}`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),

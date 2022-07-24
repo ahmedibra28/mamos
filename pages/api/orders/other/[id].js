@@ -1,8 +1,8 @@
 import nc from 'next-connect'
-import db from '../../../../../config/db'
-import Container from '../../../../../models/Container'
-import Order from '../../../../../models/Order'
-import { isAuth } from '../../../../../utils/auth'
+import db from '../../../../config/db'
+import Container from '../../../../models/Container'
+import Order from '../../../../models/Order'
+import { isAuth } from '../../../../utils/auth'
 
 const schemaName = Order
 
@@ -27,8 +27,16 @@ handler.put(async (req, res) => {
       grossWeight,
     } = req.body
 
+    const { role, _id } = req.user
+
+    const admin = role === 'SUPER_ADMIN' && true
+
     const order = await schemaName
-      .findOne({ _id: id, status: 'pending' })
+      .findOne(
+        admin
+          ? { _id: id, status: 'pending' }
+          : { _id: id, status: 'pending', createdBy: _id }
+      )
       .populate('other.transportation')
 
     if (!order || !order.other.importExport)

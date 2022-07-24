@@ -381,40 +381,44 @@ const Details = () => {
         setFile,
       }),
 
-    dynamicInputSelect({
-      register: registerOther,
-      errors: errorsOther,
-      label: 'Commodity *',
-      name: 'commodity',
-      value: 'name',
-      data:
-        commoditiesData &&
-        commoditiesData?.data?.filter(
-          (commodity) => commodity.status === 'active'
-        ),
-    }),
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'noOfPackages',
-      label: 'No. of Packages',
-      placeholder: 'Enter number of packages',
-    }),
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'grossWeight',
-      label: 'Gross Weight as KG',
-      max: seaFreightKG,
-      placeholder: 'Enter gross weight as KG',
-    }),
-    inputText({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'cargoDescription',
-      label: 'Cargo Description',
-      placeholder: 'Enter cargo description',
-    }),
+    data?.other?.cargoType === 'LCL' &&
+      dynamicInputSelect({
+        register: registerOther,
+        errors: errorsOther,
+        label: 'Commodity *',
+        name: 'commodity',
+        value: 'name',
+        data:
+          commoditiesData &&
+          commoditiesData?.data?.filter(
+            (commodity) => commodity.status === 'active'
+          ),
+      }),
+    data?.other?.cargoType === 'LCL' &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'noOfPackages',
+        label: 'No. of Packages',
+        placeholder: 'Enter number of packages',
+      }),
+    data?.other?.cargoType === 'LCL' &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'grossWeight',
+        label: 'Gross Weight as KG',
+        max: seaFreightKG,
+        placeholder: 'Enter gross weight as KG',
+      }),
+    data?.other?.cargoType === 'LCL' &&
+      inputText({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'cargoDescription',
+        label: 'Cargo Description',
+        placeholder: 'Enter cargo description',
+      }),
   ]
 
   const row = false

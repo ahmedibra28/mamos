@@ -1,7 +1,7 @@
 import nc from 'next-connect'
-import db from '../../../../../config/db'
-import Order from '../../../../../models/Order'
-import { isAuth } from '../../../../../utils/auth'
+import db from '../../../../config/db'
+import Order from '../../../../models/Order'
+import { isAuth } from '../../../../utils/auth'
 
 const schemaName = Order
 
@@ -12,8 +12,15 @@ handler.put(async (req, res) => {
   try {
     const { id } = req.query
     const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
+    const { role, _id } = req.user
 
-    const order = await schemaName.findOne({ _id: id, status: 'pending' })
+    const admin = role === 'SUPER_ADMIN' && true
+
+    const order = await schemaName.findOne(
+      admin
+        ? { _id: id, status: 'pending' }
+        : { _id: id, status: 'pending', createdBy: _id }
+    )
 
     if (!order || !order.buyer.buyerName)
       return res.status(404).json({ error: 'Order not found' })

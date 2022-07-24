@@ -163,7 +163,7 @@ const CustomFormView = ({
                           <div className='row gy-3'>
                             <div className='col-lg-2 col-md-3 col-6'>
                               <label htmlFor='item' className='form-label'>
-                                Package Quantity
+                                Package Qty
                               </label>
                               <input
                                 type='number'

@@ -12,6 +12,9 @@ handler.post(async (req, res) => {
   await db()
   try {
     const { startDate, endDate, status } = req.body
+    const { role, _id } = req.user
+
+    const admin = role === 'SUPER_ADMIN' && true
 
     if (!startDate || !endDate)
       return res.status(404).json({ error: 'Dates must be provided' })
@@ -28,20 +31,41 @@ handler.post(async (req, res) => {
       }
     }
 
-    let query = schemaName.find(
-      status
-        ? { status, createdAt: { $gte: start, $lt: end } }
-        : { createdAt: { $gte: start, $lt: end } }
-    )
+    let query
+    if (admin) {
+      query = schemaName.find(
+        status
+          ? { status, createdAt: { $gte: start, $lt: end } }
+          : { createdAt: { $gte: start, $lt: end } }
+      )
+    }
+    if (!admin) {
+      query = schemaName.find(
+        status
+          ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
+          : { createdAt: { $gte: start, $lt: end }, createdBy: _id }
+      )
+    }
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
-    const total = await schemaName.countDocuments(
-      status
-        ? { status, createdAt: { $gte: start, $lt: end } }
-        : { createdAt: { $gte: start, $lt: end } }
-    )
+    let total
+
+    if (admin) {
+      total = await schemaName.countDocuments(
+        status
+          ? { status, createdAt: { $gte: start, $lt: end } }
+          : { createdAt: { $gte: start, $lt: end } }
+      )
+    }
+    if (!admin) {
+      total = await schemaName.countDocuments(
+        status
+          ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
+          : { createdAt: { $gte: start, $lt: end }, createdBy: _id }
+      )
+    }
 
     const pages = Math.ceil(total / pageSize)
 
