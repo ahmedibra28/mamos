@@ -9,6 +9,7 @@ import {
   FaTimesCircle,
   FaTrash,
 } from 'react-icons/fa'
+import Image from 'next/image'
 
 const Tabs = ({
   data,
@@ -40,7 +41,7 @@ const Tabs = ({
   ]
   return (
     <div>
-      <nav>
+      <nav className='mb-3'>
         <div className='nav nav-tabs' id='nav-tab' role='tablist'>
           {navItems.map((nav, index) => (
             <button
@@ -68,6 +69,96 @@ const Tabs = ({
           tabIndex='0'
         >
           <div className='row gy-3'>
+            <div className='col-md-3 col-12 my-auto text-end'>
+              <label>Place of receipt</label>
+              <h5 className='fw-bold'>Mercin</h5>
+              <label>on 16 Jun, 2022, 9:00</label>
+            </div>
+            <div
+              className='col-md-6 col-12 py-2'
+              style={{ background: '#EBECED' }}
+            >
+              <div className='d-flex justify-content-between'>
+                <div>
+                  <label>Port of loading</label>
+                  <h4 className='fw-bold'>
+                    <Image
+                      width='30'
+                      height='20'
+                      src='https://flagcdn.com/48x36/tr.png'
+                      alt='flag'
+                      className='my-auto'
+                    />{' '}
+                    Mercin, TR
+                  </h4>
+                  <label>Departing 16 Jul, 2022, 9:32</label>
+                </div>
+                <div>
+                  <label>Port of discharge</label>
+                  <h4 className='fw-bold'>
+                    Mogadishu, SO{' '}
+                    <Image
+                      width='30'
+                      height='20'
+                      src='https://flagcdn.com/48x36/so.png'
+                      alt='flag'
+                      className='my-auto'
+                    />
+                  </h4>
+                  <label>Arriving 12 Aug, 2022, 23:40</label>
+                </div>
+              </div>
+              <div className='progress my-2'>
+                <div
+                  className='progress-bar bg-success'
+                  role='progressbar'
+                  aria-label='Segment one'
+                  style={{ width: '50%' }}
+                  aria-valuenow='50'
+                  aria-valuemin='0'
+                  aria-valuemax='100'
+                ></div>
+                <div
+                  className='progress-bar bg-white'
+                  role='progressbar'
+                  aria-label='Segment two'
+                  style={{ width: '25%' }}
+                  aria-valuenow='25'
+                  aria-valuemin='0'
+                  aria-valuemax='100'
+                ></div>
+                <div
+                  className='progress-bar bg-danger'
+                  role='progressbar'
+                  aria-label='Segment three'
+                  style={{ width: '35%' }}
+                  aria-valuenow='35'
+                  aria-valuemin='0'
+                  aria-valuemax='100'
+                ></div>
+              </div>
+              <label>
+                Original transit time <span className='fw-bold'>20 Days </span>
+              </label>{' '}
+              |{' '}
+              <label>
+                Status:{' '}
+                <span className='text-danger fw-bold'>Delayed 12 Days</span>
+              </label>
+              <label>
+                Transport plan change reason:{' '}
+                <span className='fw-bold'>
+                  Due to schedule changes the connection is not feasible and the
+                  transport plan had to be adjusted on a different service
+                </span>
+              </label>
+            </div>
+            <div className='col-md-3 col-12 my-auto'>
+              <label>Place of delivery</label>
+              <h5 className='fw-bold'>Mogadishu</h5>
+              <label>on 12 Aug, 2022, 22:14</label>
+            </div>
+            <br />
             <div className='col-md-8 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
