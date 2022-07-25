@@ -1,1 +1,1 @@
-{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"9f87d24cdd8840459e889f3136bba232","collectionName":"seaports","type":"collection"}
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"69d49f17040c41d88923c1f61f286f7c","collectionName":"seaports","type":"collection"}

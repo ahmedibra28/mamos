@@ -27,6 +27,10 @@ const transportationScheme = mongoose.Schema(
     arrivalAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     departureDate: { type: Date, required: true },
     arrivalDate: { type: Date, required: true },
+    storageFreeGateInDate: { type: Date, required: true },
+    shippingInstructionDate: { type: Date, required: true },
+    vgmDate: { type: Date, required: true },
+    delayDate: { type: Date },
 
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 

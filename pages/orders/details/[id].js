@@ -172,6 +172,7 @@ const Details = () => {
   }
   const editOtherHandler = () => {
     setValueOther('importExport', data?.other?.importExport)
+    setValueOther('trackingNo', data?.trackingNo)
     setValueOther(
       'isTemperatureControlled',
       data?.other?.isTemperatureControlled
@@ -361,6 +362,12 @@ const Details = () => {
     )
 
   const formOther = [
+    inputText({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Tracking No',
+      name: 'trackingNo',
+    }),
     staticInputSelect({
       register: registerOther,
       errors: errorsOther,
@@ -377,7 +384,7 @@ const Details = () => {
         'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
     }),
 
-    data?.other?.cargoType === 'LCL' &&
+    data?.other?.cargoType === 'FCL' &&
       dynamicInputSelect({
         register: registerOther,
         errors: errorsOther,
@@ -390,7 +397,7 @@ const Details = () => {
             (commodity) => commodity.status === 'active'
           ),
       }),
-    data?.other?.cargoType === 'LCL' &&
+    data?.other?.cargoType === 'FCL' &&
       inputNumber({
         register: registerOther,
         errors: errorsOther,
@@ -398,7 +405,7 @@ const Details = () => {
         label: 'No. of Packages',
         placeholder: 'Enter number of packages',
       }),
-    data?.other?.cargoType === 'LCL' &&
+    data?.other?.cargoType === 'FCL' &&
       inputNumber({
         register: registerOther,
         errors: errorsOther,
@@ -407,7 +414,7 @@ const Details = () => {
         max: seaFreightKG,
         placeholder: 'Enter gross weight as KG',
       }),
-    data?.other?.cargoType === 'LCL' &&
+    data?.other?.cargoType === 'FCL' &&
       inputText({
         register: registerOther,
         errors: errorsOther,
@@ -830,7 +837,7 @@ const Details = () => {
             <div className='col-lg-3 col-md-4 col-12'>
               <h6>
                 Arriving on{' '}
-                {moment(data?.other?.transportation?.arrivalDate).format('ll')}
+                {moment(data?.other?.transportation?.delayDate).format('ll')}
               </h6>
               <p>
                 {data?.dropOff?.dropOffSeaport?.name ||

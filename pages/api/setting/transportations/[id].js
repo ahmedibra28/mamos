@@ -30,6 +30,10 @@ handler.put(async (req, res) => {
       arrivalAirport,
       departureDate,
       arrivalDate,
+      vgmDate,
+      storageFreeGateInDate,
+      shippingInstructionDate,
+      delayDate,
       status,
     } = req.body
     let container = req.body.container
@@ -56,11 +60,17 @@ handler.put(async (req, res) => {
           .json({ error: 'Cost must be less than price amount' })
     }
 
-    if (arrivalDate < departureDate)
-      return res
-        .status(400)
-        .json({ error: 'Arrival date must be after departure date' })
-
+    if (
+      arrivalDate < departureDate ||
+      arrivalDate > delayDate ||
+      departureDate < vgmDate ||
+      departureDate < storageFreeGateInDate ||
+      departureDate < shippingInstructionDate
+    )
+      return res.status(400).json({
+        error:
+          'Arrival date must be after (storage free gate in date, shipping instructions date and VGM date)',
+      })
     container = Array.isArray(container) ? container : [container]
 
     container?.map(async (c) => {
@@ -156,6 +166,10 @@ handler.put(async (req, res) => {
     object.arrivalAirport = undefinedChecker(arrivalAirport)
     object.departureDate = departureDate
     object.arrivalDate = arrivalDate
+    object.vgmDate = vgmDate
+    object.storageFreeGateInDate = storageFreeGateInDate
+    object.shippingInstructionDate = shippingInstructionDate
+    object.delayDate = delayDate
     object.status = status
     object.updatedBy = req.user._id
     await object.save()

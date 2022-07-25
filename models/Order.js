@@ -64,7 +64,7 @@ const orderScheme = mongoose.Schema(
       containerFCL: [], // Available only FCL
     },
 
-    trackingNo: { type: String, required: true },
+    trackingNo: { type: String, default: 'waiting' },
     status: {
       type: String,
       enum: ['pending', 'confirmed', 'deleted'],

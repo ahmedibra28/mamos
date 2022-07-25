@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React from 'react'
 import { FaCheckCircle } from 'react-icons/fa'
+import { getDays } from '../utils/helper'
 
 const TransportationItem = ({
   item,
@@ -40,10 +41,7 @@ const TransportationItem = ({
         )}
         <label>
           <span className='fw-bold'>Delivery Duration: </span>
-          {moment(new Date(item?.arrivalDate))
-            .diff(moment(new Date(item?.departureDate)), 'days')
-            .toLocaleString()}{' '}
-          days
+          {getDays(item?.arrivalDate, item?.departureDate)} days
         </label>
 
         <br />

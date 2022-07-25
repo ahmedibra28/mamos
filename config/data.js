@@ -165,14 +165,14 @@ const clientPermissions = [
   {
     name: 'Bookings',
     path: '/orders',
-    menu: 'booking',
+    menu: 'book',
     auth: true,
     description: 'Create New Bookings page',
   },
   {
     name: 'New Booking',
     path: '/orders/bookings',
-    menu: 'booking',
+    menu: 'book',
     auth: true,
     description: 'Booking list page',
   },

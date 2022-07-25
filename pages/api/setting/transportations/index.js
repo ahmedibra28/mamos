@@ -58,6 +58,14 @@ handler.get(async (req, res) => {
       ...trans,
       departureDate: moment(trans.departureDate).format('YYYY-MM-DD'),
       arrivalDate: moment(trans.arrivalDate).format('YYYY-MM-DD'),
+      storageFreeGateInDate: moment(trans.storageFreeGateInDate).format(
+        'YYYY-MM-DD'
+      ),
+      shippingInstructionDate: moment(trans.shippingInstructionDate).format(
+        'YYYY-MM-DD'
+      ),
+      vgmDate: moment(trans.vgmDate).format('YYYY-MM-DD'),
+      delayDate: moment(trans.delayDate).format('YYYY-MM-DD'),
       cost: priceFormat(
         trans?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) ||
           0
@@ -98,6 +106,10 @@ handler.post(async (req, res) => {
       arrivalAirport,
       departureDate,
       arrivalDate,
+      vgmDate,
+      storageFreeGateInDate,
+      shippingInstructionDate,
+      delayDate,
       status,
     } = req.body
     let container = req.body.container
@@ -111,11 +123,17 @@ handler.post(async (req, res) => {
           .status(404)
           .json({ error: 'Cost must be less than price amount' })
     }
-
-    if (arrivalDate < departureDate)
-      return res
-        .status(400)
-        .json({ error: 'Arrival date must be after departure date' })
+    if (
+      arrivalDate < departureDate ||
+      arrivalDate > delayDate ||
+      departureDate < vgmDate ||
+      departureDate < storageFreeGateInDate ||
+      departureDate < shippingInstructionDate
+    )
+      return res.status(400).json({
+        error:
+          'Arrival date must be after (storage free gate in date, shipping instructions date and VGM date)',
+      })
 
     container = Array.isArray(container) ? container : [container]
 
@@ -217,6 +235,10 @@ handler.post(async (req, res) => {
       arrivalAirport: undefinedChecker(arrivalAirport),
       departureDate,
       arrivalDate,
+      vgmDate,
+      storageFreeGateInDate,
+      shippingInstructionDate,
+      delayDate: !delayDate && arrivalDate,
       status,
       createdBy: req.user._id,
     })

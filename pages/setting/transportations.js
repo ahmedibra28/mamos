@@ -12,10 +12,8 @@ import useAirportsHook from '../../utils/api/airports'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
   dynamicInputSelect,
-  inputCheckBox,
   inputDate,
   inputMultipleCheckBox,
-  inputNumber,
   inputText,
   staticInputSelect,
 } from '../../utils/dynamicForm'
@@ -113,7 +111,6 @@ const Transportations = () => {
   const table = {
     header: [
       'Name',
-      'Transportation',
       'Reference',
       'Cargo',
       'Cost',
@@ -124,7 +121,6 @@ const Transportations = () => {
     ],
     body: [
       'name',
-      'transportationType',
       'reference',
       'cargoType',
       'cost',
@@ -142,9 +138,15 @@ const Transportations = () => {
 
     table.body.map((t) => setValue(t, item[t]))
     setValue('departureAirport', item?.departureAirport?._id)
+    setValue('transportationType', item?.transportationType)
     setValue('arrivalAirport', item?.arrivalAirport?._id)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
+    setValue('vgmDate', item?.vgmDate)
+    setValue('storageFreeGateInDate', item?.storageFreeGateInDate)
+    setValue('shippingInstructionDate', item?.shippingInstructionDate)
+    setValue('delayDate', item?.delayDate)
+
     setEdit(true)
     setValue(
       'container',
@@ -197,12 +199,7 @@ const Transportations = () => {
       label: 'Transportation Type',
       name: 'transportationType',
       placeholder: 'Select transportation type',
-      data: [
-        { name: 'track' },
-        { name: 'ship' },
-        { name: 'train' },
-        { name: 'plane' },
-      ],
+      data: [{ name: 'ship' }, { name: 'plane' }],
     }),
 
     staticInputSelect({
@@ -334,6 +331,35 @@ const Transportations = () => {
       label: 'Arrival Date',
       name: 'arrivalDate',
       placeholder: 'Enter arrival date',
+    }),
+    inputDate({
+      register,
+      errors,
+      label: 'Storage free gate in',
+      name: 'storageFreeGateInDate',
+      placeholder: 'Enter storage free gate in',
+    }),
+    inputDate({
+      register,
+      errors,
+      label: 'Shipping instruction',
+      name: 'shippingInstructionDate',
+      placeholder: 'Enter shipping instruction',
+    }),
+    inputDate({
+      register,
+      errors,
+      label: 'Customer declaration & VGM date',
+      name: 'vgmDate',
+      placeholder: 'Enter customer declaration and VGM date',
+    }),
+    inputDate({
+      register,
+      errors,
+      label: 'Delay Date to',
+      name: 'delayDate',
+      placeholder: 'Enter delay date to',
+      isRequired: false,
     }),
 
     staticInputSelect({

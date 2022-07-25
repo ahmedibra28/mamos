@@ -327,15 +327,7 @@ handler.post(async (req, res) => {
       containerFCL, // Available only FCL
     }
 
-    const lastRecord = await Order.findOne(
-      {},
-      { trackingNo: 1 },
-      { sort: { createdAt: -1 } }
-    )
-
-    const trackingNo = lastRecord
-      ? autoIncrement(lastRecord.trackingNo)
-      : autoIncrement('MB000000')
+    const trackingNo = 'waiting'
 
     if (cargoType === 'FCL' && transportationType !== 'plane') {
       const data = await FCL({ buyer, pickUp, dropOff, other, res })

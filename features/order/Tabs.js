@@ -10,6 +10,7 @@ import {
   FaTrash,
 } from 'react-icons/fa'
 import Image from 'next/image'
+import { getDays } from '../../utils/helper'
 
 const Tabs = ({
   data,
@@ -39,6 +40,37 @@ const Tabs = ({
     'Documents',
     'Other',
   ]
+
+  const originalDays = getDays(
+    data?.other?.transportation?.arrivalDate,
+    data?.other?.transportation?.departureDate
+  )
+
+  const traveledDays = getDays(
+    moment().format(),
+    data?.other?.transportation?.departureDate
+  )
+
+  let delayedDays =
+    getDays(
+      data?.other?.transportation?.delayDate,
+      data?.other?.transportation?.arrivalDate
+    ) <= 0
+      ? 0
+      : getDays(
+          data?.other?.transportation?.delayDate,
+          data?.other?.transportation?.arrivalDate
+        )
+
+  const durationDays = originalDays + delayedDays
+  delayedDays = traveledDays >= durationDays ? 0 : delayedDays
+
+  const remainingDays =
+    traveledDays >= durationDays ? 0 : durationDays - traveledDays
+  const delayedDaysPercentage = (delayedDays * 100) / durationDays
+  const traveledDaysPercentage = (traveledDays * 100) / durationDays
+  const remainingDaysPercentage = (remainingDays * 100) / durationDays
+
   return (
     <div>
       <nav className='mb-3'>
@@ -71,8 +103,16 @@ const Tabs = ({
           <div className='row gy-3'>
             <div className='col-md-3 col-12 my-auto text-end'>
               <label>Place of receipt</label>
-              <h5 className='fw-bold'>Mercin</h5>
-              <label>on 16 Jun, 2022, 9:00</label>
+              <h5 className='fw-bold'>
+                {data?.pickUp?.pickUpSeaport?.name ||
+                  data?.pickUp?.pickUpAirport?.name}
+              </h5>
+              <label>
+                on{' '}
+                {moment(data?.other?.transportation?.departureDate).format(
+                  'MMM Do YYYY'
+                )}
+              </label>
             </div>
             <div
               className='col-md-6 col-12 py-2'
@@ -80,32 +120,45 @@ const Tabs = ({
             >
               <div className='d-flex justify-content-between'>
                 <div>
-                  <label>Port of loading</label>
-                  <h4 className='fw-bold'>
-                    <Image
+                  <label>Place of loading</label>
+                  <h5 className='fw-bold'>
+                    {/* <Image
                       width='30'
                       height='20'
                       src='https://flagcdn.com/48x36/tr.png'
                       alt='flag'
                       className='my-auto'
-                    />{' '}
-                    Mercin, TR
-                  </h4>
-                  <label>Departing 16 Jul, 2022, 9:32</label>
+                    />*/}
+                    {data?.pickUp?.pickUpSeaport?.name ||
+                      data?.pickUp?.pickUpAirport?.name}
+                  </h5>
+                  <label>
+                    Departing{' '}
+                    {moment(data?.other?.transportation?.departureDate).format(
+                      'MMM Do YYYY'
+                    )}
+                  </label>
                 </div>
                 <div>
-                  <label>Port of discharge</label>
-                  <h4 className='fw-bold'>
-                    Mogadishu, SO{' '}
-                    <Image
+                  <label>Place of discharge</label>
+                  <h5 className='fw-bold'>
+                    {data?.dropOff?.dropOffSeaport?.name ||
+                      data?.dropOff?.dropOffAirport?.name}
+                    {/* , {data?.dropOff?.dropOffCountry?.name} */}
+                    {/* <Image
                       width='30'
                       height='20'
                       src='https://flagcdn.com/48x36/so.png'
                       alt='flag'
                       className='my-auto'
-                    />
-                  </h4>
-                  <label>Arriving 12 Aug, 2022, 23:40</label>
+                    /> */}
+                  </h5>
+                  <label>
+                    Arriving{' '}
+                    {moment(data?.other?.transportation?.delayDate).format(
+                      'll'
+                    )}
+                  </label>
                 </div>
               </div>
               <div className='progress my-2'>
@@ -113,8 +166,8 @@ const Tabs = ({
                   className='progress-bar bg-success'
                   role='progressbar'
                   aria-label='Segment one'
-                  style={{ width: '50%' }}
-                  aria-valuenow='50'
+                  style={{ width: `${traveledDaysPercentage}%` }}
+                  aria-valuenow={traveledDaysPercentage}
                   aria-valuemin='0'
                   aria-valuemax='100'
                 ></div>
@@ -122,8 +175,10 @@ const Tabs = ({
                   className='progress-bar bg-white'
                   role='progressbar'
                   aria-label='Segment two'
-                  style={{ width: '25%' }}
-                  aria-valuenow='25'
+                  style={{
+                    width: `${remainingDaysPercentage}%`,
+                  }}
+                  aria-valuenow={remainingDaysPercentage}
                   aria-valuemin='0'
                   aria-valuemax='100'
                 ></div>
@@ -131,32 +186,49 @@ const Tabs = ({
                   className='progress-bar bg-danger'
                   role='progressbar'
                   aria-label='Segment three'
-                  style={{ width: '35%' }}
-                  aria-valuenow='35'
+                  style={{ width: `${delayedDaysPercentage}%` }}
+                  aria-valuenow={delayedDaysPercentage}
                   aria-valuemin='0'
                   aria-valuemax='100'
                 ></div>
               </div>
               <label>
-                Original transit time <span className='fw-bold'>20 Days </span>
-              </label>{' '}
-              |{' '}
-              <label>
-                Status:{' '}
-                <span className='text-danger fw-bold'>Delayed 12 Days</span>
+                Original transit time{' '}
+                <span className='fw-bold'>{originalDays} Days</span>
               </label>
-              <label>
-                Transport plan change reason:{' '}
-                <span className='fw-bold'>
-                  Due to schedule changes the connection is not feasible and the
-                  transport plan had to be adjusted on a different service
-                </span>
-              </label>
+              {delayedDays > 0 && (
+                <>
+                  {' | '}
+                  <label>
+                    Status:{' '}
+                    <span className='text-danger fw-bold'>
+                      Delayed {delayedDays} Days
+                    </span>
+                  </label>
+
+                  <label>
+                    Transport plan change reason:{' '}
+                    <span className='fw-bold'>
+                      Due to schedule changes the connection is not feasible and
+                      the transport plan had to be adjusted on a different
+                      service
+                    </span>
+                  </label>
+                </>
+              )}
             </div>
-            <div className='col-md-3 col-12 my-auto'>
+            <div className='col-md-3 col-12 my-auto text-start'>
               <label>Place of delivery</label>
-              <h5 className='fw-bold'>Mogadishu</h5>
-              <label>on 12 Aug, 2022, 22:14</label>
+              <h5 className='fw-bold'>
+                {data?.dropOff?.dropOffSeaport?.name ||
+                  data?.dropOff?.dropOffAirport?.name}
+              </h5>
+              <label>
+                on{' '}
+                {moment(data?.other?.transportation?.delayDate).format(
+                  'MMM Do YYYY'
+                )}
+              </label>
             </div>
             <br />
             <div className='col-md-8 col-12'>
@@ -203,6 +275,40 @@ const Tabs = ({
                         </span>
                       </td>
                     </tr>
+                  )}
+                </tbody>
+              </table>
+
+              <h5 className='fw-bold mt-5'>Containers Details </h5>
+              <table className='table table-striped table-borderless mt-2'>
+                <tbody>
+                  {data?.other?.transportation && (
+                    <>
+                      <tr>
+                        <td className='fw-bold'>Storage Free Gate In</td>
+                        <td>
+                          {moment(
+                            data?.other?.transportation?.storageFreeGateInDate
+                          ).format('MMM Do YYYY')}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='fw-bold'>Shipping Instructions</td>
+                        <td>
+                          {moment(
+                            data?.other?.transportation?.shippingInstructionDate
+                          ).format('MMM Do YYYY')}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='fw-bold'>Customs Declaration & VGM</td>
+                        <td>
+                          {moment(data?.other?.transportation?.vgmDate).format(
+                            'MMM Do YYYY'
+                          )}
+                        </td>
+                      </tr>
+                    </>
                   )}
                 </tbody>
               </table>
@@ -686,7 +792,7 @@ const Tabs = ({
                   {data?.other?.grossWeight && (
                     <tr>
                       <td className='fw-bold'>Gross Weight: </td>
-                      <td>{data?.other?.grossWeight} </td>
+                      <td>{data?.other?.grossWeight} KG </td>
                     </tr>
                   )}
                   {data?.other?.commodity && (
@@ -724,6 +830,18 @@ const Tabs = ({
                   <FaEdit className='mb-1' />
                 </span>
                 UPDATE OTHER DETAILS
+              </button>
+              <button
+                disabled={!isPending}
+                data-bs-toggle='modal'
+                data-bs-target={`#${modalOther}`}
+                onClick={editOtherHandler}
+                className='btn btn-warning w-100 mb-2'
+              >
+                <span className='float-start'>
+                  <FaEdit className='mb-1' />
+                </span>
+                CHANGE BOOKING DATE
               </button>
             </div>
           </div>
