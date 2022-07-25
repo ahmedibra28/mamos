@@ -1,37 +1,33 @@
-import { Spinner, Message } from '..'
-import { dynamicInputSelect } from '../utils/dynamicForm'
+import { Spinner } from './Spinner'
+import TransportationItem from './TransportationItem'
 
-const FormUserRoles = ({
-  edit,
+const TransportationModalForm = ({
+  modalSize,
+  modal,
+  label,
   formCleanHandler,
   isLoading,
-  register,
-  isError,
-  errors,
-  watch,
-  isLoadingUpdate,
-  isLoadingPost,
-  handleSubmit,
+  selectedTransportation,
+  setSelectedTransportation,
+  transportationData,
+  isLoadingTransportations,
   submitHandler,
-  error,
-  dataRoles,
-  dataUsers,
 }) => {
   return (
     <div
       className='modal fade'
-      id='userRoleModal'
+      id={modal}
       data-bs-backdrop='static'
       data-bs-keyboard='false'
       tabIndex='-1'
-      aria-labelledby='userRoleModalLabel'
+      aria-labelledby={`${modal}Label`}
       aria-hidden='true'
     >
-      <div className='modal-dialog'>
+      <div className={`modal-dialog ${modalSize}`}>
         <div className='modal-content modal-background'>
           <div className='modal-header'>
-            <h3 className='modal-title ' id='userRoleModalLabel'>
-              {edit ? 'Edit UserRole' : 'Post UserRole'}
+            <h3 className='modal-title ' id={`${modal}Label`}>
+              {label}
             </h3>
             <button
               type='button'
@@ -42,62 +38,48 @@ const FormUserRoles = ({
             ></button>
           </div>
           <div className='modal-body'>
-            {isLoading ? (
+            {isLoadingTransportations ? (
               <Spinner />
-            ) : isError ? (
-              <Message variant='danger'>{error}</Message>
             ) : (
-              <form onSubmit={handleSubmit(submitHandler)}>
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'User',
-                  name: 'user',
-                  placeholder: 'User',
-                  value: 'name',
-                  data:
-                    dataUsers &&
-                    dataUsers.data &&
-                    dataUsers.data.filter(
-                      (user) => user.confirmed && !user.blocked
-                    ),
-                  placeholder: 'User',
-                })}
-
-                {dynamicInputSelect({
-                  register,
-                  errors,
-                  label: 'Role',
-                  name: 'role',
-                  placeholder: 'Role',
-                  data: dataRoles && dataRoles.data,
-                  placeholder: 'Role',
-                  value: 'name',
-                })}
-
-                <div className='modal-footer'>
-                  <button
-                    type='button'
-                    className='btn btn-secondary '
-                    data-bs-dismiss='modal'
-                    onClick={formCleanHandler}
+              <div className='row gy-3'>
+                {transportationData?.map((item) => (
+                  <div
+                    key={item._id}
+                    className='col-lg-3 col-md-4 col-sm-6 col-12'
                   >
-                    Close
-                  </button>
-                  <button
-                    type='submit'
-                    className='btn btn-primary '
-                    disabled={isLoadingPost || isLoadingUpdate}
-                  >
-                    {isLoadingPost || isLoadingUpdate ? (
-                      <span className='spinner-border spinner-border-sm' />
-                    ) : (
-                      'Submit'
-                    )}
-                  </button>
-                </div>
-              </form>
+                    <TransportationItem
+                      item={item}
+                      setSelectedTransportation={setSelectedTransportation}
+                      selectedTransportation={selectedTransportation}
+                      setSelectContainer={() => {}}
+                      cargoType={item[0]?.cargoType}
+                    />
+                  </div>
+                ))}
+              </div>
             )}
+            <div className='modal-footer'>
+              <button
+                type='button'
+                className='btn btn-secondary '
+                data-bs-dismiss='modal'
+                onClick={formCleanHandler}
+              >
+                Close
+              </button>
+              <button
+                type='button'
+                onClick={submitHandler}
+                className='btn btn-primary '
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className='spinner-border spinner-border-sm' />
+                ) : (
+                  'Submit'
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -105,4 +87,4 @@ const FormUserRoles = ({
   )
 }
 
-export default FormUserRoles
+export default TransportationModalForm

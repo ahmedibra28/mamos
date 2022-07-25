@@ -25,6 +25,7 @@ import useTownsHook from '../../../utils/api/towns'
 import useCommoditiesHook from '../../../utils/api/commodities'
 import CustomFormView from '../../../components/CustomFormView'
 import Tabs from '../../../features/order/Tabs'
+import TransportationModalForm from '../../../components/ModalForm'
 
 const Details = () => {
   const router = useRouter()
@@ -34,6 +35,7 @@ const Details = () => {
   const [fileLink, setFileLink] = useState(null)
   const [selectedTransportation, setSelectedTransportation] = useState(null)
   const [selectContainer, setSelectContainer] = useState([])
+  const [transportationsData, setTransportationsData] = useState([])
   const [inputFields, setInputFields] = useState([
     {
       qty: 0,
@@ -53,6 +55,8 @@ const Details = () => {
     updateOrderToConfirm,
     updateOrderToDelete,
     updateOrderDocument,
+    updateOrderBookingDate,
+    postAvailableTransportations,
   } = useOrdersHook({
     id,
   })
@@ -123,6 +127,29 @@ const Details = () => {
     mutateAsync: mutateAsyncUpdateDocument,
     isSuccess: isSuccessUpdateDocument,
   } = updateOrderDocument
+  const {
+    isLoading: isLoadingUpdateBookingDate,
+    isError: isErrorUpdateBookingDate,
+    error: errorUpdateBookingDate,
+    mutateAsync: mutateAsyncUpdateBookingDate,
+    isSuccess: isSuccessUpdateBookingDate,
+  } = updateOrderBookingDate
+
+  const {
+    data: transportationData,
+    mutateAsync: transportationsMutateAsync,
+    isLoading: isLoadingTransportations,
+    isError: isErrorTransportations,
+    error: errorTransportations,
+    isSuccess: isSuccessTransactions,
+  } = postAvailableTransportations
+
+  useEffect(() => {
+    if (isSuccessTransactions) {
+      setTransportationsData(transportationData)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessTransactions])
 
   useEffect(() => {
     if (isSuccessUpload) {
@@ -193,6 +220,17 @@ const Details = () => {
     if (data?.other?.isHasInvoice) {
       setFileLink(data?.other?.invoice)
     }
+  }
+
+  const editBookingDateHandler = () => {
+    transportationsMutateAsync({
+      transportationType: data?.other?.transportationType,
+      pickUpAirport: data?.pickUp?.pickUpAirport,
+      pickUpSeaport: data?.pickUp?.pickUpSeaport,
+      dropOffAirport: data?.dropOff?.dropOffAirport,
+      dropOffSeaport: data?.dropOff?.dropOffSeaport,
+      cargoType: data?.other?.cargoType,
+    })
   }
 
   const {
@@ -470,6 +508,9 @@ const Details = () => {
   const labelDocument = 'Document'
   const modalDocument = 'document'
 
+  const labelBookingDate = 'Change Booking Date'
+  const modalBookingDate = 'bookingDate'
+
   const formCleanHandler = () => {
     resetBuyer()
     resetPickUp()
@@ -479,6 +520,7 @@ const Details = () => {
     setFileLink(null)
     setSelectedTransportation(null)
     setSelectContainer([])
+    setTransportationsData([])
     setInputFields([
       {
         qty: 0,
@@ -498,7 +540,8 @@ const Details = () => {
       isSuccessUpdateOther ||
       isSuccessUpdateToConfirm ||
       isSuccessUpdateToDelete ||
-      isSuccessUpdateDocument
+      isSuccessUpdateDocument ||
+      isSuccessUpdateBookingDate
     )
       formCleanHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -510,6 +553,7 @@ const Details = () => {
     isSuccessUpdateToConfirm,
     isSuccessUpdateToDelete,
     isSuccessUpdateDocument,
+    isSuccessUpdateBookingDate,
   ])
 
   const handleAddField = () => {
@@ -610,6 +654,13 @@ const Details = () => {
     })
   }
 
+  const submitHandlerBookingDate = (dataObj) => {
+    mutateAsyncUpdateBookingDate({
+      _id: id,
+      selectedTransportation,
+    })
+  }
+
   const TOTAL_CBM = inputFields
     ?.reduce(
       (acc, curr) => acc + (curr.length * curr.width * curr.height) / 1000,
@@ -686,12 +737,26 @@ const Details = () => {
           Order has been cancelled successfully
         </Message>
       )}
+
+      {isSuccessUpdateBookingDate && (
+        <Message variant='success'>
+          Booking date has been changed successfully
+        </Message>
+      )}
       {isErrorUpdateToDelete && (
         <Message variant='danger'>{errorUpdateToDelete}</Message>
       )}
 
       {isErrorUpdateDocument && (
         <Message variant='danger'>{errorUpdateDocument}</Message>
+      )}
+
+      {isErrorUpdateBookingDate && (
+        <Message variant='danger'>{errorUpdateBookingDate}</Message>
+      )}
+
+      {isErrorTransportations && (
+        <Message variant='danger'>{errorTransportations}</Message>
       )}
 
       {/* Buyer Modal Form */}
@@ -792,6 +857,23 @@ const Details = () => {
         modalSize={modalSize}
       />
 
+      {/* Update booking date */}
+      <TransportationModalForm
+        formCleanHandler={formCleanHandler}
+        isLoading={isLoadingUpdateBookingDate}
+        modal={modalBookingDate}
+        label={labelBookingDate}
+        modalSize={'modal-xl'}
+        editBookingDateHandler={editBookingDateHandler}
+        selectedTransportation={selectedTransportation}
+        setSelectedTransportation={setSelectedTransportation}
+        transportationData={transportationsData?.filter(
+          (t) => t.status === 'active'
+        )}
+        isLoadingTransportations={isLoadingTransportations}
+        submitHandler={submitHandlerBookingDate}
+      />
+
       {isLoading ? (
         <Spinner />
       ) : isError ? (
@@ -864,6 +946,8 @@ const Details = () => {
             cancelOrderHandler={cancelOrderHandler}
             isLoadingUpdateToConfirm={isLoadingUpdateToConfirm}
             isLoadingUpdateToDelete={isLoadingUpdateToDelete}
+            editBookingDateHandler={editBookingDateHandler}
+            modalBookingDate={modalBookingDate}
           />
         </div>
       )}

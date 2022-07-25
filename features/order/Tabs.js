@@ -29,6 +29,8 @@ const Tabs = ({
   editDocumentHandler,
   isLoadingUpdateToConfirm,
   isLoadingUpdateToDelete,
+  editBookingDateHandler,
+  modalBookingDate,
 }) => {
   const isPending = data?.status === 'pending' ? true : false
   const navItems = [
@@ -834,8 +836,8 @@ const Tabs = ({
               <button
                 disabled={!isPending}
                 data-bs-toggle='modal'
-                data-bs-target={`#${modalOther}`}
-                onClick={editOtherHandler}
+                data-bs-target={`#${modalBookingDate}`}
+                onClick={editBookingDateHandler}
                 className='btn btn-warning w-100 mb-2'
               >
                 <span className='float-start'>

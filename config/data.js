@@ -752,6 +752,13 @@ const permissions = [
     name: 'Document Booking',
     method: 'PUT',
   },
+  {
+    description: 'Update Booking Date',
+    route: '/api/orders/booking/:id',
+    auth: true,
+    name: 'Change Booking Booking',
+    method: 'PUT',
+  },
 ]
 
 export { roles, users, profile, permissions, clientPermissions }

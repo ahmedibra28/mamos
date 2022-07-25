@@ -111,6 +111,13 @@ export default function useOrdersHook(props) {
       onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
     }
   )
+  const updateOrderBookingDate = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/booking/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
 
   return {
     getOrders,
@@ -127,5 +134,6 @@ export default function useOrdersHook(props) {
     updateOrderToConfirm,
     updateOrderToDelete,
     updateOrderDocument,
+    updateOrderBookingDate,
   }
 }
