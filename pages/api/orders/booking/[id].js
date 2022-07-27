@@ -15,6 +15,9 @@ handler.put(async (req, res) => {
     const { selectedTransportation } = req.body
     const { role, _id } = req.user
 
+    if (selectedTransportation?.cargoType !== 'FCL')
+      return res.status(400).json({ error: 'Invalid cargo type request' })
+
     const admin = role === 'SUPER_ADMIN' && true
 
     const order = await schemaName

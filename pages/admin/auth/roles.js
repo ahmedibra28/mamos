@@ -7,11 +7,9 @@ import { useForm } from 'react-hook-form'
 import useRolesHook from '../../../utils/api/roles'
 import { Spinner, Pagination, Message, Confirm } from '../../../components'
 import {
-  inputCheckBox,
   inputMultipleCheckBox,
   inputText,
   inputTextArea,
-  staticInputSelect,
 } from '../../../utils/dynamicForm'
 import TableView from '../../../components/TableView'
 import FormView from '../../../components/FormView'
@@ -52,6 +50,16 @@ const Roles = () => {
   const { data, isLoading, isError, error, refetch } = getRoles
   const { data: permissionData } = getPermissions
   const { data: clientPermissionData } = getClientPermissions
+
+  const uniqueGroups = [
+    ...new Set(permissionData?.data?.map((item) => item.name)),
+  ]
+
+  const group = uniqueGroups?.map((group) => ({
+    [group]: permissionData?.data?.filter(
+      (permission) => permission?.name === group
+    ),
+  }))
 
   const {
     isLoading: isLoadingUpdate,
@@ -112,14 +120,29 @@ const Roles = () => {
     table.body.map((t) => setValue(t, item[t]))
     setEdit(true)
 
-    setValue(
-      'permission',
-      item.permission && item.permission.map((item) => item._id)
-    )
+    // setValue(
+    //   'permission',
+    //   item.permission && item.permission.map((item) => item._id)
+    // )
     setValue(
       'clientPermission',
       item.clientPermission && item.clientPermission.map((item) => item._id)
     )
+
+    const uniqueGroups = [...new Set(item.permission?.map((item) => item.name))]
+
+    const group = uniqueGroups?.map((group) => ({
+      [group]: permissionData?.data?.filter(
+        (permission) => permission?.name === group
+      ),
+    }))
+
+    // console.log(group.map((g) => Object.values(g[0])[0]))
+
+    // setValue(
+    //   'permission',
+    //   group?.map((item) => item._id)
+    // )
   }
 
   const deleteHandler = (id) => {
@@ -147,6 +170,9 @@ const Roles = () => {
         })
       : mutateAsyncPost(data)
   }
+  // console.log(JSON.stringify(Object.values(group[4])[0]))
+  // console.log(group?.slice(0, 6)?.map((g) => Object.values(g)[0]))
+  // console.log(Object.values(group[4])[0])
 
   const form = [
     inputText({
@@ -157,20 +183,42 @@ const Roles = () => {
       placeholder: 'Enter name',
     }),
 
-    inputMultipleCheckBox({
-      register,
-      errors,
-      label: 'Permission',
-      name: 'permission',
-      placeholder: 'Permission',
-      data:
-        permissionData &&
-        permissionData?.data?.map((item) => ({
-          name: `${item.method} - ${item.description}`,
-          _id: item._id,
-        })),
-      isRequired: false,
-    }),
+    group?.length > 0 &&
+      group?.map((g, i) => (
+        <>
+          <label className='fw-bold fs-5' key={i}>
+            {group?.length > 0 && Object.keys(g)[0]}
+          </label>
+          {inputMultipleCheckBox({
+            register,
+            errors,
+            label: 'Permission1',
+            name: 'permission1',
+            placeholder: 'Permission1',
+            data:
+              group?.length > 0 &&
+              Object.values(g)[0]?.map((item) => ({
+                name: `${item.method} - ${item.description}`,
+                _id: item._id,
+              })),
+            isRequired: false,
+          })}
+        </>
+      )),
+    // inputMultipleCheckBox({
+    //   register,
+    //   errors,
+    //   label: 'Permission',
+    //   name: 'permission',
+    //   placeholder: 'Permission',
+    //   data:
+    //     permissionData &&
+    //     permissionData?.data?.map((item) => ({
+    //       name: `${item.method} - ${item.description}`,
+    //       _id: item._id,
+    //     })),
+    //   isRequired: false,
+    // }),
 
     inputTextArea({
       register,
@@ -229,6 +277,9 @@ const Roles = () => {
       <div className='ms-auto text-end'>
         <Pagination data={table.data} setPage={setPage} />
       </div>
+      {/*  */}
+      {/* {Object?.values(group[0].name)} */}
+      {/* {console.log(group)} */}
 
       <FormView
         edit={edit}

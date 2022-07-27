@@ -57,6 +57,7 @@ const Details = () => {
     updateOrderDocument,
     updateOrderBookingDate,
     postAvailableTransportations,
+    updateOrderPayment,
   } = useOrdersHook({
     id,
   })
@@ -68,6 +69,8 @@ const Details = () => {
   const { data, isLoading, isError, error } = getOrderDetails
   const { data: townsData } = getTowns
   const { data: commoditiesData } = getCommodities
+
+  const [payment, setPayment] = useState('')
 
   const {
     data: dataUpload,
@@ -143,6 +146,14 @@ const Details = () => {
     error: errorTransportations,
     isSuccess: isSuccessTransactions,
   } = postAvailableTransportations
+
+  const {
+    isLoading: isLoadingUpdatePayment,
+    isError: isErrorUpdatePayment,
+    error: errorUpdatePayment,
+    mutateAsync: mutateAsyncUpdatePayment,
+    isSuccess: isSuccessUpdatePayment,
+  } = updateOrderPayment
 
   useEffect(() => {
     if (isSuccessTransactions) {
@@ -533,6 +544,17 @@ const Details = () => {
   }
 
   useEffect(() => {
+    setPayment(data?.other?.payment)
+  }, [data])
+
+  useEffect(() => {
+    if (isSuccessUpdatePayment) {
+      setPayment(data?.other?.payment)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessUpdatePayment])
+
+  useEffect(() => {
     if (
       isSuccessUpdateBuyer ||
       isSuccessUpdatePickUp ||
@@ -541,7 +563,8 @@ const Details = () => {
       isSuccessUpdateToConfirm ||
       isSuccessUpdateToDelete ||
       isSuccessUpdateDocument ||
-      isSuccessUpdateBookingDate
+      isSuccessUpdateBookingDate ||
+      isSuccessUpdatePayment
     )
       formCleanHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -554,6 +577,7 @@ const Details = () => {
     isSuccessUpdateToDelete,
     isSuccessUpdateDocument,
     isSuccessUpdateBookingDate,
+    isSuccessUpdatePayment,
   ])
 
   const handleAddField = () => {
@@ -644,6 +668,7 @@ const Details = () => {
       containerFCL: selectContainer,
     })
   }
+
   const submitHandlerDocument = (dataObj) => {
     if (!fileLink) return
 
@@ -654,13 +679,17 @@ const Details = () => {
     })
   }
 
-  const submitHandlerBookingDate = (dataObj) => {
+  const submitHandlerBookingDate = () => {
     mutateAsyncUpdateBookingDate({
       _id: id,
       selectedTransportation,
     })
   }
 
+  const updatePayment = () => {
+    console.log('payment has updated', { payment })
+    mutateAsyncUpdatePayment({ _id: id, payment })
+  }
   const TOTAL_CBM = inputFields
     ?.reduce(
       (acc, curr) => acc + (curr.length * curr.width * curr.height) / 1000,
@@ -743,6 +772,13 @@ const Details = () => {
           Booking date has been changed successfully
         </Message>
       )}
+
+      {isSuccessUpdatePayment && (
+        <Message variant='success'>
+          Payment has been updated successfully
+        </Message>
+      )}
+
       {isErrorUpdateToDelete && (
         <Message variant='danger'>{errorUpdateToDelete}</Message>
       )}
@@ -753,6 +789,10 @@ const Details = () => {
 
       {isErrorUpdateBookingDate && (
         <Message variant='danger'>{errorUpdateBookingDate}</Message>
+      )}
+
+      {isErrorUpdatePayment && (
+        <Message variant='danger'>{errorUpdatePayment}</Message>
       )}
 
       {isErrorTransportations && (
@@ -948,6 +988,10 @@ const Details = () => {
             isLoadingUpdateToDelete={isLoadingUpdateToDelete}
             editBookingDateHandler={editBookingDateHandler}
             modalBookingDate={modalBookingDate}
+            payment={payment}
+            setPayment={setPayment}
+            isLoadingUpdatePayment={isLoadingUpdatePayment}
+            updatePayment={updatePayment}
           />
         </div>
       )}

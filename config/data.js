@@ -183,6 +183,13 @@ const clientPermissions = [
     auth: true,
     description: 'Booking details page',
   },
+  {
+    name: 'Booking Report',
+    path: '/reports/bookings',
+    menu: 'report',
+    auth: true,
+    description: 'Booking reports page',
+  },
 ]
 
 const permissions = [
@@ -758,6 +765,20 @@ const permissions = [
     auth: true,
     name: 'Change Booking Booking',
     method: 'PUT',
+  },
+  {
+    description: 'Update Booking Payment',
+    route: '/api/orders/payment/:id',
+    auth: true,
+    name: 'Booking Payment',
+    method: 'PUT',
+  },
+  {
+    description: 'Bookings Report',
+    route: '/api/reports/bookings',
+    auth: true,
+    name: 'Booking Report',
+    method: 'GET',
   },
 ]
 

@@ -119,6 +119,14 @@ export default function useOrdersHook(props) {
     }
   )
 
+  const updateOrderPayment = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/payment/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -135,5 +143,6 @@ export default function useOrdersHook(props) {
     updateOrderToDelete,
     updateOrderDocument,
     updateOrderBookingDate,
+    updateOrderPayment,
   }
 }

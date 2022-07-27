@@ -56,6 +56,7 @@ const orderScheme = mongoose.Schema(
       noOfPackages: String,
       grossWeight: String,
       invoice: String,
+      payment: String,
       transportation: {
         type: mongoose.Schema.Types.ObjectId,
         ref: Transportation,

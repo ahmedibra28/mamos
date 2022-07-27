@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
 import {
   FaCheckCircle,
@@ -8,8 +8,8 @@ import {
   FaTruck,
   FaTimesCircle,
   FaTrash,
+  FaPaperPlane,
 } from 'react-icons/fa'
-import Image from 'next/image'
 import { getDays } from '../../utils/helper'
 
 const Tabs = ({
@@ -31,6 +31,9 @@ const Tabs = ({
   isLoadingUpdateToDelete,
   editBookingDateHandler,
   modalBookingDate,
+  payment,
+  setPayment,
+  updatePayment,
 }) => {
   const isPending = data?.status === 'pending' ? true : false
   const navItems = [
@@ -41,6 +44,7 @@ const Tabs = ({
     'Prices',
     'Documents',
     'Other',
+    'Payments',
   ]
 
   const originalDays = getDays(
@@ -72,6 +76,27 @@ const Tabs = ({
   const delayedDaysPercentage = (delayedDays * 100) / durationDays
   const traveledDaysPercentage = (traveledDays * 100) / durationDays
   const remainingDaysPercentage = (remainingDays * 100) / durationDays
+
+  const paymentOptions = [
+    {
+      name: 'payment',
+      id: 'payment1',
+      label: 'Pre-payment',
+      value: 'prepayment',
+    },
+    {
+      name: 'payment',
+      id: 'payment2',
+      label: 'Partial payment',
+      value: 'partial',
+    },
+    {
+      name: 'payment',
+      id: 'payment3',
+      label: 'Payment due',
+      value: 'due',
+    },
+  ]
 
   return (
     <div>
@@ -833,17 +858,62 @@ const Tabs = ({
                 </span>
                 UPDATE OTHER DETAILS
               </button>
+              {data?.other?.cargoType === 'FCL' && (
+                <button
+                  disabled={!isPending}
+                  data-bs-toggle='modal'
+                  data-bs-target={`#${modalBookingDate}`}
+                  onClick={editBookingDateHandler}
+                  className='btn btn-warning w-100 mb-2'
+                >
+                  <span className='float-start'>
+                    <FaEdit className='mb-1' />
+                  </span>
+                  CHANGE BOOKING DATE
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        <div
+          className='tab-pane fade'
+          id='nav-Payments'
+          role='tabpanel'
+          aria-labelledby='nav-Payments-tab'
+          tabIndex='0'
+        >
+          <div className='row gy-3'>
+            <div className='col-md-8 col-12'>
+              <label className='mb-3'>How do you want to pay? </label>
+              {paymentOptions?.map((p, i) => (
+                <div key={i} className='form-check'>
+                  <input
+                    onChange={(e) => setPayment(e.target.value)}
+                    className='form-check-input'
+                    type='radio'
+                    name={p?.name}
+                    value={p?.value}
+                    checked={p?.value === payment}
+                    id={p?.id}
+                  />
+                  <label className='form-check-label' htmlFor={p?.id}>
+                    {p?.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+            <div className='col-md-4 col-12'>
+              <h6 className='fw-bold'>Other actions</h6>
+
               <button
                 disabled={!isPending}
-                data-bs-toggle='modal'
-                data-bs-target={`#${modalBookingDate}`}
-                onClick={editBookingDateHandler}
-                className='btn btn-warning w-100 mb-2'
+                onClick={updatePayment}
+                className='btn btn-primary w-100 mb-2'
               >
                 <span className='float-start'>
-                  <FaEdit className='mb-1' />
+                  <FaPaperPlane className='mb-1' />
                 </span>
-                CHANGE BOOKING DATE
+                SUBMIT PAYMENT
               </button>
             </div>
           </div>
