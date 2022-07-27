@@ -281,40 +281,6 @@ const Tabs = ({
                 </tbody>
               </table>
 
-              <h5 className='fw-bold mt-5'>Containers Details </h5>
-              <table className='table table-striped table-borderless mt-2'>
-                <tbody>
-                  {data?.other?.transportation && (
-                    <>
-                      <tr>
-                        <td className='fw-bold'>Storage Free Gate In</td>
-                        <td>
-                          {moment(
-                            data?.other?.transportation?.storageFreeGateInDate
-                          ).format('MMM Do YYYY')}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className='fw-bold'>Shipping Instructions</td>
-                        <td>
-                          {moment(
-                            data?.other?.transportation?.shippingInstructionDate
-                          ).format('MMM Do YYYY')}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className='fw-bold'>Customs Declaration & VGM</td>
-                        <td>
-                          {moment(data?.other?.transportation?.vgmDate).format(
-                            'MMM Do YYYY'
-                          )}
-                        </td>
-                      </tr>
-                    </>
-                  )}
-                </tbody>
-              </table>
-
               <h5 className='fw-bold mt-5'>Transport Plan</h5>
               {data?.tradelane ? (
                 <table className='table table-striped table-borderless caption-top'>
@@ -814,6 +780,40 @@ const Tabs = ({
                         )}
                       </td>
                     </tr>
+                  )}
+                </tbody>
+              </table>
+
+              <h5 className='fw-bold mt-5'>Containers Details </h5>
+              <table className='table table-striped table-borderless mt-2'>
+                <tbody>
+                  {data?.other?.transportation && (
+                    <>
+                      <tr>
+                        <td className='fw-bold'>Storage Free Gate In</td>
+                        <td>
+                          {moment(
+                            data?.other?.transportation?.storageFreeGateInDate
+                          ).format('MMM Do YYYY')}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='fw-bold'>Shipping Instructions</td>
+                        <td>
+                          {moment(
+                            data?.other?.transportation?.shippingInstructionDate
+                          ).format('MMM Do YYYY')}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='fw-bold'>Customs Declaration & VGM</td>
+                        <td>
+                          {moment(data?.other?.transportation?.vgmDate).format(
+                            'MMM Do YYYY'
+                          )}
+                        </td>
+                      </tr>
+                    </>
                   )}
                 </tbody>
               </table>
