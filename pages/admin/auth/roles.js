@@ -51,13 +51,19 @@ const Roles = () => {
   const { data: permissionData } = getPermissions
   const { data: clientPermissionData } = getClientPermissions
 
-  const uniqueGroups = [
+  const uniquePermissions = [
     ...new Set(permissionData?.data?.map((item) => item.name)),
-  ]
-
-  const group = uniqueGroups?.map((group) => ({
+  ]?.map((group) => ({
     [group]: permissionData?.data?.filter(
       (permission) => permission?.name === group
+    ),
+  }))
+
+  const uniqueClientPermissions = [
+    ...new Set(clientPermissionData?.data?.map((item) => item.menu)),
+  ]?.map((group) => ({
+    [group]: clientPermissionData?.data?.filter(
+      (clientPermission) => clientPermission?.menu === group
     ),
   }))
 
@@ -120,29 +126,33 @@ const Roles = () => {
     table.body.map((t) => setValue(t, item[t]))
     setEdit(true)
 
-    // setValue(
-    //   'permission',
-    //   item.permission && item.permission.map((item) => item._id)
-    // )
-    setValue(
-      'clientPermission',
-      item.clientPermission && item.clientPermission.map((item) => item._id)
-    )
+    const permission = [...new Set(item.permission?.map((item) => item.name))]
+      ?.map((group) => ({
+        [group]: item?.permission?.filter(
+          (permission) => permission?.name === group
+        ),
+      }))
+      ?.map((per) => {
+        setValue(
+          `permission-${Object.keys(per)[0]}`,
+          Object.values(per)[0]?.map((per) => per?._id)
+        )
+      })
 
-    const uniqueGroups = [...new Set(item.permission?.map((item) => item.name))]
-
-    const group = uniqueGroups?.map((group) => ({
-      [group]: permissionData?.data?.filter(
-        (permission) => permission?.name === group
-      ),
-    }))
-
-    // console.log(group.map((g) => Object.values(g[0])[0]))
-
-    // setValue(
-    //   'permission',
-    //   group?.map((item) => item._id)
-    // )
+    const clientPermission = [
+      ...new Set(item.clientPermission?.map((item) => item.menu)),
+    ]
+      ?.map((group) => ({
+        [group]: item?.clientPermission?.filter(
+          (clientPermission) => clientPermission?.menu === group
+        ),
+      }))
+      ?.map((per) => {
+        setValue(
+          `clientPermission-${Object.keys(per)[0]}`,
+          Object.values(per)[0]?.map((per) => per?._id)
+        )
+      })
   }
 
   const deleteHandler = (id) => {
@@ -160,19 +170,44 @@ const Roles = () => {
   }
 
   const submitHandler = (data) => {
+    const permission = Object.keys(data)
+      .filter((key) => key.startsWith('permission-'))
+      ?.map((key) => data[key])
+      ?.filter((value) => value)
+      ?.join(',')
+      .split(',')
+
+    const clientPermission = Object.keys(data)
+      .filter((key) => key.startsWith('clientPermission-'))
+      ?.map((key) => data[key])
+      ?.filter((value) => value)
+      ?.join(',')
+      .split(',')
+
+    console.log({
+      _id: id,
+      name: data.name,
+      permission,
+      clientPermission,
+      description: data.description,
+    })
+
     edit
       ? mutateAsyncUpdate({
           _id: id,
           name: data.name,
-          permission: data.permission,
-          clientPermission: data.clientPermission,
+          permission,
+          clientPermission,
           description: data.description,
         })
-      : mutateAsyncPost(data)
+      : mutateAsyncPost({
+          _id: id,
+          name: data.name,
+          permission,
+          clientPermission,
+          description: data.description,
+        })
   }
-  // console.log(JSON.stringify(Object.values(group[4])[0]))
-  // console.log(group?.slice(0, 6)?.map((g) => Object.values(g)[0]))
-  // console.log(Object.values(group[4])[0])
 
   const form = [
     inputText({
@@ -183,42 +218,33 @@ const Roles = () => {
       placeholder: 'Enter name',
     }),
 
-    group?.length > 0 &&
-      group?.map((g, i) => (
-        <>
-          <label className='fw-bold fs-5' key={i}>
-            {group?.length > 0 && Object.keys(g)[0]}
+    uniquePermissions?.length > 0 &&
+      uniquePermissions?.map((g, i) => (
+        <div key={i} className='mb-1'>
+          <label className='fw-bold text-uppercase'>
+            {uniquePermissions?.length > 0 && Object.keys(g)[0]}
           </label>
+
           {inputMultipleCheckBox({
             register,
             errors,
-            label: 'Permission1',
-            name: 'permission1',
-            placeholder: 'Permission1',
+            label: `${uniquePermissions?.length > 0 && Object.keys(g)[0]}`,
+            name: `permission-${
+              uniquePermissions?.length > 0 && Object.keys(g)[0]
+            }`,
+            placeholder: `${
+              uniquePermissions?.length > 0 && Object.keys(g)[0]
+            }`,
             data:
-              group?.length > 0 &&
+              uniquePermissions?.length > 0 &&
               Object.values(g)[0]?.map((item) => ({
                 name: `${item.method} - ${item.description}`,
                 _id: item._id,
               })),
             isRequired: false,
           })}
-        </>
+        </div>
       )),
-    // inputMultipleCheckBox({
-    //   register,
-    //   errors,
-    //   label: 'Permission',
-    //   name: 'permission',
-    //   placeholder: 'Permission',
-    //   data:
-    //     permissionData &&
-    //     permissionData?.data?.map((item) => ({
-    //       name: `${item.method} - ${item.description}`,
-    //       _id: item._id,
-    //     })),
-    //   isRequired: false,
-    // }),
 
     inputTextArea({
       register,
@@ -228,20 +254,35 @@ const Roles = () => {
       placeholder: 'Description',
     }),
 
-    inputMultipleCheckBox({
-      register,
-      errors,
-      label: 'Client Permission',
-      name: 'clientPermission',
-      placeholder: 'Client Permission',
-      data:
-        clientPermissionData &&
-        clientPermissionData?.data?.map((item) => ({
-          name: `${item.menu} - ${item.path}`,
-          _id: item._id,
-        })),
-      isRequired: false,
-    }),
+    uniqueClientPermissions?.length > 0 &&
+      uniqueClientPermissions?.map((g, i) => (
+        <div key={i} className='mb-1'>
+          <label className='fw-bold text-uppercase'>
+            {uniqueClientPermissions?.length > 0 && Object.keys(g)[0]}
+          </label>
+
+          {inputMultipleCheckBox({
+            register,
+            errors,
+            label: `${
+              uniqueClientPermissions?.length > 0 && Object.keys(g)[0]
+            }`,
+            name: `clientPermission-${
+              uniqueClientPermissions?.length > 0 && Object.keys(g)[0]
+            }`,
+            placeholder: `${
+              uniqueClientPermissions?.length > 0 && Object.keys(g)[0]
+            }`,
+            data:
+              uniqueClientPermissions?.length > 0 &&
+              Object.values(g)[0]?.map((item) => ({
+                name: `${item.menu} - ${item.path}`,
+                _id: item._id,
+              })),
+            isRequired: false,
+          })}
+        </div>
+      )),
   ]
 
   const row = false

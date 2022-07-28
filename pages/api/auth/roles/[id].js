@@ -17,7 +17,7 @@ handler.put(async (req, res) => {
     let type
     let permission = []
     let clientPermission = []
-    if (name) type = name.toUpperCase().trim().replace(/\s+/g, '_')
+    if (name) type = name?.toUpperCase().trim().replace(/\s+/g, '_')
 
     if (req.body.permission) {
       if (Array.isArray(req.body.permission)) {
@@ -34,6 +34,9 @@ handler.put(async (req, res) => {
         clientPermission = [req.body.clientPermission]
       }
     }
+
+    permission = permission?.filter((per) => per)
+    clientPermission = clientPermission?.filter((client) => client)
 
     const object = await schemaName.findById(id)
     if (!object)

@@ -72,6 +72,9 @@ handler.post(async (req, res) => {
       }
     }
 
+    permission = permission?.filter((per) => per)
+    clientPermission = clientPermission?.filter((client) => client)
+
     const object = await schemaName.create({
       name,
       description,
