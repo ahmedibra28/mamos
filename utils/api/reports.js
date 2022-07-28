@@ -5,7 +5,7 @@ import {
   // useQueryClient,
 } from 'react-query'
 
-const url = '/api/reports/reports'
+const url = '/api/reports'
 
 const queryKey = 'reports'
 
@@ -16,7 +16,11 @@ export default function useReportsHook(props) {
   const getBookingsReport = useQuery(
     queryKey,
     async () =>
-      await dynamicAPI('get', `${url}?page=${page}&q=${q}&limit=${limit}`, {}),
+      await dynamicAPI(
+        'get',
+        `${url}/bookings/?page=${page}&q=${q}&limit=${limit}`,
+        {}
+      ),
     { retry: 0 }
   )
 
