@@ -16,7 +16,6 @@ handler.get(async (req, res) => {
   await db()
   try {
     const q = req.query && req.query.q
-    console.log({ q })
 
     const start = moment(q).clone().startOf('month').format()
     const end = moment(q).clone().endOf('month').format()

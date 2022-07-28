@@ -32,7 +32,11 @@ const transportationScheme = mongoose.Schema(
     vgmDate: { type: Date, required: true },
     delayDate: { type: Date },
 
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'completed'],
+      default: 'active',
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

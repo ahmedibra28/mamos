@@ -7,14 +7,12 @@ import {
 
 const url = '/api/reports'
 
-const queryKey = 'reports'
-
 export default function useReportsHook(props) {
   const { page = 1, q = '', limit = 25 } = props
   // const queryClient = useQueryClient()
 
   const getBookingsReport = useQuery(
-    queryKey,
+    ['booking-report'],
     async () =>
       await dynamicAPI(
         'get',
@@ -24,7 +22,19 @@ export default function useReportsHook(props) {
     { retry: 0 }
   )
 
+  const getShippingStatusReport = useQuery(
+    ['shipping-status-report'],
+    async () =>
+      await dynamicAPI(
+        'get',
+        `${url}/shipping-status/?page=${page}&q=${q}&limit=${limit}`,
+        {}
+      ),
+    { retry: 0 }
+  )
+
   return {
     getBookingsReport,
+    getShippingStatusReport,
   }
 }

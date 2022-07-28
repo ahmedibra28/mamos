@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import useReportsHook from '../../utils/api/reports'
 import { Message, Pagination, Spinner } from '../../components'
+import { FaSearch } from 'react-icons/fa'
 
 const Bookings = () => {
   const [page, setPage] = useState(1)
@@ -31,8 +32,8 @@ const Bookings = () => {
   return (
     <>
       <Head>
-        <title>Permissions</title>
-        <meta property='og:title' content='Permissions' key='title' />
+        <title>Booking Report</title>
+        <meta property='og:title' content='Booking Report' key='title' />
       </Head>
 
       {isError && <Message variant='danger'>{error}</Message>}
@@ -53,12 +54,64 @@ const Bookings = () => {
               <sup className='fs-6'> [{data?.total}] </sup>
             </h3>
 
-            <div className='col-auto'>search input goes here...</div>
+            <div className='col-auto'>
+              <form onSubmit={searchHandler}>
+                <div className='input-group'>
+                  <input
+                    type='month'
+                    className='form-control'
+                    aria-label='Month'
+                    onChange={(e) => setQ(e.target.value)}
+                    value={q}
+                  />
+                  <div className='input-group-append'>
+                    <button type='submit' className='btn btn-outline-secondary'>
+                      <FaSearch />
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
           <table className='table table-sm table-border'>
             <thead className='border-0'>
-              <span>table</span>
+              <tr>
+                <th>Sh. Reference</th>
+                <th>B. Reference</th>
+                <th>Booked Date</th>
+                <th>Departure Date</th>
+                <th>Cargo Type</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+              </tr>
             </thead>
+            <tbody>
+              {data?.data?.map((book) => (
+                <tr key={book?._id}>
+                  <td>{book?.other?.transportation?.reference}</td>
+                  <td>{book?.trackingNo}</td>
+                  <td>{book?.createdAt?.slice(0, 10)}</td>
+                  <td>
+                    {book?.other?.transportation?.departureDate?.slice(0, 10)}
+                  </td>
+                  <td>{book?.other?.cargoType}</td>
+                  <td>
+                    <span>
+                      {book?.status === 'pending' && (
+                        <span className='badge bg-warning'>{book?.status}</span>
+                      )}
+                      {book?.status === 'confirmed' && (
+                        <span className='badge bg-success'>{book?.status}</span>
+                      )}
+                      {book?.status === 'deleted' && (
+                        <span className='badge bg-danger'>{book?.status}</span>
+                      )}
+                    </span>
+                  </td>
+                  <td>{book?.price?.totalPrice}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       )}

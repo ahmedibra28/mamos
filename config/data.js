@@ -190,6 +190,13 @@ const clientPermissions = [
     auth: true,
     description: 'Booking reports page',
   },
+  {
+    name: 'Shipping Status Report',
+    path: '/reports/shipping-status',
+    menu: 'report',
+    auth: true,
+    description: 'Shipping Status reports page',
+  },
 ]
 
 const permissions = [
@@ -777,7 +784,14 @@ const permissions = [
     description: 'Bookings Report',
     route: '/api/reports/bookings',
     auth: true,
-    name: 'Bookings',
+    name: 'Reports',
+    method: 'GET',
+  },
+  {
+    description: 'Shipping Status Report',
+    route: '/api/reports/shipping-status',
+    auth: true,
+    name: 'Reports',
     method: 'GET',
   },
 ]
