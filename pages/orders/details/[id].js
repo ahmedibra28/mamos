@@ -687,7 +687,6 @@ const Details = () => {
   }
 
   const updatePayment = () => {
-    console.log('payment has updated', { payment })
     mutateAsyncUpdatePayment({ _id: id, payment })
   }
   const TOTAL_CBM = inputFields

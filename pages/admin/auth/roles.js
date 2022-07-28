@@ -184,14 +184,6 @@ const Roles = () => {
       ?.join(',')
       .split(',')
 
-    console.log({
-      _id: id,
-      name: data.name,
-      permission,
-      clientPermission,
-      description: data.description,
-    })
-
     edit
       ? mutateAsyncUpdate({
           _id: id,
@@ -318,9 +310,6 @@ const Roles = () => {
       <div className='ms-auto text-end'>
         <Pagination data={table.data} setPage={setPage} />
       </div>
-      {/*  */}
-      {/* {Object?.values(group[0].name)} */}
-      {/* {console.log(group)} */}
 
       <FormView
         edit={edit}

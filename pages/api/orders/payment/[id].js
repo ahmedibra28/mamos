@@ -26,7 +26,6 @@ handler.put(async (req, res) => {
 
     order.other.payment = payment
 
-    console.log(order.other)
 
     await order.save()
 
