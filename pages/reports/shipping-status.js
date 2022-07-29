@@ -5,6 +5,9 @@ import withAuth from '../../HOC/withAuth'
 import useReportsHook from '../../utils/api/reports'
 import { Message, Pagination, Spinner } from '../../components'
 import { FaCheckCircle, FaLightbulb } from 'react-icons/fa'
+import moment from 'moment'
+import { getDays } from '../../utils/helper'
+import Image from 'next/image'
 
 const ShippingStatus = () => {
   const [page, setPage] = useState(1)
@@ -16,6 +19,21 @@ const ShippingStatus = () => {
     refetch()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
+
+  const storageFreeGateInDate = (date) => {
+    const today = moment().format('YYYY-MM-DD')
+
+    const days = getDays(today, date)
+
+    if (days < 4)
+      return <Image src='/success.png' width='40' height='14' alt='success' />
+
+    if (days >= 4 && days <= 7)
+      return <Image src='/warning.png' width='40' height='14' alt='warning' />
+
+    if (days >= 8)
+      return <Image src='/danger.png' width='40' height='14' alt='danger' />
+  }
 
   return (
     <>
@@ -63,10 +81,8 @@ const ShippingStatus = () => {
             <tbody>
               {data?.data?.map((book) => (
                 <tr key={book?._id}>
-                  <td>
-                    <FaLightbulb className='text-warning' />
-                    <FaLightbulb className='text-success' />
-                    <FaLightbulb className='text-danger' />
+                  <td style={{ paddingTop: '0.4rem' }}>
+                    {storageFreeGateInDate(book?.storageFreeGateInDate)}
                   </td>
                   <td>{book?.reference}</td>
                   <td>{book?.cargoType}</td>
@@ -76,9 +92,7 @@ const ShippingStatus = () => {
                   <td>{book?.departureDate?.slice(0, 10)}</td>
                   <td>{book?.createdAt?.slice(0, 10)}</td>
                   <td>
-                    <button className='btn btn-primary btn-sm rounded-pill'>
-                      <FaCheckCircle className='mb-1' /> Departed
-                    </button>
+                    <FaCheckCircle className='mb-1 text-success' />
                   </td>
                 </tr>
               ))}
