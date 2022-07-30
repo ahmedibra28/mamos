@@ -66,9 +66,10 @@ const orderScheme = mongoose.Schema(
     },
 
     trackingNo: { type: String, default: 'waiting' },
+    cancelledReason: String,
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'deleted'],
+      enum: ['pending', 'confirmed', 'cancelled'],
       default: 'pending',
     },
 

@@ -36,6 +36,8 @@ const Details = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
   const [selectContainer, setSelectContainer] = useState([])
   const [transportationsData, setTransportationsData] = useState([])
+  const [cancelledReason, setCancelledReason] = useState('')
+  const [isCancel, setIsCancel] = useState(false)
   const [inputFields, setInputFields] = useState([
     {
       qty: 0,
@@ -187,7 +189,8 @@ const Details = () => {
     mutateAsyncUpdateToConfirm({ _id: id })
   }
   const cancelOrderHandler = () => {
-    mutateAsyncUpdateToDelete({ _id: id })
+    if (!cancelledReason) return null
+    mutateAsyncUpdateToDelete({ _id: id, cancelledReason })
   }
 
   const editBuyerHandler = () => {
@@ -532,6 +535,8 @@ const Details = () => {
     setSelectedTransportation(null)
     setSelectContainer([])
     setTransportationsData([])
+    setCancelledReason('')
+    setIsCancel(false)
     setInputFields([
       {
         qty: 0,
@@ -983,6 +988,10 @@ const Details = () => {
             modalDocument={modalDocument}
             editDocumentHandler={editDocumentHandler}
             cancelOrderHandler={cancelOrderHandler}
+            setCancelledReason={setCancelledReason}
+            cancelledReason={cancelledReason}
+            setIsCancel={setIsCancel}
+            isCancel={isCancel}
             isLoadingUpdateToConfirm={isLoadingUpdateToConfirm}
             isLoadingUpdateToDelete={isLoadingUpdateToDelete}
             editBookingDateHandler={editBookingDateHandler}

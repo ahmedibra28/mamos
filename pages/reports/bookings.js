@@ -103,7 +103,7 @@ const Bookings = () => {
                       {book?.status === 'confirmed' && (
                         <span className='badge bg-success'>{book?.status}</span>
                       )}
-                      {book?.status === 'deleted' && (
+                      {book?.status === 'cancelled' && (
                         <span className='badge bg-danger'>{book?.status}</span>
                       )}
                     </span>

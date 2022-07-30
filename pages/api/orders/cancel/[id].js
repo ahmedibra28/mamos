@@ -11,6 +11,9 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
+    const { cancelledReason } = req.body
+    if (!cancelledReason)
+      return res.status(400).json({ error: 'Cancel reason is required' })
 
     const { role, _id } = req.user
 
@@ -24,7 +27,8 @@ handler.put(async (req, res) => {
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
 
-    order.status = 'deleted'
+    order.status = 'cancelled'
+    order.cancelledReason = cancelledReason
 
     await order.save()
 

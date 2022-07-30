@@ -25,7 +25,7 @@ const ShippingStatus = () => {
 
     const days = getDays(today, date)
 
-    if (days < 4)
+    if (days < 4 && days >= 0)
       return <Image src='/success.png' width='40' height='14' alt='success' />
 
     if (days >= 4 && days <= 7)
@@ -33,6 +33,8 @@ const ShippingStatus = () => {
 
     if (days >= 8)
       return <Image src='/danger.png' width='40' height='14' alt='danger' />
+
+    return <Image src='/dark.png' width='40' height='14' alt='dark' />
   }
 
   return (

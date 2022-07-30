@@ -243,7 +243,7 @@ const Agencies = () => {
 
       {isSuccessDelete && (
         <Message variant='success'>
-          {label} has been deleted successfully.
+          {label} has been cancelled successfully.
         </Message>
       )}
       {isErrorDelete && <Message variant='danger'>{errorDelete}</Message>}

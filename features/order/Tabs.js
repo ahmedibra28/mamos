@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import moment from 'moment'
 import {
   FaCheckCircle,
@@ -15,7 +14,13 @@ import { getDays } from '../../utils/helper'
 const Tabs = ({
   data,
   confirmOrderHandler,
+
   cancelOrderHandler,
+  setCancelledReason,
+  cancelledReason,
+  setIsCancel,
+  isCancel,
+
   FaEdit,
   modalBuyer,
   editBuyerHandler,
@@ -294,7 +299,7 @@ const Tabs = ({
                               {data?.status}
                             </span>
                           )}
-                          {data?.status === 'deleted' && (
+                          {data?.status === 'cancelled' && (
                             <span className='badge bg-danger'>
                               {data?.status}
                             </span>
@@ -371,25 +376,60 @@ const Tabs = ({
                     </button>
                   </>
                 )}
-                {data?.status !== 'deleted' && (
-                  <button
-                    onClick={() => cancelOrderHandler(data)}
-                    disabled={
-                      !isPending || isLoadingUpdateToDelete ? true : false
-                    }
-                    className='btn btn-danger w-100 mb-2'
-                  >
-                    {isLoadingUpdateToDelete ? (
-                      <span className='spinner-border spinner-border-sm' />
-                    ) : (
-                      <>
-                        <span className='float-start'>
-                          <FaTrash className='mb-1' />
-                        </span>
-                        CANCEL BOOKING
-                      </>
+                {data?.status !== 'cancelled' && (
+                  <>
+                    <button
+                      onClick={() => setIsCancel(true)}
+                      disabled={
+                        !isPending || isLoadingUpdateToDelete ? true : false
+                      }
+                      className='btn btn-danger w-100 mb-2'
+                    >
+                      {isLoadingUpdateToDelete ? (
+                        <span className='spinner-border spinner-border-sm' />
+                      ) : (
+                        <>
+                          <span className='float-start'>
+                            <FaTrash className='mb-1' />
+                          </span>
+                          CANCEL BOOKING
+                        </>
+                      )}
+                    </button>
+                    {isCancel && (
+                      <div className='mb-2'>
+                        <label htmlFor='cancelledReason'>
+                          Cancelling Reason
+                        </label>
+                        <textarea
+                          cols='30'
+                          rows='3'
+                          type='text'
+                          className='form-control'
+                          onChange={(e) => setCancelledReason(e.target.value)}
+                          value={cancelledReason}
+                        />
+                        <button
+                          disabled={
+                            !isPending || isLoadingUpdateToDelete ? true : false
+                          }
+                          onClick={() => cancelOrderHandler(data)}
+                          className='btn btn-danger btn-sm float-end mt-1'
+                        >
+                          {isLoadingUpdateToDelete ? (
+                            <span className='spinner-border spinner-border-sm' />
+                          ) : (
+                            <>
+                              <span className='float-start'>
+                                <FaTrash className='mb-1' />
+                              </span>
+                              CONFIRM
+                            </>
+                          )}
+                        </button>
+                      </div>
                     )}
-                  </button>
+                  </>
                 )}
               </div>
             </div>
