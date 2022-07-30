@@ -197,6 +197,13 @@ const clientPermissions = [
     auth: true,
     description: 'Shipping Status reports page',
   },
+  {
+    name: 'Arrived Shipments Report',
+    path: '/reports/arrived-shipments',
+    menu: 'report',
+    auth: true,
+    description: 'Arrived shipments reports page',
+  },
 ]
 
 const permissions = [
@@ -790,6 +797,13 @@ const permissions = [
   {
     description: 'Shipping Status Report',
     route: '/api/reports/shipping-status',
+    auth: true,
+    name: 'Reports',
+    method: 'GET',
+  },
+  {
+    description: 'Arrived Shipments Report',
+    route: '/api/reports/arrived-shipments',
     auth: true,
     name: 'Reports',
     method: 'GET',

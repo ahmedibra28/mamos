@@ -33,8 +33,20 @@ export default function useReportsHook(props) {
     { retry: 0 }
   )
 
+  const getArrivedShipmentsReport = useQuery(
+    ['arrived-shipments-report'],
+    async () =>
+      await dynamicAPI(
+        'get',
+        `${url}/arrived-shipments/?page=${page}&q=${q}&limit=${limit}`,
+        {}
+      ),
+    { retry: 0 }
+  )
+
   return {
     getBookingsReport,
     getShippingStatusReport,
+    getArrivedShipmentsReport,
   }
 }
