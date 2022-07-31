@@ -204,6 +204,13 @@ const clientPermissions = [
     auth: true,
     description: 'Arrived shipments reports page',
   },
+  {
+    name: 'Arrived Booked Shipments',
+    path: '/reports/arrived-shipments/[id]',
+    menu: 'hidden',
+    auth: true,
+    description: 'Arrived booked shipments reports page',
+  },
 ]
 
 const permissions = [
@@ -814,6 +821,13 @@ const permissions = [
     auth: true,
     name: 'Transportation',
     method: 'PUT',
+  },
+  {
+    description: 'Arrived Booked Shipments',
+    route: '/api/reports/arrived-shipments/:id',
+    auth: true,
+    name: 'Reports',
+    method: 'GET',
   },
 ]
 

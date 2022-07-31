@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
-import withAuth from '../../HOC/withAuth'
-import useReportsHook from '../../utils/api/reports'
-import useTransportationsHook from '../../utils/api/transportations'
-import { Message, Pagination, Spinner } from '../../components'
-import { FaSearch, FaCheckCircle } from 'react-icons/fa'
+import withAuth from '../../../HOC/withAuth'
+import useReportsHook from '../../../utils/api/reports'
+import useTransportationsHook from '../../../utils/api/transportations'
+import { Message, Pagination, Spinner } from '../../../components'
+import { FaSearch, FaCheckCircle, FaInfoCircle } from 'react-icons/fa'
+import Link from 'next/link'
 
 const ArrivedShipments = () => {
   const [page, setPage] = useState(1)
@@ -142,6 +143,11 @@ const ArrivedShipments = () => {
                         </>
                       )}
                     </button>
+                    <Link href={`arrived-shipments/${transport._id}`}>
+                      <a className='btn btn-primary btn-sm ms-2'>
+                        <FaInfoCircle className='mb-1' /> Show
+                      </a>
+                    </Link>
                   </td>
                 </tr>
               ))}

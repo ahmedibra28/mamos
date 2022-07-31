@@ -8,7 +8,7 @@ import {
 const url = '/api/reports'
 
 export default function useReportsHook(props) {
-  const { page = 1, q = '', limit = 25 } = props
+  const { page = 1, q = '', limit = 25, id = '' } = props
   // const queryClient = useQueryClient()
 
   const getBookingsReport = useQuery(
@@ -44,9 +44,16 @@ export default function useReportsHook(props) {
     { retry: 0 }
   )
 
+  const getArrivedBookedShipments = useQuery(
+    ['arrived-booked-shipments'],
+    async () => await dynamicAPI('get', `${url}/arrived-shipments/${id}`, {}),
+    { retry: 3, enabled: !!id }
+  )
+
   return {
     getBookingsReport,
     getShippingStatusReport,
     getArrivedShipmentsReport,
+    getArrivedBookedShipments,
   }
 }
