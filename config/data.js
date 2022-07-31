@@ -808,6 +808,13 @@ const permissions = [
     name: 'Reports',
     method: 'GET',
   },
+  {
+    description: 'Arrived Shipment Confirmation',
+    route: '/api/setting/transportations/arrival-confirmation/:id',
+    auth: true,
+    name: 'Transportation',
+    method: 'PUT',
+  },
 ]
 
 export { roles, users, profile, permissions, clientPermissions }

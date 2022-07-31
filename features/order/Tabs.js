@@ -295,6 +295,11 @@ const Tabs = ({
                             </span>
                           )}
                           {data?.status === 'confirmed' && (
+                            <span className='badge bg-info'>
+                              {data?.status}
+                            </span>
+                          )}
+                          {data?.status === 'arrived' && (
                             <span className='badge bg-success'>
                               {data?.status}
                             </span>

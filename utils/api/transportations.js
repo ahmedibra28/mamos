@@ -40,10 +40,20 @@ export default function useTransportationsHook(props) {
     }
   )
 
+  const updateArrivedShipmentToConfirm = useMutation(
+    async (obj) =>
+      await dynamicAPI('put', `${url}/arrival-confirmation/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+    }
+  )
+
   return {
     getTransportations,
     updateTransportation,
     deleteTransportation,
     postTransportation,
+    updateArrivedShipmentToConfirm,
   }
 }

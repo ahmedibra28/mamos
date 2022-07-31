@@ -19,7 +19,6 @@ import {
 } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
-import { reversePriceFormat } from '../../utils/priceFormat'
 
 const Transportations = () => {
   const [page, setPage] = useState(1)

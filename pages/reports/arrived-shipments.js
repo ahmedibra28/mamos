@@ -3,15 +3,27 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import useReportsHook from '../../utils/api/reports'
+import useTransportationsHook from '../../utils/api/transportations'
 import { Message, Pagination, Spinner } from '../../components'
-import { FaSearch, FaEdit } from 'react-icons/fa'
+import { FaSearch, FaCheckCircle } from 'react-icons/fa'
 
 const ArrivedShipments = () => {
   const [page, setPage] = useState(1)
   const [q, setQ] = useState('')
 
   const { getArrivedShipmentsReport } = useReportsHook({ page, q })
+  const { updateArrivedShipmentToConfirm } = useTransportationsHook({
+    page: '',
+  })
+
   const { data, isLoading, isError, error, refetch } = getArrivedShipmentsReport
+  const {
+    isLoading: isLoadingUpdate,
+    isError: isErrorUpdate,
+    isSuccess: isSuccessUpdate,
+    error: errorUpdate,
+    mutateAsync: mutateAsyncUpdate,
+  } = updateArrivedShipmentToConfirm
 
   useEffect(() => {
     refetch()
@@ -29,6 +41,10 @@ const ArrivedShipments = () => {
     setPage(1)
   }
 
+  const confirmArrivalHandler = (id) => {
+    mutateAsyncUpdate({ _id: id })
+  }
+
   return (
     <>
       <Head>
@@ -39,6 +55,13 @@ const ArrivedShipments = () => {
           key='title'
         />
       </Head>
+
+      {isSuccessUpdate && (
+        <Message variant='success'>
+          Shipment has been updated successfully.
+        </Message>
+      )}
+      {isErrorUpdate && <Message variant='danger'>{errorUpdate}</Message>}
 
       {isError && <Message variant='danger'>{error}</Message>}
 
@@ -80,32 +103,44 @@ const ArrivedShipments = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Buyer Mobile</th>
-                <th>Buyer Name</th>
-                <th>B. Reference</th>
-                <th>Booked Date</th>
-                <th>Departure Date</th>
+                <th>Name</th>
+                <th>Reference</th>
                 <th>Cargo Type</th>
-                <th>Total Amount</th>
-                <th>Contact</th>
+                <th>Price</th>
+                <th>Departure Date</th>
+                <th>Arrival Date</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {data?.data?.map((book) => (
-                <tr key={book?._id}>
-                  <td>{book?.buyer?.buyerMobileNumber}</td>
-                  <td>{book?.buyer?.buyerName}</td>
-                  <td>{book?.trackingNo}</td>
-                  <td>{book?.createdAt?.slice(0, 10)}</td>
+              {data?.data?.map((transport) => (
+                <tr key={transport?._id}>
+                  <td>{transport?.name}</td>
+                  <td>{transport?.reference}</td>
+                  <td>{transport?.cargoType}</td>
+                  <td>{transport?.price}</td>
+                  <td>{transport?.departureDate?.slice(0, 10)}</td>
+                  <td>{transport?.arrivalDate?.slice(0, 10)}</td>
+
                   <td>
-                    {book?.other?.transportation?.departureDate?.slice(0, 10)}
-                  </td>
-                  <td>{book?.other?.cargoType}</td>
-                  <td>{book?.price?.totalPrice}</td>
-                  <td>
-                    <button className='btn btn-outline-primary btn-sm'>
-                      {' '}
-                      <FaEdit className='mb-1' /> UPDATE{' '}
+                    <button
+                      onClick={() => confirmArrivalHandler(transport._id)}
+                      className={`btn btn-sm ${
+                        transport.status === 'arrived'
+                          ? 'btn-outline-success'
+                          : 'btn-success'
+                      }`}
+                      disabled={
+                        isLoadingUpdate || transport.status === 'arrived'
+                      }
+                    >
+                      {isLoadingUpdate ? (
+                        <span className='spinner-border spinner-border-sm' />
+                      ) : (
+                        <>
+                          <FaCheckCircle className='mb-1' /> Confirm Arrival
+                        </>
+                      )}
                     </button>
                   </td>
                 </tr>

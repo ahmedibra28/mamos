@@ -34,7 +34,7 @@ const transportationScheme = mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['active', 'inactive', 'completed'],
+      enum: ['active', 'inactive', 'confirmed', 'arrived'],
       default: 'active',
     },
 

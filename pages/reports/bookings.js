@@ -101,6 +101,9 @@ const Bookings = () => {
                         <span className='badge bg-warning'>{book?.status}</span>
                       )}
                       {book?.status === 'confirmed' && (
+                        <span className='badge bg-info'>{book?.status}</span>
+                      )}
+                      {book?.status === 'arrived' && (
                         <span className='badge bg-success'>{book?.status}</span>
                       )}
                       {book?.status === 'cancelled' && (

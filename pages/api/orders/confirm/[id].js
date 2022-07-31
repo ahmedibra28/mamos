@@ -45,9 +45,7 @@ handler.put(async (req, res) => {
       return res.status(400).json({ error: 'Booking trace number is required' })
 
     if (!order?.buyer?.buyerEmail || !order?.buyer?.buyerMobileNumber)
-      return res
-        .status(400)
-        .json({ error: 'Buyer information is not completed' })
+      return res.status(400).json({ error: 'Buyer information is not arrived' })
 
     const today = moment().format()
     const departureDate = moment(
