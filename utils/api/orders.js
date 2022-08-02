@@ -127,6 +127,15 @@ export default function useOrdersHook(props) {
     }
   )
 
+  const updateOrderArrivedBuyerStatus = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/status/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () =>
+        queryClient.invalidateQueries([`arrived-booked-shipments`]),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -144,5 +153,6 @@ export default function useOrdersHook(props) {
     updateOrderDocument,
     updateOrderBookingDate,
     updateOrderPayment,
+    updateOrderArrivedBuyerStatus,
   }
 }

@@ -795,6 +795,13 @@ const permissions = [
     method: 'PUT',
   },
   {
+    description: 'Update Arrived Booking Status',
+    route: '/api/orders/status/:id',
+    auth: true,
+    name: 'Bookings',
+    method: 'PUT',
+  },
+  {
     description: 'Bookings Report',
     route: '/api/reports/bookings',
     auth: true,

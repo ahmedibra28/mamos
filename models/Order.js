@@ -72,6 +72,10 @@ const orderScheme = mongoose.Schema(
       enum: ['pending', 'confirmed', 'cancelled', 'arrived'],
       default: 'pending',
     },
+    arrived: {
+      status: String,
+      description: String,
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

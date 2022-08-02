@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import useReportsHook from '../../utils/api/reports'
 import { Message, Pagination, Spinner } from '../../components'
-import { FaCheckCircle, FaLightbulb } from 'react-icons/fa'
 import moment from 'moment'
 import { getDays } from '../../utils/helper'
 import Image from 'next/image'
@@ -77,7 +76,7 @@ const ShippingStatus = () => {
                 <th>VGM Date</th>
                 <th>Departure Date</th>
                 <th>Created Date</th>
-                <th>Action</th>
+                {/* <th>Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -93,9 +92,9 @@ const ShippingStatus = () => {
                   <td>{book?.vgmDate?.slice(0, 10)}</td>
                   <td>{book?.departureDate?.slice(0, 10)}</td>
                   <td>{book?.createdAt?.slice(0, 10)}</td>
-                  <td>
-                    <FaCheckCircle className='mb-1 text-success' />
-                  </td>
+                  {/* <td>
+                    <button className='btn btn-warning btn-sm'>Arrived</button>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

@@ -5,7 +5,6 @@ import withAuth from '../../HOC/withAuth'
 import useOrdersHook from '../../utils/api/orders'
 import { Spinner, Message, Pagination } from '../../components'
 import moment from 'moment'
-import { FaInfoCircle } from 'react-icons/fa'
 import Link from 'next/link'
 
 const OrderOrders = () => {
@@ -79,7 +78,7 @@ const OrderOrders = () => {
               className='form-control mb-2'
             >
               <option value=''>-----------</option>
-              {['pending', 'confirmed'].map((s) => (
+              {['pending', 'confirmed', 'arrived', 'cancelled'].map((s) => (
                 <option value={s} key={s}>
                   {s}
                 </option>
@@ -125,12 +124,31 @@ const OrderOrders = () => {
                     <td>{item?.other?.transportationType}</td>
                     <td>{item?.other?.transportation?.reference}</td>
                     <td>{item?.other?.cargoType}</td>
-                    <td>{item?.status}</td>
+                    <td>
+                      <span>
+                        {item?.status === 'pending' && (
+                          <span className='badge bg-warning'>
+                            {item?.status}
+                          </span>
+                        )}
+                        {item?.status === 'confirmed' && (
+                          <span className='badge bg-info'>{item?.status}</span>
+                        )}
+                        {item?.status === 'arrived' && (
+                          <span className='badge bg-success'>
+                            {item?.status}
+                          </span>
+                        )}
+                        {item?.status === 'cancelled' && (
+                          <span className='badge bg-danger'>
+                            {item?.status}
+                          </span>
+                        )}
+                      </span>
+                    </td>
                     <td>
                       <Link href={`/orders/details/${item?._id}`}>
-                        <a className='btn btn-warning btn-sm rounded-pill'>
-                          <FaInfoCircle className='mb-1' /> Details
-                        </a>
+                        <a className='btn btn-warning btn-sm'>Details</a>
                       </Link>
                     </td>
                   </tr>

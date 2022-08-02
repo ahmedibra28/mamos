@@ -5,7 +5,7 @@ import withAuth from '../../../HOC/withAuth'
 import useReportsHook from '../../../utils/api/reports'
 import useTransportationsHook from '../../../utils/api/transportations'
 import { Message, Pagination, Spinner } from '../../../components'
-import { FaSearch, FaCheckCircle, FaInfoCircle } from 'react-icons/fa'
+import { FaSearch } from 'react-icons/fa'
 import Link from 'next/link'
 
 const ArrivedShipments = () => {
@@ -138,15 +138,11 @@ const ArrivedShipments = () => {
                       {isLoadingUpdate ? (
                         <span className='spinner-border spinner-border-sm' />
                       ) : (
-                        <>
-                          <FaCheckCircle className='mb-1' /> Confirm Arrival
-                        </>
+                        <>Confirm Arrival</>
                       )}
                     </button>
                     <Link href={`arrived-shipments/${transport._id}`}>
-                      <a className='btn btn-primary btn-sm ms-2'>
-                        <FaInfoCircle className='mb-1' /> Show
-                      </a>
+                      <a className='btn btn-warning btn-sm ms-2'>Details</a>
                     </Link>
                   </td>
                 </tr>
