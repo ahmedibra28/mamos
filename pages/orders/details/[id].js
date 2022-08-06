@@ -47,6 +47,12 @@ const Details = () => {
       height: '',
     },
   ])
+  const [loadingOnTrack, setLoadingOnTrack] = useState('')
+  const [containerInPort, setContainerInPort] = useState('')
+  const [checkingVGM, setCheckingVGM] = useState('')
+  const [instructionForShipments, setInstructionForShipments] = useState('')
+  const [clearanceCertificate, setClearanceCertificate] = useState('')
+  const [paymentDetails, setPaymentDetails] = useState('')
 
   const {
     getOrderDetails,
@@ -59,6 +65,7 @@ const Details = () => {
     updateOrderDocument,
     updateOrderBookingDate,
     postAvailableTransportations,
+    updateOrderProgress,
     updateOrderPayment,
   } = useOrdersHook({
     id,
@@ -126,6 +133,13 @@ const Details = () => {
     isSuccess: isSuccessUpdateToDelete,
   } = updateOrderToDelete
   const {
+    isLoading: isLoadingUpdateProgress,
+    isError: isErrorUpdateProgress,
+    error: errorUpdateProgress,
+    mutateAsync: mutateAsyncUpdateProgress,
+    isSuccess: isSuccessUpdateProgress,
+  } = updateOrderProgress
+  const {
     isLoading: isLoadingUpdateDocument,
     isError: isErrorUpdateDocument,
     error: errorUpdateDocument,
@@ -191,6 +205,19 @@ const Details = () => {
   const cancelOrderHandler = () => {
     if (!cancelledReason) return null
     mutateAsyncUpdateToDelete({ _id: id, cancelledReason })
+  }
+  const updateOrderProgressHandler = () => {
+    mutateAsyncUpdateProgress({
+      _id: id,
+      obj: {
+        loadingOnTrack,
+        containerInPort,
+        checkingVGM,
+        instructionForShipments,
+        clearanceCertificate,
+        paymentDetails,
+      },
+    })
   }
 
   const editBuyerHandler = () => {
@@ -569,7 +596,8 @@ const Details = () => {
       isSuccessUpdateToDelete ||
       isSuccessUpdateDocument ||
       isSuccessUpdateBookingDate ||
-      isSuccessUpdatePayment
+      isSuccessUpdatePayment ||
+      isSuccessUpdateProgress
     )
       formCleanHandler()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -583,6 +611,7 @@ const Details = () => {
     isSuccessUpdateDocument,
     isSuccessUpdateBookingDate,
     isSuccessUpdatePayment,
+    isSuccessUpdateProgress,
   ])
 
   const handleAddField = () => {
@@ -787,6 +816,16 @@ const Details = () => {
         <Message variant='danger'>{errorUpdateToDelete}</Message>
       )}
 
+      {isSuccessUpdateProgress && (
+        <Message variant='success'>
+          Order progress has been updated successfully
+        </Message>
+      )}
+
+      {isErrorUpdateProgress && (
+        <Message variant='danger'>{errorUpdateProgress}</Message>
+      )}
+
       {isErrorUpdateDocument && (
         <Message variant='danger'>{errorUpdateDocument}</Message>
       )}
@@ -987,6 +1026,8 @@ const Details = () => {
             editOtherHandler={editOtherHandler}
             modalDocument={modalDocument}
             editDocumentHandler={editDocumentHandler}
+            updateOrderProgressHandler={updateOrderProgressHandler}
+            isLoadingUpdateProgress={isLoadingUpdateProgress}
             cancelOrderHandler={cancelOrderHandler}
             setCancelledReason={setCancelledReason}
             cancelledReason={cancelledReason}
@@ -1000,6 +1041,18 @@ const Details = () => {
             setPayment={setPayment}
             isLoadingUpdatePayment={isLoadingUpdatePayment}
             updatePayment={updatePayment}
+            loadingOnTrack={loadingOnTrack}
+            setLoadingOnTrack={setLoadingOnTrack}
+            containerInPort={containerInPort}
+            setContainerInPort={setContainerInPort}
+            checkingVGM={checkingVGM}
+            setCheckingVGM={setCheckingVGM}
+            instructionForShipments={instructionForShipments}
+            setInstructionForShipments={setInstructionForShipments}
+            clearanceCertificate={clearanceCertificate}
+            setClearanceCertificate={setClearanceCertificate}
+            paymentDetails={paymentDetails}
+            setPaymentDetails={setPaymentDetails}
           />
         </div>
       )}

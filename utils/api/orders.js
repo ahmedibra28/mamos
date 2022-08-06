@@ -136,6 +136,14 @@ export default function useOrdersHook(props) {
     }
   )
 
+  const updateOrderProgress = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/progress/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries([`order ${id}`]),
+    }
+  )
+
   return {
     getOrders,
     updateOrder,
@@ -154,5 +162,6 @@ export default function useOrdersHook(props) {
     updateOrderBookingDate,
     updateOrderPayment,
     updateOrderArrivedBuyerStatus,
+    updateOrderProgress,
   }
 }

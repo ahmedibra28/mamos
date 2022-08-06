@@ -802,6 +802,13 @@ const permissions = [
     method: 'PUT',
   },
   {
+    description: 'Update Booking Progress',
+    route: '/api/orders/progress/:id',
+    auth: true,
+    name: 'Bookings',
+    method: 'PUT',
+  },
+  {
     description: 'Bookings Report',
     route: '/api/reports/bookings',
     auth: true,
