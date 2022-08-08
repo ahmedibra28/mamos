@@ -76,6 +76,14 @@ const orderScheme = mongoose.Schema(
       status: String,
       description: String,
     },
+    process: {
+      loadingOnTrack: { type: Boolean, default: false },
+      containerInPort: { type: Boolean, default: false },
+      checkingVGM: { type: Boolean, default: false },
+      instructionForShipments: { type: Boolean, default: false },
+      clearanceCertificate: { type: Boolean, default: false },
+      paymentDetails: { type: Boolean, default: false },
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

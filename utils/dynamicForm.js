@@ -231,10 +231,18 @@ export const staticInputSelect = (args) => {
 }
 
 export const inputCheckBox = (args) => {
-  const { register, placeholder, errors, name, label, isRequired = true } = args
+  const {
+    register,
+    placeholder,
+    errors,
+    name,
+    label,
+    isRequired = true,
+    resetStyle = false,
+  } = args
 
   return (
-    <div className='mb-3'>
+    <div className={`${!resetStyle && 'mb-3'}`}>
       <div className='form-check form-switch'>
         <input
           className='form-check-input'

@@ -10,12 +10,12 @@ import {
   FaTrash,
   FaPaperPlane,
 } from 'react-icons/fa'
+import { inputCheckBox } from '../../utils/dynamicForm'
 import { getDays } from '../../utils/helper'
 
 const Tabs = ({
   data,
   confirmOrderHandler,
-  updateOrderProgressHandler,
   isLoadingUpdateProgress,
   cancelOrderHandler,
   setCancelledReason,
@@ -42,18 +42,11 @@ const Tabs = ({
   setPayment,
   updatePayment,
 
-  loadingOnTrack,
-  setLoadingOnTrack,
-  containerInPort,
-  setContainerInPort,
-  checkingVGM,
-  setCheckingVGM,
-  instructionForShipments,
-  setInstructionForShipments,
-  clearanceCertificate,
-  setClearanceCertificate,
-  paymentDetails,
-  setPaymentDetails,
+  registerProcess,
+  errorsProcess,
+  handleSubmitProcess,
+  submitHandlerProcess,
+  steps,
 }) => {
   const isPending = data?.status === 'pending' ? true : false
   const navItems = [
@@ -115,45 +108,6 @@ const Tabs = ({
       id: 'payment3',
       label: 'Payment due',
       value: 'due',
-    },
-  ]
-
-  const steps = [
-    {
-      _id: '1',
-      label: 'Loaded the container on truck',
-      value: 'loadingOnTrack',
-      func: () => setLoadingOnTrack('loadingOnTrack'),
-    },
-    {
-      _id: '2',
-      label: 'Container in port',
-      value: 'containerInPort',
-      func: () => setContainerInPort('containerInPort'),
-    },
-    {
-      _id: '3',
-      label: 'Checked VGM',
-      value: 'checkingVGM',
-      func: () => setCheckingVGM('checkingVGM'),
-    },
-    {
-      _id: '4',
-      label: 'Instruction for shipments',
-      value: 'instructionForShipments',
-      func: () => setInstructionForShipments('instructionForShipments'),
-    },
-    {
-      _id: '5',
-      label: 'Custom clearance certificate',
-      value: 'clearanceCertificate',
-      func: () => setClearanceCertificate('clearanceCertificate'),
-    },
-    {
-      _id: '6',
-      label: 'Payment details',
-      value: 'paymentDetails',
-      func: () => setPaymentDetail('paymentDetails'),
     },
   ]
 
@@ -416,51 +370,51 @@ const Tabs = ({
                   <>
                     <h6 className='fw-bold'>Booking actions</h6>
 
-                    <div className='mt-3 border border-5 border-danger border-top-0 border-bottom-0 border-end-0 mb-2'>
-                      <label className='fw-bold ms-2'>
-                        Please complete these steps to submit this booking
-                      </label>
-                      <ul className='list-group list-group-flush'>
-                        {steps?.map((step) => (
-                          <li
-                            key={step?._id}
-                            className='list-group-item bg-transparent'
-                          >
-                            <input
-                              className='form-check-input me-1'
-                              type='checkbox'
-                              value={step?.value}
-                              id={step?._id}
-                              onClick={step?.func}
-                            />
-                            <label
-                              className='form-check-label'
-                              htmlFor={step?._id}
+                    <form onSubmit={handleSubmitProcess(submitHandlerProcess)}>
+                      <div className='mt-3 border border-5 border-warning border-top-0 border-bottom-0 border-end-0 mb-2'>
+                        <label className='fw-bold ms-2'>
+                          Please complete these steps to submit this booking
+                        </label>
+
+                        <ul className='list-group list-group-flush'>
+                          {steps?.map((step) => (
+                            <li
+                              key={step?._id}
+                              className='list-group-item bg-transparent'
                             >
-                              {step?.label}
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <button
-                      disabled={
-                        !isPending || isLoadingUpdateProgress ? true : false
-                      }
-                      onClick={() => updateOrderProgressHandler()}
-                      className='btn btn-success w-100 mb-2'
-                    >
-                      {isLoadingUpdateProgress ? (
-                        <span className='spinner-border spinner-border-sm' />
-                      ) : (
-                        <>
-                          <span className='float-start'>
-                            <FaCheckCircle className='mb-1' />
-                          </span>
-                          UPDATE CURRENT PROGRESS
-                        </>
-                      )}
-                    </button>
+                              {inputCheckBox({
+                                register: registerProcess,
+                                error: errorsProcess,
+                                name: step?.value,
+                                label: step?.label,
+                                placeholder: step?.label,
+                                isRequired: false,
+                                resetStyle: true,
+                              })}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <button
+                        type='submit'
+                        disabled={
+                          !isPending || isLoadingUpdateProgress ? true : false
+                        }
+                        className='btn btn-warning w-100 mb-2'
+                      >
+                        {isLoadingUpdateProgress ? (
+                          <span className='spinner-border spinner-border-sm' />
+                        ) : (
+                          <>
+                            <span className='float-start'>
+                              <FaCheckCircle className='mb-1' />
+                            </span>
+                            UPDATE CURRENT PROGRESS
+                          </>
+                        )}
+                      </button>
+                    </form>
+
                     <button
                       disabled={
                         !isPending || isLoadingUpdateToConfirm ? true : false
@@ -511,7 +465,7 @@ const Tabs = ({
                           rows='3'
                           type='text'
                           className='form-control'
-                          onChange={(e) => setCancelledReason(e.target.value)}
+                          onChange={(e) => setCancelledReason(!e.target.value)}
                           value={cancelledReason}
                         />
                         <button
@@ -1033,7 +987,7 @@ const Tabs = ({
               {paymentOptions?.map((p, i) => (
                 <div key={i} className='form-check'>
                   <input
-                    onChange={(e) => setPayment(e.target.value)}
+                    onChange={(e) => setPayment(!e.target.value)}
                     className='form-check-input'
                     type='radio'
                     name={p?.name}

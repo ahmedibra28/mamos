@@ -25,6 +25,16 @@ const roles = [
     description: 'Default role given to authenticated user.',
     type: 'AUTHENTICATED',
   },
+  {
+    name: 'Human Resource',
+    description: 'Default role given to human resource user.',
+    type: 'HUMAN_RESOURCE',
+  },
+  {
+    name: 'Logistic',
+    description: 'Default role given to logistic user.',
+    type: 'LOGISTIC',
+  },
 ]
 
 const users = {
