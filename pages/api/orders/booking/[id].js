@@ -18,11 +18,11 @@ handler.put(async (req, res) => {
     if (selectedTransportation?.cargoType !== 'FCL')
       return res.status(400).json({ error: 'Invalid cargo type request' })
 
-    const admin = role === 'SUPER_ADMIN' && true
+    const allowed = ['AUTHENTICATED']
 
     const order = await schemaName
       .findOne(
-        admin
+        !allowed.includes(role)
           ? { _id: id, status: 'pending' }
           : { _id: id, status: 'pending', createdBy: _id }
       )

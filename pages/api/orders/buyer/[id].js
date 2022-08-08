@@ -14,10 +14,10 @@ handler.put(async (req, res) => {
     const { buyerAddress, buyerEmail, buyerMobileNumber, buyerName } = req.body
     const { role, _id } = req.user
 
-    const admin = role === 'SUPER_ADMIN' && true
+    const allowed = ['AUTHENTICATED']
 
     const order = await schemaName.findOne(
-      admin
+      !allowed.includes(role)
         ? { _id: id, status: 'pending' }
         : { _id: id, status: 'pending', createdBy: _id }
     )

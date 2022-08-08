@@ -19,10 +19,12 @@ handler.get(async (req, res) => {
 
     const { role, _id } = req.user
 
-    const admin = role === 'SUPER_ADMIN' && true
+    const allowed = ['AUTHENTICATED']
 
     let order = await schemaName
-      .findOne(admin ? { _id: id } : { _id: id, createdBy: _id })
+      .findOne(
+        !allowed.includes(role) ? { _id: id } : { _id: id, createdBy: _id }
+      )
       .lean()
       .populate('createdBy', ['name'])
       .populate('pickUp.pickUpTown')

@@ -14,7 +14,7 @@ handler.post(async (req, res) => {
     const { startDate, endDate, status } = req.body
     const { role, _id } = req.user
 
-    const admin = role === 'SUPER_ADMIN' && true
+    const allowed = ['AUTHENTICATED']
 
     if (!startDate || !endDate)
       return res.status(404).json({ error: 'Dates must be provided' })
@@ -32,14 +32,14 @@ handler.post(async (req, res) => {
     }
 
     let query
-    if (admin) {
+    if (!allowed.includes(role)) {
       query = schemaName.find(
         status
           ? { status, createdAt: { $gte: start, $lt: end } }
           : { createdAt: { $gte: start, $lt: end } }
       )
     }
-    if (!admin) {
+    if (allowed.includes(role)) {
       query = schemaName.find(
         status
           ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
@@ -52,14 +52,14 @@ handler.post(async (req, res) => {
     const skip = (page - 1) * pageSize
     let total
 
-    if (admin) {
+    if (!allowed.includes(role)) {
       total = await schemaName.countDocuments(
         status
           ? { status, createdAt: { $gte: start, $lt: end } }
           : { createdAt: { $gte: start, $lt: end } }
       )
     }
-    if (!admin) {
+    if (allowed.includes(role)) {
       total = await schemaName.countDocuments(
         status
           ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
@@ -78,6 +78,8 @@ handler.post(async (req, res) => {
       .populate('other.transportation')
 
     const result = await query
+
+    console.log(result)
 
     res.status(200).json({
       startIndex: skip + 1,

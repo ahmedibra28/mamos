@@ -987,7 +987,7 @@ const Tabs = ({
               {paymentOptions?.map((p, i) => (
                 <div key={i} className='form-check'>
                   <input
-                    onChange={(e) => setPayment(!e.target.value)}
+                    onChange={(e) => setPayment(e.target.value)}
                     className='form-check-input'
                     type='radio'
                     name={p?.name}

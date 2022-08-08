@@ -212,37 +212,31 @@ const Details = () => {
       _id: '1',
       label: 'Loaded the container on truck',
       value: 'loadingOnTrack',
-      // checked: data?.process?.loadingOnTrack,
     },
     {
       _id: '2',
       label: 'Container in port',
       value: 'containerInPort',
-      // checked: data?.process?.containerInPort,
     },
     {
       _id: '3',
       label: 'Checked VGM',
       value: 'checkingVGM',
-      // checked: data?.process?.checkingVGM,
     },
     {
       _id: '4',
       label: 'Instruction for shipments',
       value: 'instructionForShipments',
-      // checked: data?.process?.instructionForShipments,
     },
     {
       _id: '5',
       label: 'Custom clearance certificate',
       value: 'clearanceCertificate',
-      // checked: data?.process?.clearanceCertificate,
     },
     {
       _id: '6',
       label: 'Payment details',
       value: 'paymentDetails',
-      // checked: data?.process?.paymentDetails,
     },
   ]
 
@@ -257,7 +251,9 @@ const Details = () => {
     setValueProcess('clearanceCertificate', data?.process?.clearanceCertificate)
     setValueProcess('paymentDetails', data?.process?.paymentDetails)
 
-     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // setPayment(data?.other?.payment)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
   const editBuyerHandler = () => {

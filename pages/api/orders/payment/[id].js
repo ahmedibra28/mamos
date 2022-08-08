@@ -14,10 +14,10 @@ handler.put(async (req, res) => {
     const { payment } = req.body
     const { role, _id } = req.user
 
-    const admin = role === 'SUPER_ADMIN' && true
+    const allowed = ['AUTHENTICATED']
 
     const order = await schemaName.findOne(
-      admin
+      !allowed.includes(role)
         ? { _id: id, status: 'pending' }
         : { _id: id, status: 'pending', createdBy: _id }
     )
@@ -25,7 +25,6 @@ handler.put(async (req, res) => {
     if (!order) return res.status(404).json({ error: 'Order not found' })
 
     order.other.payment = payment
-
 
     await order.save()
 
