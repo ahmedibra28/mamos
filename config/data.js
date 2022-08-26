@@ -221,6 +221,13 @@ const clientPermissions = [
     auth: true,
     description: 'Arrived booked shipments reports page',
   },
+  {
+    name: 'Order Activities',
+    path: '/activities/orders',
+    menu: 'activity',
+    auth: true,
+    description: 'Order activities page',
+  },
 ]
 
 const permissions = [
@@ -851,6 +858,13 @@ const permissions = [
     route: '/api/reports/arrived-shipments/:id',
     auth: true,
     name: 'Reports',
+    method: 'GET',
+  },
+  {
+    description: 'Order Activities',
+    route: '/api/activities/orders',
+    auth: true,
+    name: 'Activities',
     method: 'GET',
   },
 ]
