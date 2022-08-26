@@ -22,7 +22,14 @@ export default function useActivitiesHook(props) {
     { retry: 0 }
   )
 
+  const getOrderActivitiesById = useQuery(
+    ['order-activity-details'],
+    async () => await dynamicAPI('get', `${url}/orders/${id}`, {}),
+    { retry: 3, enabled: !!id }
+  )
+
   return {
     getOrderActivities,
+    getOrderActivitiesById,
   }
 }

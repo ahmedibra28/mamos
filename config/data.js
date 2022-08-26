@@ -228,6 +228,13 @@ const clientPermissions = [
     auth: true,
     description: 'Order activities page',
   },
+  {
+    name: 'Order Activity Details',
+    path: '/activities/orders/[id]',
+    menu: 'hidden',
+    auth: true,
+    description: 'Order activity details page',
+  },
 ]
 
 const permissions = [
@@ -863,6 +870,13 @@ const permissions = [
   {
     description: 'Order Activities',
     route: '/api/activities/orders',
+    auth: true,
+    name: 'Activities',
+    method: 'GET',
+  },
+  {
+    description: 'Order Activity Details',
+    route: '/api/activities/orders/:id',
     auth: true,
     name: 'Activities',
     method: 'GET',
