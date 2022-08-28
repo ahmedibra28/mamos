@@ -235,6 +235,13 @@ const clientPermissions = [
     auth: true,
     description: 'Order activity details page',
   },
+  {
+    name: 'Tasks',
+    path: '/activities/tasks',
+    menu: 'activity',
+    auth: true,
+    description: 'Tasks page',
+  },
 ]
 
 const permissions = [
@@ -880,6 +887,36 @@ const permissions = [
     auth: true,
     name: 'Activities',
     method: 'GET',
+  },
+
+  // Tasks endpoint
+  {
+    description: 'Get All Tasks',
+    route: '/api/activities/tasks',
+    auth: true,
+    name: 'Task',
+    method: 'GET',
+  },
+  {
+    description: 'Create Task',
+    route: '/api/activities/tasks',
+    auth: true,
+    name: 'Task',
+    method: 'POST',
+  },
+  {
+    description: 'Update Task',
+    route: '/api/activities/tasks/:id',
+    auth: true,
+    name: 'Task',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Task',
+    route: '/api/activities/tasks/:id',
+    auth: true,
+    name: 'Task',
+    method: 'DELETE',
   },
 ]
 
