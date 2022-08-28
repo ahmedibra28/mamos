@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import withAuth from '../../../HOC/withAuth'
 import useActivitiesHook from '../../../utils/api/activities'
 import { Message, Pagination, Spinner } from '../../../components'
-import { FaSearch } from 'react-icons/fa'
+import { FaCheckCircle, FaSearch, FaTimesCircle } from 'react-icons/fa'
 import Link from 'next/link'
 
 const Orders = () => {
@@ -83,6 +83,7 @@ const Orders = () => {
                 <th>Departure Date</th>
                 <th>Cargo Type</th>
                 <th>Status</th>
+                <th>Process</th>
                 <th>Total Amount</th>
                 <th>Details</th>
               </tr>
@@ -116,6 +117,20 @@ const Orders = () => {
                         <span className='badge bg-danger'>{order?.status}</span>
                       )}
                     </span>
+                  </td>
+                  <td>
+                    {order?.process?.loadingOnTrack &&
+                    order?.process?.containerInPort &&
+                    order?.process?.checkingVGM &&
+                    order?.process?.instructionForShipments &&
+                    order?.process?.clearanceCertificate &&
+                    order?.process?.paymentDetails &&
+                    (order.status === 'confirmed' ||
+                      order.status === 'arrived') ? (
+                      <FaCheckCircle className={`fs-4 text-success`} />
+                    ) : (
+                      <FaTimesCircle className={`fs-4 text-danger`} />
+                    )}
                   </td>
                   <td>{order?.price?.totalPrice}</td>
                   <td>
