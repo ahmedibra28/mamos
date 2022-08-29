@@ -242,6 +242,13 @@ const clientPermissions = [
     auth: true,
     description: 'Tasks page',
   },
+  {
+    name: 'Tasks',
+    path: '/activities/tasks/employees',
+    menu: 'activity',
+    auth: true,
+    description: 'Tasks by emoloyees page',
+  },
 ]
 
 const permissions = [
@@ -917,6 +924,13 @@ const permissions = [
     auth: true,
     name: 'Task',
     method: 'DELETE',
+  },
+  {
+    description: 'Get All Tasks By Employee',
+    route: '/api/activities/tasks/employees',
+    auth: true,
+    name: 'Task',
+    method: 'GET',
   },
 ]
 
