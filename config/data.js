@@ -243,11 +243,11 @@ const clientPermissions = [
     description: 'Tasks page',
   },
   {
-    name: 'Tasks',
+    name: 'Tasks Notification',
     path: '/activities/tasks/employees',
     menu: 'activity',
     auth: true,
-    description: 'Tasks by emoloyees page',
+    description: 'Tasks by employees page',
   },
 ]
 
@@ -931,6 +931,13 @@ const permissions = [
     auth: true,
     name: 'Task',
     method: 'GET',
+  },
+  {
+    description: 'Update Task By Employee',
+    route: '/api/activities/tasks/employees/:id',
+    auth: true,
+    name: 'Task',
+    method: 'UPDATE',
   },
 ]
 

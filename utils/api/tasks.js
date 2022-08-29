@@ -40,10 +40,30 @@ export default function useTasksHook(props) {
     }
   )
 
+  const getTasksByEmployee = useQuery(
+    'task-by-employee',
+    async () =>
+      await dynamicAPI(
+        'get',
+        `${url}/employees?page=${page}&q=${q}&limit=${limit}`,
+        {}
+      ),
+    { retry: 0 }
+  )
+  const updateTaskByEmployee = useMutation(
+    async (obj) => await dynamicAPI('put', `${url}/employees/${obj._id}`, obj),
+    {
+      retry: 0,
+      onSuccess: () => queryClient.invalidateQueries(['task-by-employee']),
+    }
+  )
+
   return {
     getTasks,
     updateTask,
     deleteTask,
     postTask,
+    getTasksByEmployee,
+    updateTaskByEmployee,
   }
 }

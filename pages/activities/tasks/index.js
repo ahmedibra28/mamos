@@ -7,16 +7,9 @@ import { useForm } from 'react-hook-form'
 import useTasksHook from '../../../utils/api/tasks'
 import useUsersHook from '../../../utils/api/users'
 import { Spinner, Pagination, Message, Confirm } from '../../../components'
-import {
-  dynamicInputSelect,
-  inputCheckBox,
-  inputText,
-  inputTextArea,
-  staticInputSelect,
-} from '../../../utils/dynamicForm'
-import TableView from '../../../components/TableView'
+import { dynamicInputSelect, inputTextArea } from '../../../utils/dynamicForm'
 import FormView from '../../../components/FormView'
-import { FaEdit, FaPenAlt, FaSearch, FaTimesCircle } from 'react-icons/fa'
+import { FaPenAlt, FaSearch, FaTimesCircle } from 'react-icons/fa'
 
 const Tasks = () => {
   const [page, setPage] = useState(1)
