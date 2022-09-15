@@ -238,7 +238,8 @@ handler.post(async (req, res) => {
       vgmDate,
       storageFreeGateInDate,
       shippingInstructionDate,
-      delayDate: !delayDate && arrivalDate,
+      delayDate,
+      reference,
       status,
       createdBy: req.user._id,
     })
