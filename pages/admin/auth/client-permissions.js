@@ -6,7 +6,11 @@ import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
 import useClientPermissionsHook from '../../../utils/api/clientPermissions'
 import { Spinner, Pagination, Message, Confirm } from '../../../components'
-import { inputText, inputTextArea } from '../../../utils/dynamicForm'
+import {
+  inputNumber,
+  inputText,
+  inputTextArea,
+} from '../../../utils/dynamicForm'
 import TableView from '../../../components/TableView'
 import FormView from '../../../components/FormView'
 
@@ -88,8 +92,8 @@ const ClientPermissions = () => {
 
   // TableView
   const table = {
-    header: ['Name', 'Menu', 'Path', 'Description'],
-    body: ['name', 'menu', 'path', 'description'],
+    header: ['Sort By', 'Name', 'Menu', 'Path', 'Description'],
+    body: ['sort', 'name', 'menu', 'path', 'description'],
     createdAt: 'createdAt',
     data: data,
   }
@@ -141,6 +145,13 @@ const ClientPermissions = () => {
       label: 'Menu',
       name: 'menu',
       placeholder: 'Menu',
+    }),
+    inputNumber({
+      register,
+      errors,
+      label: 'Sort By',
+      name: 'sort',
+      placeholder: 'Sort by',
     }),
     inputText({
       register,

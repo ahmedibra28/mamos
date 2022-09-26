@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { FaSignInAlt, FaUserPlus, FaPowerOff } from 'react-icons/fa'
+import { FaSignInAlt, FaPowerOff } from 'react-icons/fa'
 import useAuthHook from '../utils/api/auth'
 import { useMutation } from 'react-query'
 import { useRouter } from 'next/router'
@@ -30,13 +32,14 @@ const Navigation = () => {
     return (
       <>
         <ul className='navbar-nav ms-auto'>
-          <li className='nav-item'>
+          {/* <li className='nav-item'>
             <Link href='/auth/register'>
               <a className='nav-link' aria-current='page'>
                 <FaUserPlus className='mb-1' /> Register
               </a>
-            </Link>
+            </Link> 
           </li>
+            */}
           <li className='nav-item'>
             <Link href='/auth/login'>
               <a className='nav-link' aria-current='page'>
@@ -60,29 +63,38 @@ const Navigation = () => {
 
   const menus = () => {
     const dropdownItems =
-      customLocalStorage() &&
-      customLocalStorage().userAccessRoutes &&
-      customLocalStorage().userAccessRoutes.clientPermission &&
-      customLocalStorage().userAccessRoutes.clientPermission.map(
-        (route) => route.menu
+      customLocalStorage()?.userAccessRoutes?.clientPermission?.map(
+        (route) => ({
+          menu: route.menu,
+          sort: route.sort,
+        })
       )
 
     const menuItems =
-      customLocalStorage() &&
-      customLocalStorage().userAccessRoutes &&
-      customLocalStorage().userAccessRoutes.clientPermission &&
-      customLocalStorage().userAccessRoutes.clientPermission.map(
+      customLocalStorage()?.userAccessRoutes?.clientPermission?.map(
         (route) => route
       )
 
-    const dropdownArray =
-      dropdownItems &&
-      dropdownItems.filter((item) => item !== 'hidden' && item !== 'normal')
+    const dropdownArray = dropdownItems?.filter(
+      (item) => item?.menu !== 'hidden' && item?.menu !== 'normal'
+    )
 
-    const uniqueDropdowns = [...new Set(dropdownArray)]
+    const uniqueDropdowns = dropdownArray?.reduce((a, b) => {
+      var i = a.findIndex((x) => x.menu === b.menu)
+      return (
+        i === -1 ? a.push({ menu: b.menu, ...b, times: 1 }) : a[i].times++, a
+      )
+    }, [])
 
-    return { uniqueDropdowns, menuItems }
+    return {
+      uniqueDropdowns: uniqueDropdowns?.sort((a, b) => b?.sort - a?.sort),
+      menuItems: menuItems?.sort((a, b) => b?.sort - a?.sort),
+    }
   }
+
+  useEffect(() => {
+    menus()
+  }, [])
 
   const authItems = () => {
     return (
@@ -104,7 +116,7 @@ const Navigation = () => {
 
           {menus() &&
             menus().uniqueDropdowns.map((item) => (
-              <li key={item} className='nav-item dropdown'>
+              <li key={item?.menu} className='nav-item dropdown'>
                 <a
                   className='nav-link dropdown-toggle'
                   href='#'
@@ -113,9 +125,10 @@ const Navigation = () => {
                   data-bs-toggle='dropdown'
                   aria-expanded='false'
                 >
-                  {item === 'profile'
+                  {item?.menu === 'profile'
                     ? user() && user().name
-                    : item.charAt(0).toUpperCase() + item.substring(1)}
+                    : item?.menu.charAt(0).toUpperCase() +
+                      item?.menu.substring(1)}
                 </a>
                 <ul
                   className='dropdown-menu border-0'
@@ -124,7 +137,7 @@ const Navigation = () => {
                   {menus() &&
                     menus().menuItems.map(
                       (menu) =>
-                        menu.menu === item && (
+                        menu.menu === item?.menu && (
                           <li key={menu._id}>
                             <Link href={menu.path}>
                               <a className='dropdown-item'>{menu.name}</a>

@@ -12,12 +12,16 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    let query = schemaName.find(q ? { employee: q } : {})
+    let query = schemaName.find(
+      q ? { createdBy: req.user._id } : { createdBy: req.user._id }
+    )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
-    const total = await schemaName.countDocuments(q ? { employee: q } : {})
+    const total = await schemaName.countDocuments(
+      q ? { createdBy: req.user._id } : { createdBy: req.user._id }
+    )
 
     const pages = Math.ceil(total / pageSize)
 

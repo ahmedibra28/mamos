@@ -10,7 +10,9 @@ export default function Layout({ children }) {
         <meta property='og:title' content='Mamos Business' key='title' />
       </Head>
       <Navigation />
-      <main className='container py-2'>{children}</main>
+      <main className='container py-2' style={{ minHeight: '70vh' }}>
+        {children}
+      </main>
       <Footer />
     </>
   )

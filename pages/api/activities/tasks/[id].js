@@ -14,7 +14,10 @@ handler.put(async (req, res) => {
     const { id } = req.query
     const { employee, response, task } = req.body
 
-    const object = await schemaName.findById(id)
+    const object = await schemaName.findOne({
+      _id: id,
+      createdBy: req.user._id,
+    })
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
@@ -33,7 +36,10 @@ handler.delete(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const object = await schemaName.findById(id)
+    const object = await schemaName.findOne({
+      _id: id,
+      createdBy: req.user._id,
+    })
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 

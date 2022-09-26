@@ -4,7 +4,9 @@ import withAuth from '../HOC/withAuth'
 const Home = () => {
   return (
     <div className='container'>
-      <h1 className='text-center text-success'>Mamos Business Dashboard</h1>
+      <p className='text-center mt-5 text-muted'>
+        Modern Dashboard Coming Soon
+      </p>
     </div>
   )
 }

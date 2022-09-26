@@ -13,7 +13,7 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { name, menu, path, description } = req.body
+    const { name, menu, path, description, sort } = req.body
 
     const object = await schemaName.findById(id)
     if (!object)
@@ -22,6 +22,7 @@ handler.put(async (req, res) => {
     object.name = name
     object.menu = menu
     object.path = path
+    object.sort = sort
     object.description = description
     await object.save()
     res.status(200).send(`${schemaNameString} updated`)
