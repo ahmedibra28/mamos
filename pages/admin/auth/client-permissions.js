@@ -123,10 +123,7 @@ const ClientPermissions = () => {
     edit
       ? mutateAsyncUpdate({
           _id: id,
-          name: data.name,
-          menu: data.menu,
-          path: data.path,
-          description: data.description,
+          ...data,
         })
       : mutateAsyncPost(data)
   }
