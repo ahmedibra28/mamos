@@ -13,3 +13,9 @@ export const Access = {
   user: ['user'],
   adminUser: ['admin', 'user'],
 }
+
+export const hide = (roles) => {
+  const userRole = customLocalStorage()?.userAccessRoutes?.role
+
+  return roles?.includes(userRole)
+}

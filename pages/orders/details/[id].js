@@ -26,6 +26,7 @@ import useCommoditiesHook from '../../../utils/api/commodities'
 import CustomFormView from '../../../components/CustomFormView'
 import Tabs from '../../../features/order/Tabs'
 import TransportationModalForm from '../../../components/ModalForm'
+import { hide } from '../../../utils/UnlockAccess'
 
 const Details = () => {
   const router = useRouter()
@@ -1032,7 +1033,7 @@ const Details = () => {
               <p className='fw-bold'>
                 TOTAL PRICE:{' '}
                 <span className='bg-dark text-light p-1 rounded-pill'>
-                  {data?.price?.totalPrice}
+                  {hide(['EXPORT']) ? <span>$</span> : data?.price?.totalPrice}
                 </span>{' '}
               </p>
             </div>

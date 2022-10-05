@@ -1,5 +1,4 @@
 import moment from 'moment'
-import { useState } from 'react'
 import {
   FaCheckCircle,
   FaCloudDownloadAlt,
@@ -12,6 +11,7 @@ import {
 } from 'react-icons/fa'
 import { inputCheckBox } from '../../utils/dynamicForm'
 import { getDays } from '../../utils/helper'
+import { hide } from '../../utils/UnlockAccess'
 
 const Tabs = ({
   data,
@@ -718,25 +718,49 @@ const Tabs = ({
                   {data?.price?.invoicePrice && (
                     <tr>
                       <td className='fw-bold'>Invoice Amount: </td>
-                      <td>{data?.price?.invoicePrice} </td>
+                      <td>
+                        {hide(['EXPORT']) ? (
+                          <span className='badge bg-danger'>N/A</span>
+                        ) : (
+                          data?.price?.invoicePrice
+                        )}{' '}
+                      </td>
                     </tr>
                   )}
                   {data?.price?.pickUpPrice && (
                     <tr>
                       <td className='fw-bold'>Pick-up Amount: </td>
-                      <td>{data?.price?.pickUpPrice} </td>
+                      <td>
+                        {hide(['EXPORT']) ? (
+                          <span className='badge bg-danger'>N/A</span>
+                        ) : (
+                          data?.price?.pickUpPrice
+                        )}{' '}
+                      </td>
                     </tr>
                   )}
                   {data?.price?.dropOffPrice && (
                     <tr>
                       <td className='fw-bold'>Drop-off Amount: </td>
-                      <td>{data?.price?.dropOffPrice} </td>
+                      <td>
+                        {hide(['EXPORT']) ? (
+                          <span className='badge bg-danger'>N/A</span>
+                        ) : (
+                          data?.price?.dropOffPrice
+                        )}{' '}
+                      </td>
                     </tr>
                   )}
                   {data?.price?.customerPrice && (
                     <tr>
                       <td className='fw-bold'>Cargo Amount: </td>
-                      <td>{data?.price?.customerPrice} </td>
+                      <td>
+                        {hide(['EXPORT']) ? (
+                          <span className='badge bg-danger'>N/A</span>
+                        ) : (
+                          data?.price?.customerPrice
+                        )}{' '}
+                      </td>
                     </tr>
                   )}
                   {data?.price?.customerCBM && (
@@ -766,7 +790,14 @@ const Tabs = ({
                         <tr key={index}>
                           <td>{item?.name}</td>
                           <td>{item?.quantity}</td>
-                          <td>${Number(item?.price).toFixed(2)}</td>
+                          <td>
+                            {' '}
+                            {hide(['EXPORT']) ? (
+                              <span className='badge bg-danger'>N/A</span>
+                            ) : (
+                              `$ ${Number(item?.price).toFixed(2)}`
+                            )}{' '}
+                          </td>
                           <td>
                             {(item?.quantity * Number(item?.price)).toFixed(2)}
                           </td>
