@@ -35,6 +35,11 @@ const roles = [
     description: 'Default role given to logistic user.',
     type: 'LOGISTIC',
   },
+  {
+    name: 'Export',
+    description: 'Default role given to export user.',
+    type: 'EXPORT',
+  },
 ]
 
 const users = {
