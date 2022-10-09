@@ -795,11 +795,17 @@ const Tabs = ({
                             {hide(['EXPORT']) ? (
                               <span className='badge bg-danger'>N/A</span>
                             ) : (
-                              `$ ${Number(item?.price).toFixed(2)}`
+                              `$${Number(item?.price).toFixed(2)}`
                             )}{' '}
                           </td>
                           <td>
-                            {(item?.quantity * Number(item?.price)).toFixed(2)}
+                            {hide(['EXPORT']) ? (
+                              <span className='badge bg-danger'>N/A</span>
+                            ) : (
+                              `$${(
+                                item?.quantity * Number(item?.price)
+                              ).toFixed(2)}`
+                            )}
                           </td>
                         </tr>
                       ))}

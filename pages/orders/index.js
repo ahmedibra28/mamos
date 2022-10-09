@@ -6,6 +6,7 @@ import useOrdersHook from '../../utils/api/orders'
 import { Spinner, Message, Pagination } from '../../components'
 import moment from 'moment'
 import Link from 'next/link'
+import { customLocalStorage } from '../../utils/customLocalStorage'
 
 const OrderOrders = () => {
   const [startDate, setStartDate] = useState('')
@@ -30,6 +31,20 @@ const OrderOrders = () => {
     e.preventDefault()
     mutateAsync({ startDate, endDate, status })
   }
+
+  useEffect(() => {
+    if (customLocalStorage()?.userAccessRoutes?.role === 'EXPORT') {
+      mutateAsync({
+        startDate: moment().subtract(90, 'days'),
+        endDate: moment().format(),
+        status: 'pending',
+      })
+      setStartDate(moment().subtract(90, 'days').format('YYYY-MM-DD'))
+      setEndDate(moment().format('YYYY-MM-DD'))
+      setStatus('pending')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // OrderTableView
   const table = {

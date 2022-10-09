@@ -1031,10 +1031,14 @@ const Details = () => {
                 {data?.other?.transportation?.reference}
               </p>
               <p className='fw-bold'>
-                TOTAL PRICE:{' '}
-                <span className='bg-dark text-light p-1 rounded-pill'>
-                  {hide(['EXPORT']) ? <span>$</span> : data?.price?.totalPrice}
-                </span>{' '}
+                TOTAL PRICE:
+                {hide(['EXPORT']) ? (
+                  <span className='badge bg-danger ms-2'>N/A</span>
+                ) : (
+                  <span className='bg-dark text-light p-1 rounded-pill ms-2'>
+                    {data?.price?.totalPrice}
+                  </span>
+                )}
               </p>
             </div>
             <div className='col-lg-3 col-md-4 col-12'>

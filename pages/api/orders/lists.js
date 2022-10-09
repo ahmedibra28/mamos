@@ -2,6 +2,7 @@ import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
 import Order from '../../../models/Order'
+import UserRole from '../../../models/UserRole'
 import { isAuth } from '../../../utils/auth'
 
 const schemaName = Order
@@ -29,6 +30,33 @@ handler.post(async (req, res) => {
       if (s > e) {
         return res.status(400).send('Please check the range of the date')
       }
+    }
+
+    if (role === 'EXPORT') {
+      let query = await schemaName
+        .find(
+          status
+            ? { status, createdAt: { $gte: start, $lt: end } }
+            : { createdAt: { $gte: start, $lt: end } }
+        )
+        .sort({ createdAt: -1 })
+        .lean()
+        .populate('createdBy', ['name', 'email'])
+        .populate('other.transportation')
+
+      query = query.filter(
+        (obj) => obj.createdBy?.email === 'temp@mamosbusiness.com' && obj
+      )
+
+      return res.status(200).send({
+        startIndex: 1,
+        endIndex: query.length,
+        count: query?.length,
+        page: 1,
+        pages: 1,
+        total: query?.length,
+        data: query,
+      })
     }
 
     let query
