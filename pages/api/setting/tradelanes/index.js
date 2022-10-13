@@ -37,6 +37,23 @@ handler.get(async (req, res) => {
 
     const result = await query
 
+    // const tradelanes = await Tradelane.find({}).lean()
+    let transportations = await Transportation.find(
+      {
+        status: 'active',
+      },
+      { reference: 1 }
+    ).lean()
+
+    const tradelanes = await Tradelane.find({}, { transportation: 1 }).lean()
+
+    const newTransportation = transportations.filter(
+      (trans) =>
+        !tradelanes
+          ?.map((trade) => trade?.transportation?.toString())
+          .includes(trans?._id?.toString())
+    )
+
     res.status(200).json({
       startIndex: skip + 1,
       endIndex: skip + result.length,
@@ -45,6 +62,7 @@ handler.get(async (req, res) => {
       pages,
       total,
       data: result,
+      newTransportation,
     })
   } catch (error) {
     res.status(500).json({ error: error.message })

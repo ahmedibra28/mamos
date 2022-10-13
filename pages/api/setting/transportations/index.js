@@ -7,7 +7,6 @@ import { undefinedChecker } from '../../../../utils/helper'
 import moment from 'moment'
 import { priceFormat } from '../../../../utils/priceFormat'
 import Seaport from '../../../../models/Seaport'
-import Airport from '../../../../models/Airport'
 
 const schemaName = Transportation
 
@@ -41,14 +40,6 @@ handler.get(async (req, res) => {
       })
       .populate({
         path: 'arrivalSeaport',
-        populate: { path: 'country' },
-      })
-      .populate({
-        path: 'arrivalAirport',
-        populate: { path: 'country' },
-      })
-      .populate({
-        path: 'departureAirport',
         populate: { path: 'country' },
       })
 
@@ -102,8 +93,6 @@ handler.post(async (req, res) => {
       price,
       departureSeaport,
       arrivalSeaport,
-      departureAirport,
-      arrivalAirport,
       departureDate,
       arrivalDate,
       vgmDate,
@@ -204,21 +193,6 @@ handler.post(async (req, res) => {
           .json({ error: 'Departure or arrival seaport not found' })
     }
 
-    if (departureAirport || arrivalAirport) {
-      const departure = await Airport.findOne({
-        _id: departureAirport,
-        status: 'active',
-      })
-      const arrival = await Airport.findOne({
-        _id: airportAirport,
-        status: 'active',
-      })
-      if (!departure || !arrival)
-        return res
-          .status(404)
-          .json({ error: 'Departure or arrival airport not found' })
-    }
-
     const trans = await schemaName.findOne({
       reference: reference.toUpperCase(),
     })
@@ -231,8 +205,6 @@ handler.post(async (req, res) => {
       container,
       departureSeaport: undefinedChecker(departureSeaport),
       arrivalSeaport: undefinedChecker(arrivalSeaport),
-      departureAirport: undefinedChecker(departureAirport),
-      arrivalAirport: undefinedChecker(arrivalAirport),
       departureDate,
       arrivalDate,
       vgmDate,

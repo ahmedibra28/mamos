@@ -166,7 +166,7 @@ const Navigation = () => {
   }
 
   return (
-    <nav className='navbar navbar-expand-md navbar-light bg-light'>
+    <nav className='navbar navbar-expand-sm navbar-dark bg-primary'>
       <div className='container'>
         <Link href='/'>
           <a>
@@ -174,7 +174,7 @@ const Navigation = () => {
             <img
               width='90'
               height='auto'
-              src='/dark-logo.png'
+              src='/logo.png'
               className='img-fluid brand-logos'
               alt='logo'
             />

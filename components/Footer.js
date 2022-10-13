@@ -15,7 +15,7 @@ const Footer = () => {
           </a>
           <br />
           <Image src='/w-logo.png' width='30' height='30' alt='logo' />
-          <span id='watermark' className='ms-3' />
+          <span className='ms-3 float-end me-5 pe-5'>version: 1.2</span>
         </div>
       </div>
     </footer>

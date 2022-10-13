@@ -7,7 +7,6 @@ import { useForm } from 'react-hook-form'
 import useTransportationsHook from '../../utils/api/transportations'
 import useContainersHook from '../../utils/api/containers'
 import useSeaportsHook from '../../utils/api/seaports'
-import useAirportsHook from '../../utils/api/airports'
 
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
@@ -41,9 +40,6 @@ const Transportations = () => {
   const { getSeaports } = useSeaportsHook({
     limit: 10000000,
   })
-  const { getAirports } = useAirportsHook({
-    limit: 10000000,
-  })
 
   const {
     register,
@@ -59,7 +55,6 @@ const Transportations = () => {
   const { data, isLoading, isError, error, refetch } = getTransportations
   const { data: containersData } = getContainers
   const { data: seaportsData } = getSeaports
-  const { data: airportsData } = getAirports
 
   const {
     isLoading: isLoadingUpdate,
@@ -136,9 +131,7 @@ const Transportations = () => {
     setId(item._id)
 
     table.body.map((t) => setValue(t, item[t]))
-    setValue('departureAirport', item?.departureAirport?._id)
     setValue('transportationType', item?.transportationType)
-    setValue('arrivalAirport', item?.arrivalAirport?._id)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
     setValue('vgmDate', item?.vgmDate)
@@ -198,7 +191,7 @@ const Transportations = () => {
       label: 'Transportation Type',
       name: 'transportationType',
       placeholder: 'Select transportation type',
-      data: [{ name: 'ship' }, { name: 'plane' }],
+      data: [{ name: 'ship' }],
     }),
 
     staticInputSelect({
@@ -207,7 +200,7 @@ const Transportations = () => {
       label: 'Cargo Type',
       name: 'cargoType',
       placeholder: 'Select cargo type',
-      data: [{ name: 'FCL' }, { name: 'LCL' }, { name: 'AIR' }],
+      data: [{ name: 'FCL' }],
     }),
     watch().cargoType === 'FCL' && watch().transportationType === 'ship' ? (
       <div>
@@ -263,59 +256,31 @@ const Transportations = () => {
       placeholder: 'Enter reference',
     }),
 
-    watch().cargoType === 'AIR' &&
-      dynamicInputSelect({
-        register,
-        errors,
-        label: 'Departure Airport',
-        name: 'departureAirport',
-        placeholder: 'Select departure airport',
-        value: 'name',
-        data: airportsData?.data?.filter(
-          (item) =>
-            item.status === 'active' && item._id !== watch().arrivalAirport
-        ),
-      }),
-    watch().cargoType === 'AIR' &&
-      dynamicInputSelect({
-        register,
-        errors,
-        label: 'Arrival Airport',
-        name: 'arrivalAirport',
-        placeholder: 'Select arrival airport',
-        value: 'name',
-        data: airportsData?.data?.filter(
-          (item) =>
-            item.status === 'active' && item._id !== watch().departureAirport
-        ),
-      }),
+    dynamicInputSelect({
+      register,
+      errors,
+      label: 'Departure Seaport',
+      name: 'departureSeaport',
+      placeholder: 'Select departure airport',
+      value: 'name',
+      data: seaportsData?.data?.filter(
+        (item) =>
+          item.status === 'active' && item._id !== watch().arrivalSeaport
+      ),
+    }),
 
-    watch().cargoType !== 'AIR' &&
-      dynamicInputSelect({
-        register,
-        errors,
-        label: 'Departure Seaport',
-        name: 'departureSeaport',
-        placeholder: 'Select departure airport',
-        value: 'name',
-        data: seaportsData?.data?.filter(
-          (item) =>
-            item.status === 'active' && item._id !== watch().arrivalSeaport
-        ),
-      }),
-    watch().cargoType !== 'AIR' &&
-      dynamicInputSelect({
-        register,
-        errors,
-        label: 'Arrival Seaport',
-        name: 'arrivalSeaport',
-        placeholder: 'Select arrival airport',
-        value: 'name',
-        data: seaportsData?.data?.filter(
-          (item) =>
-            item.status === 'active' && item._id !== watch().departureSeaport
-        ),
-      }),
+    dynamicInputSelect({
+      register,
+      errors,
+      label: 'Arrival Seaport',
+      name: 'arrivalSeaport',
+      placeholder: 'Select arrival seaport',
+      value: 'name',
+      data: seaportsData?.data?.filter(
+        (item) =>
+          item.status === 'active' && item._id !== watch().departureSeaport
+      ),
+    }),
 
     inputDate({
       register,

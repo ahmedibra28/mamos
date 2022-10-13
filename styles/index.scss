@@ -1,7 +1,25 @@
-$primary-color: #0c2239;
-$secondary-color: #f9c212;
-
-$primary: $primary-color;
-$secondary: $secondary-color;
+$primary: #173662;
+$secondary: #495c76;
+$danger: #ff3985;
+$light: #fff;
+$warning: #fac410;
 
 @import '../node_modules/bootstrap/scss/bootstrap';
+@import url('https://fonts.googleapis.com/css2?family=Yellowtail&display=swap');
+
+input,
+button,
+select,
+textarea {
+  border-radius: 0 !important;
+}
+
+body {
+  color: #173662 !important;
+  background-color: #f2f6fb !important;
+  font-size: 105% !important;
+}
+
+.title {
+  font-family: 'Yellowtail', cursive !important;
+}

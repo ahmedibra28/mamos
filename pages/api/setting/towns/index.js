@@ -2,7 +2,6 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import Town from '../../../../models/Town'
 import Country from '../../../../models/Country'
-import Airport from '../../../../models/Airport'
 import Seaport from '../../../../models/Seaport'
 import { isAuth } from '../../../../utils/auth'
 import { priceFormat } from '../../../../utils/priceFormat'
@@ -33,7 +32,6 @@ handler.get(async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .populate('country', ['name'])
-      .populate('airport', ['name'])
       .populate('seaport', ['name'])
 
     let result = await query
@@ -61,22 +59,12 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
-    const { name, country, status, cost, price, seaport, airport, isPort } =
-      req.body
+    const { name, country, status, cost, price, seaport, isPort } = req.body
 
     if (Number(cost) > Number(price))
       return res
         .status(404)
         .json({ error: 'Cost must be greater than price amount' })
-
-    if (isPort) {
-      if (!seaport)
-        return res.status(404).json({ error: 'Seaport is required' })
-    }
-    if (!isPort) {
-      if (!airport)
-        return res.status(404).json({ error: 'Airport is required' })
-    }
 
     // check if status is active
     if (req.body.country) {
@@ -86,13 +74,7 @@ handler.post(async (req, res) => {
       })
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
-    if (req.body.airport) {
-      const obj = await Airport.findOne({
-        airport: req.body.airport,
-        status: 'active',
-      })
-      if (!obj) return res.status(404).json({ error: 'Airport not found' })
-    }
+
     if (req.body.seaport) {
       const obj = await Seaport.findOne({
         seaport: req.body.seaport,
@@ -112,7 +94,6 @@ handler.post(async (req, res) => {
         : {
             name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
             country: req.body.country,
-            airport: req.body.airport,
           }
     )
 
@@ -125,9 +106,7 @@ handler.post(async (req, res) => {
       cost,
       price,
       status,
-      isPort,
-      airport: isPort ? undefined : airport,
-      seaport: isPort ? seaport : undefined,
+      seaport,
       createdBy: req.user._id,
     }
 

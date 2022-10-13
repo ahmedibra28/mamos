@@ -6,12 +6,10 @@ import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
 import useTownsHook from '../../utils/api/towns'
 import useCountriesHook from '../../utils/api/countries'
-import useAirportsHook from '../../utils/api/airports'
 import useSeaportsHook from '../../utils/api/seaports'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
   dynamicInputSelect,
-  inputCheckBox,
   inputNumber,
   inputText,
   staticInputSelect,
@@ -33,9 +31,7 @@ const Towns = () => {
   const { getCountries } = useCountriesHook({
     limit: 100,
   })
-  const { getAirports } = useAirportsHook({
-    limit: 1000,
-  })
+
   const { getSeaports } = useSeaportsHook({
     limit: 1000,
   })
@@ -48,14 +44,11 @@ const Towns = () => {
     reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      isPort: false,
-    },
+    defaultValues: {},
   })
 
   const { data, isLoading, isError, error, refetch } = getTowns
   const { data: countriesData } = getCountries
-  const { data: airportsData } = getAirports
   const { data: seaportsData } = getSeaports
 
   const {
@@ -105,24 +98,8 @@ const Towns = () => {
 
   // TableView
   const table = {
-    header: [
-      'Country',
-      'Town',
-      'Airport',
-      'Seaport',
-      'Cost',
-      'Price',
-      'Status',
-    ],
-    body: [
-      'country.name',
-      'name',
-      'airport.name',
-      'seaport.name',
-      'cost',
-      'price',
-      'status',
-    ],
+    header: ['Country', 'Town', 'Seaport', 'Cost', 'Price', 'Status'],
+    body: ['country.name', 'name', 'seaport.name', 'cost', 'price', 'status'],
     createdAt: 'createdAt',
     data: data,
   }
@@ -133,8 +110,6 @@ const Towns = () => {
     table.body.map((t) => setValue(t, item[t]))
     setValue('country', item?.country?._id)
     setValue('seaport', item?.seaport?._id)
-    setValue('airport', item?.airport?._id)
-    setValue('isPort', item?.isPort)
     setValue('cost', reversePriceFormat(item?.cost))
     setValue('price', reversePriceFormat(item?.price))
 
@@ -162,8 +137,6 @@ const Towns = () => {
           name: data.name,
           country: data.country,
           seaport: data.seaport,
-          airport: data.airport,
-          isPort: data.isPort,
           cost: data.cost,
           price: data.price,
           status: data.status,
@@ -188,31 +161,8 @@ const Towns = () => {
       data: countriesData?.data?.filter((item) => item.status === 'active'),
       value: 'name',
     }),
+
     watch().country &&
-      inputCheckBox({
-        register,
-        errors,
-        label: 'Is Port?',
-        name: 'isPort',
-        placeholder: 'Select option',
-        isRequired: false,
-      }),
-    watch().country &&
-      !watch().isPort &&
-      dynamicInputSelect({
-        register,
-        errors,
-        label: 'Airport',
-        name: 'airport',
-        placeholder: 'Select airport',
-        data: airportsData?.data?.filter(
-          (item) =>
-            item.status === 'active' && item.country?._id === watch().country
-        ),
-        value: 'name',
-      }),
-    watch().country &&
-      watch().isPort &&
       dynamicInputSelect({
         register,
         errors,

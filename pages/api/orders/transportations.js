@@ -13,20 +13,12 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const {
-      transportationType,
-      pickUpAirport,
-      pickUpSeaport,
-      dropOffAirport,
-      dropOffSeaport,
-      cargoType,
-    } = req.body
+    const { transportationType, pickUpSeaport, dropOffSeaport, cargoType } =
+      req.body
 
     if (transportationType === 'plane') {
       let object = await schemaName
         .find({
-          departureAirport: pickUpAirport,
-          arrivalAirport: dropOffAirport,
           cargoType,
           status: 'active',
           departureDate: { $gt: moment().format() },
@@ -34,9 +26,7 @@ handler.post(async (req, res) => {
         .lean()
         .sort({ createdAt: -1 })
         .populate('arrivalSeaport')
-        .populate('arrivalAirport')
         .populate('departureSeaport')
-        .populate('departureAirport')
         .populate('container.container')
 
       object = object.map((obj) => ({
@@ -87,9 +77,7 @@ handler.post(async (req, res) => {
         .lean()
         .sort({ createdAt: -1 })
         .populate('arrivalSeaport')
-        .populate('arrivalAirport')
         .populate('departureSeaport')
-        .populate('departureAirport')
         .populate('container.container')
 
       object = object.map((obj) => ({

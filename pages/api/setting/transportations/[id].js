@@ -1,6 +1,5 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Airport from '../../../../models/Airport'
 import Container from '../../../../models/Container'
 import Seaport from '../../../../models/Seaport'
 import Tradelane from '../../../../models/Tradelane'
@@ -26,8 +25,6 @@ handler.put(async (req, res) => {
       price,
       departureSeaport,
       arrivalSeaport,
-      departureAirport,
-      arrivalAirport,
       departureDate,
       arrivalDate,
       vgmDate,
@@ -140,21 +137,6 @@ handler.put(async (req, res) => {
           .json({ error: 'Departure or arrival seaport not found' })
     }
 
-    if (departureAirport || arrivalAirport) {
-      const departure = await Airport.findOne({
-        _id: departureAirport,
-        status: 'active',
-      })
-      const arrival = await Airport.findOne({
-        _id: arrivalAirport,
-        status: 'active',
-      })
-      if (!departure || !arrival)
-        return res
-          .status(404)
-          .json({ error: 'Departure or arrival airport not found' })
-    }
-
     object.name = name
     object.transportationType = transportationType
     object.cargoType = cargoType
@@ -162,8 +144,6 @@ handler.put(async (req, res) => {
     object.reference = reference
     object.departureSeaport = undefinedChecker(departureSeaport)
     object.arrivalSeaport = undefinedChecker(arrivalSeaport)
-    object.departureAirport = undefinedChecker(departureAirport)
-    object.arrivalAirport = undefinedChecker(arrivalAirport)
     object.departureDate = departureDate
     object.arrivalDate = arrivalDate
     object.vgmDate = vgmDate

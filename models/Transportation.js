@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 import User from './User'
 import Container from './Container'
 import Seaport from './Seaport'
-import Airport from './Airport'
 
 const transportationScheme = mongoose.Schema(
   {
@@ -11,9 +10,9 @@ const transportationScheme = mongoose.Schema(
     transportationType: {
       type: String,
       required: true,
-      enum: ['track', 'ship', 'train', 'plane'],
+      enum: ['ship'],
     },
-    cargoType: { type: String, enum: ['FCL', 'LCL', 'AIR'], required: true },
+    cargoType: { type: String, enum: ['FCL'], required: true },
     container: [
       {
         container: { type: mongoose.Schema.Types.ObjectId, ref: Container },
@@ -23,8 +22,6 @@ const transportationScheme = mongoose.Schema(
     ],
     departureSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
     arrivalSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
-    departureAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
-    arrivalAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     departureDate: { type: Date, required: true },
     arrivalDate: { type: Date, required: true },
     storageFreeGateInDate: { type: Date, required: true },

@@ -44,7 +44,7 @@ const roles = [
 
 const users = {
   name: 'Ahmed Ibrahim',
-  email: 'ahmaat19@gmail.com',
+  email: 'info@ahmedibra.com',
   password: '123456',
   confirmed: true,
   blocked: false,
@@ -130,14 +130,7 @@ const clientPermissions = [
     auth: true,
     description: 'Agencies page',
   },
-  {
-    name: 'Airports',
-    path: '/setting/airports',
-    menu: 'setting',
-    sort: 2,
-    auth: true,
-    description: 'Airports page',
-  },
+
   {
     name: 'Seaports',
     path: '/setting/seaports',
@@ -509,36 +502,6 @@ const permissions = [
     route: '/api/setting/agencies/:id',
     auth: true,
     name: 'Agency',
-    method: 'DELETE',
-  },
-
-  // Airport endpoint
-  {
-    description: 'Get All Airports',
-    route: '/api/setting/airports',
-    auth: true,
-    name: 'Airport',
-    method: 'GET',
-  },
-  {
-    description: 'Create Airport',
-    route: '/api/setting/airports',
-    auth: true,
-    name: 'Airport',
-    method: 'POST',
-  },
-  {
-    description: 'Update Airport',
-    route: '/api/setting/airports/:id',
-    auth: true,
-    name: 'Airport',
-    method: 'PUT',
-  },
-  {
-    description: 'Delete Airport',
-    route: '/api/setting/airports/:id',
-    auth: true,
-    name: 'Airport',
     method: 'DELETE',
   },
 

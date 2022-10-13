@@ -32,6 +32,7 @@ handler.put(async (req, res) => {
     if (!transportationObj)
       return res.status(404).json({ error: 'Transportation not found' })
 
+    object.transportation = transportation
     object.tradelane = tradelane
     object.status = status
     object.updatedBy = req.user._id

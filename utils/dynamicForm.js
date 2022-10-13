@@ -265,22 +265,14 @@ export const inputCheckBox = (args) => {
 }
 
 export const inputMultipleCheckBox = (args) => {
-  const {
-    register,
-    placeholder,
-    errors,
-    name,
-    data,
-    label,
-    isRequired = true,
-  } = args
+  const { register, errors, name, data, label, isRequired = true } = args
 
   return (
     <div className='mb-3'>
       <div className='row g-1 mb-3'>
         {data &&
           data?.map((d) => (
-            <div key={d._id} className='col-md-4 col-6'>
+            <div key={d._id} className='col-6'>
               <div className='form-check form-switch'>
                 <input
                   {...register(

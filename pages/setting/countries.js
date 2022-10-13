@@ -82,8 +82,8 @@ const Countries = () => {
 
   // TableView
   const table = {
-    header: ['Name', 'Status'],
-    body: ['name', 'status'],
+    header: ['ID', 'Name', 'Status'],
+    body: ['_id', 'name', 'status'],
     createdAt: 'createdAt',
     data: data,
   }

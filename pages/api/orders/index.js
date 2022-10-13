@@ -45,8 +45,8 @@ handler.get(async (req, res) => {
 })
 
 const movementTypes = {
-  pickUp: ['door to door', 'door to port', 'door to airport'],
-  dropOff: ['door to door', 'port to door', 'airport to door'],
+  pickUp: ['door to door', 'door to port'],
+  dropOff: ['door to door', 'port to door'],
 }
 
 const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
@@ -56,7 +56,6 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
   }
-  delete pickUp.pickUpAirport
 
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
@@ -64,7 +63,6 @@ const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
   }
-  delete dropOff.dropOffAirport
 
   if (!other.isHasInvoice) {
     delete other.invoice
@@ -103,7 +101,6 @@ const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete pickUp.pickUpCity
     delete pickUp.pickUpAddress
   }
-  delete pickUp.pickUpAirport
 
   if (!movementTypes.dropOff.includes(other.movementType)) {
     delete dropOff.dropOffTown
@@ -111,7 +108,6 @@ const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
     delete dropOff.dropOffCity
     delete dropOff.dropOffAddress
   }
-  delete dropOff.dropOffAirport
 
   if (!other.isHasInvoice) {
     delete other.invoice
@@ -219,8 +215,6 @@ const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
   other.transportation = other?.transportation?._id
 
   const object = await Transportation.find({
-    departureAirport: pickUp.pickUpAirport,
-    arrivalAirport: dropOff.dropOffAirport,
     cargoType: 'AIR',
     status: 'active',
     departureDate: { $gt: moment().format() },
@@ -255,7 +249,6 @@ handler.post(async (req, res) => {
       pickUpSeaport,
       dropOffCountry,
       dropOffSeaport,
-      dropOffAirport,
       cargoDescription,
       commodity,
       noOfPackages,
@@ -264,7 +257,6 @@ handler.post(async (req, res) => {
       buyerMobileNumber,
       buyerEmail,
       buyerAddress,
-      pickUpAirport,
       pickUpTown,
       pickUpWarehouse,
       pickUpCity,
@@ -297,7 +289,6 @@ handler.post(async (req, res) => {
       pickUpAddress,
       pickUpCountry,
       pickUpSeaport,
-      pickUpAirport,
     }
 
     const dropOff = {
@@ -307,7 +298,6 @@ handler.post(async (req, res) => {
       dropOffAddress,
       dropOffCountry,
       dropOffSeaport,
-      dropOffAirport,
     }
 
     const other = {

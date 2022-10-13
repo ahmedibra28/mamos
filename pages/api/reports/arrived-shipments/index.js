@@ -49,8 +49,6 @@ handler.get(async (req, res) => {
       .populate('createdBy', ['name'])
       .populate('departureSeaport', ['name'])
       .populate('arrivalSeaport', ['name'])
-      .populate('departureAirport', ['name'])
-      .populate('arrivalAirport', ['name'])
 
     let result = await query
 

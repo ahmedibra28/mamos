@@ -5,7 +5,6 @@ import withAuth from '../../HOC/withAuth'
 import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
 import useTradelanesHook from '../../utils/api/tradelanes'
-import useTransportationsHook from '../../utils/api/transportations'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import { dynamicInputSelect, staticInputSelect } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
@@ -13,6 +12,8 @@ import TradelaneFormView from '../../components/TradelaneFormView'
 import moment from 'moment'
 
 const Tradelanes = () => {
+  const [tempTrans, setTempTrans] = useState('')
+
   const [page, setPage] = useState(1)
   const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
@@ -27,15 +28,6 @@ const Tradelanes = () => {
     },
   ])
 
-  const { getTradelanes, postTradelane, updateTradelane, deleteTradelane } =
-    useTradelanesHook({
-      page,
-      q,
-    })
-  const { getTransportations } = useTransportationsHook({
-    limit: 100,
-  })
-
   const {
     register,
     handleSubmit,
@@ -47,8 +39,15 @@ const Tradelanes = () => {
     defaultValues: {},
   })
 
+  const { getTradelanes, postTradelane, updateTradelane, deleteTradelane } =
+    useTradelanesHook({
+      page,
+      q,
+    })
+
   const { data, isLoading, isError, error, refetch } = getTradelanes
-  const { data: transportationsData } = getTransportations
+
+  let newTransportation = data?.newTransportation
 
   const {
     isLoading: isLoadingUpdate,
@@ -105,9 +104,16 @@ const Tradelanes = () => {
 
   const editHandler = (item) => {
     setId(item._id)
-
+    setTempTrans([
+      {
+        _id: item?.transportation?._id,
+        reference: item.transportation?.reference,
+      },
+      ...newTransportation,
+      ,
+    ])
     table.body.map((t) => setValue(t, item[t]))
-    setValue('transportation', item?.transportation?._id)
+
     setInputFields(
       item.tradelane
         ? item.tradelane.map((fields) => ({
@@ -154,7 +160,6 @@ const Tradelanes = () => {
       },
     ])
   }
-
   const submitHandler = (data) => {
     edit
       ? mutateAsyncUpdate({
@@ -173,9 +178,7 @@ const Tradelanes = () => {
       label: 'Transportation',
       name: 'transportation',
       placeholder: 'Select transportation',
-      data: transportationsData?.data?.filter(
-        (item) => item.status === 'active'
-      ),
+      data: edit ? tempTrans : newTransportation,
       value: 'reference',
     }),
 

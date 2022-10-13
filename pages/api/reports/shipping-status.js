@@ -38,14 +38,6 @@ handler.get(async (req, res) => {
         path: 'arrivalSeaport',
         populate: { path: 'country' },
       })
-      .populate({
-        path: 'arrivalAirport',
-        populate: { path: 'country' },
-      })
-      .populate({
-        path: 'departureAirport',
-        populate: { path: 'country' },
-      })
 
     let result = await query
 
