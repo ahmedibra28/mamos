@@ -994,20 +994,18 @@ const Tabs = ({
                 </span>
                 UPDATE OTHER DETAILS
               </button>
-              {data?.other?.cargoType === 'FCL' && (
-                <button
-                  disabled={!isPending}
-                  data-bs-toggle='modal'
-                  data-bs-target={`#${modalBookingDate}`}
-                  onClick={editBookingDateHandler}
-                  className='btn btn-warning w-100 mb-2'
-                >
-                  <span className='float-start'>
-                    <FaEdit className='mb-1' />
-                  </span>
-                  CHANGE BOOKING DATE
-                </button>
-              )}
+              <button
+                disabled={!isPending}
+                data-bs-toggle='modal'
+                data-bs-target={`#${modalBookingDate}`}
+                onClick={editBookingDateHandler}
+                className='btn btn-warning w-100 mb-2'
+              >
+                <span className='float-start'>
+                  <FaEdit className='mb-1' />
+                </span>
+                CHANGE BOOKING DATE
+              </button>
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ handler.put(async (req, res) => {
 
     if (req.body.seaport) {
       const exist = await schemaName.findOne({
-        name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+        name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
         country,
         seaport,
         _id: { $ne: id },

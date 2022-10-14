@@ -50,8 +50,8 @@ handler.get(async (req, res) => {
     const newTransportation = transportations.filter(
       (trans) =>
         !tradelanes
-          ?.map((trade) => trade?.transportation?.toString())
-          .includes(trans?._id?.toString())
+          .map((trade) => trade.transportation.toString())
+          .includes(trans._id.toString())
     )
 
     res.status(200).json({

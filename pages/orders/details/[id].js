@@ -25,7 +25,7 @@ import useTownsHook from '../../../utils/api/towns'
 import useCommoditiesHook from '../../../utils/api/commodities'
 import CustomFormView from '../../../components/CustomFormView'
 import Tabs from '../../../features/order/Tabs'
-import TransportationModalForm from '../../../components/ModalForm'
+import TransportationModalForm from '../../../components/TransportationModalForm'
 import { hide } from '../../../utils/UnlockAccess'
 
 const Details = () => {
@@ -39,15 +39,6 @@ const Details = () => {
   const [transportationsData, setTransportationsData] = useState([])
   const [cancelledReason, setCancelledReason] = useState('')
   const [isCancel, setIsCancel] = useState(false)
-  const [inputFields, setInputFields] = useState([
-    {
-      qty: 0,
-      commodity: '',
-      length: '',
-      width: '',
-      height: '',
-    },
-  ])
 
   const {
     getOrderDetails,
@@ -252,8 +243,6 @@ const Details = () => {
     setValueProcess('clearanceCertificate', data?.process?.clearanceCertificate)
     setValueProcess('paymentDetails', data?.process?.paymentDetails)
 
-    // setPayment(data?.other?.payment)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
@@ -282,9 +271,8 @@ const Details = () => {
       'isTemperatureControlled',
       data?.other?.isTemperatureControlled
     )
-    setInputFields(data?.other?.containerLCL)
     setSelectedTransportation(data?.other?.transportation)
-    setSelectContainer(data?.other?.containerFCL)
+    setSelectContainer(data?.other?.containers)
     setValueOther('commodity', data?.other?.commodity?._id)
     setValueOther('grossWeight', data?.other?.grossWeight)
     setValueOther('cargoDescription', data?.other?.cargoDescription)
@@ -303,11 +291,8 @@ const Details = () => {
   const editBookingDateHandler = () => {
     transportationsMutateAsync({
       transportationType: data?.other?.transportationType,
-      pickUpAirport: data?.pickUp?.pickUpAirport,
       pickUpSeaport: data?.pickUp?.pickUpSeaport,
-      dropOffAirport: data?.dropOff?.dropOffAirport,
       dropOffSeaport: data?.dropOff?.dropOffSeaport,
-      cargoType: data?.other?.cargoType,
     })
   }
 
@@ -443,10 +428,8 @@ const Details = () => {
       label: 'PickUp town',
       name: 'pickUpTown',
       value: 'name',
-      data: townsData?.data?.filter((town) =>
-        town.status === 'active' && data?.other?.transportationType === 'plane'
-          ? town?.airport?._id === data?.pickUp?.pickUpAirport?._id
-          : town?.seaport?._id === data?.pickUp?.pickUpSeaport?._id
+      data: townsData?.data?.filter(
+        (town) => town?.seaport?._id === data?.pickUp?.pickUpSeaport?._id
       ),
     }),
   ]
@@ -479,21 +462,17 @@ const Details = () => {
       label: 'DropOff town',
       name: 'dropOffTown',
       value: 'name',
-      data: townsData?.data?.filter((town) =>
-        town.status === 'active' && data?.other?.transportationType === 'plane'
-          ? town?.airport?._id === data?.dropOff?.dropOffAirport?._id
-          : town?.seaport?._id === data?.dropOff?.dropOffSeaport?._id
+      data: townsData?.data?.filter(
+        (town) => town?.seaport?._id === data?.dropOff?.dropOffSeaport?._id
       ),
     }),
   ]
 
-  const seaFreightKG =
-    data?.other?.cargoType === 'FCL' &&
-    selectContainer?.reduce(
-      (acc, curr) =>
-        acc + curr?.container?.container?.details?.seaFreight * curr.quantity,
-      0
-    )
+  const seaFreightKG = selectContainer?.reduce(
+    (acc, curr) =>
+      acc + curr?.container?.container?.details?.seaFreight * curr.quantity,
+    0
+  )
 
   const formOther = [
     inputText({
@@ -518,44 +497,43 @@ const Details = () => {
         'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
     }),
 
-    data?.other?.cargoType === 'FCL' &&
-      dynamicInputSelect({
-        register: registerOther,
-        errors: errorsOther,
-        label: 'Commodity *',
-        name: 'commodity',
-        value: 'name',
-        data:
-          commoditiesData &&
-          commoditiesData?.data?.filter(
-            (commodity) => commodity.status === 'active'
-          ),
-      }),
-    data?.other?.cargoType === 'FCL' &&
-      inputNumber({
-        register: registerOther,
-        errors: errorsOther,
-        name: 'noOfPackages',
-        label: 'No. of Packages',
-        placeholder: 'Enter number of packages',
-      }),
-    data?.other?.cargoType === 'FCL' &&
-      inputNumber({
-        register: registerOther,
-        errors: errorsOther,
-        name: 'grossWeight',
-        label: 'Gross Weight as KG',
-        max: seaFreightKG,
-        placeholder: 'Enter gross weight as KG',
-      }),
-    data?.other?.cargoType === 'FCL' &&
-      inputText({
-        register: registerOther,
-        errors: errorsOther,
-        name: 'cargoDescription',
-        label: 'Cargo Description',
-        placeholder: 'Enter cargo description',
-      }),
+    dynamicInputSelect({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Commodity *',
+      name: 'commodity',
+      value: 'name',
+      data:
+        commoditiesData &&
+        commoditiesData?.data?.filter(
+          (commodity) => commodity.status === 'active'
+        ),
+    }),
+
+    inputNumber({
+      register: registerOther,
+      errors: errorsOther,
+      name: 'noOfPackages',
+      label: 'No. of Packages',
+      placeholder: 'Enter number of packages',
+    }),
+
+    inputNumber({
+      register: registerOther,
+      errors: errorsOther,
+      name: 'grossWeight',
+      label: 'Gross Weight as KG',
+      max: seaFreightKG,
+      placeholder: 'Enter gross weight as KG',
+    }),
+
+    inputText({
+      register: registerOther,
+      errors: errorsOther,
+      name: 'cargoDescription',
+      label: 'Cargo Description',
+      placeholder: 'Enter cargo description',
+    }),
   ]
 
   const formDocument = [
@@ -619,15 +597,6 @@ const Details = () => {
     setTransportationsData([])
     setCancelledReason('')
     setIsCancel(false)
-    setInputFields([
-      {
-        qty: 0,
-        commodity: '',
-        length: '',
-        width: '',
-        height: '',
-      },
-    ])
   }
 
   useEffect(() => {
@@ -668,34 +637,6 @@ const Details = () => {
     isSuccessUpdatePayment,
     isSuccessUpdateProgress,
   ])
-
-  const handleAddField = () => {
-    setInputFields([
-      ...inputFields,
-      {
-        qty: '',
-        commodity: '',
-        length: '',
-        width: '',
-        height: '',
-      },
-    ])
-  }
-
-  const handleRemoveField = (index) => {
-    const list = [...inputFields]
-    list.splice(index, 1)
-    setInputFields(list)
-  }
-
-  const handleInputChange = (e, index) => {
-    const { name, value } = e.target
-    const old = inputFields[index]
-    const updated = { ...old, [name]: value }
-    var list = [...inputFields]
-    list[index] = updated
-    setInputFields(list)
-  }
 
   const addContainer = (container) => {
     const existed = selectContainer.find(
@@ -751,10 +692,8 @@ const Details = () => {
     mutateAsyncUpdateOther({
       ...dataObj,
       _id: id,
-      containerLCL: inputFields,
-      USED_CBM: data?.price?.USED_CBM,
       transportation: selectedTransportation,
-      containerFCL: selectContainer,
+      containers: selectContainer,
     })
   }
 
@@ -778,18 +717,10 @@ const Details = () => {
   const updatePayment = () => {
     mutateAsyncUpdatePayment({ _id: id, payment })
   }
-  const TOTAL_CBM = inputFields
-    ?.reduce(
-      (acc, curr) => acc + (curr.length * curr.width * curr.height) / 1000,
-      0
-    )
-    ?.toFixed(2)
 
-  const USED_CBM = data?.price?.USED_CBM + Number(TOTAL_CBM)
   const DEFAULT_CAPACITY = Number(
     data?.other?.transportation?.container[0]?.container?.details?.CBM
   )
-  const AVAILABLE_CBM = DEFAULT_CAPACITY - USED_CBM
 
   return (
     <>
@@ -963,14 +894,8 @@ const Details = () => {
         column={'col-12'}
         row={true}
         modalSize={'modal-lg'}
-        inputFields={inputFields}
-        handleAddField={handleAddField}
-        handleInputChange={handleInputChange}
-        handleRemoveField={handleRemoveField}
         commoditiesData={commoditiesData}
-        AVAILABLE_CBM={AVAILABLE_CBM}
         DEFAULT_CAPACITY={DEFAULT_CAPACITY}
-        USED_CBM={USED_CBM}
         selectedTransportation={selectedTransportation}
         cargoType={data?.other?.cargoType}
         selectContainer={selectContainer}
@@ -1053,9 +978,8 @@ const Details = () => {
                 )}
               </h6>
               <p>
-                {data?.pickUp?.pickUpSeaport?.name ||
-                  data?.pickUp?.pickUpAirport?.name}
-                , {data?.pickUp?.pickUpCountry?.name}
+                {data?.pickUp?.pickUpSeaport?.name},{' '}
+                {data?.pickUp?.pickUpCountry?.name}
               </p>
             </div>
             <div className='col-lg-3 col-md-4 col-12'>
@@ -1064,9 +988,8 @@ const Details = () => {
                 {moment(data?.other?.transportation?.delayDate).format('ll')}
               </h6>
               <p>
-                {data?.dropOff?.dropOffSeaport?.name ||
-                  data?.dropOff?.dropOffAirport?.name}
-                , {data?.dropOff?.dropOffCountry?.name}
+                {data?.dropOff?.dropOffSeaport?.name},{' '}
+                {data?.dropOff?.dropOffCountry?.name}
               </p>
             </div>
           </div>

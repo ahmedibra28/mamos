@@ -24,28 +24,27 @@ handler.post(async (req, res) => {
       })
       .lean()
       .sort({ createdAt: -1 })
-      .populate('arrivalSeaport')
-      .populate('departureSeaport')
       .populate('container.container')
 
     object = object.map((obj) => ({
       ...obj,
       cost: priceFormat(
-        obj?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) || 0
+        obj.container.reduce((acc, curr) => acc + Number(curr.cost), 0) || 0
       ),
       price: priceFormat(
-        obj?.container?.reduce((acc, curr) => acc + Number(curr?.price), 0) || 0
+        obj.container.reduce((acc, curr) => acc + Number(curr.price), 0) || 0
       ),
     }))
 
     const data = []
     const newPromiseObject = Promise.all(
-      object?.map(async (trans) => {
-        const order = await Order.find(
-          { 'other.transportation': trans?._id },
-          { _id: 1 }
-        ).lean()
-        if (order && order?.length === 0) data.push(trans)
+      object.map(async (trans) => {
+        const order = await Order.exists({
+          'other.transportation': trans._id,
+          $or: [{ status: { $ne: 'cancelled' } }],
+        })
+
+        if (!order) data.push(trans)
       })
     )
 

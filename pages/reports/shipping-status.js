@@ -69,14 +69,11 @@ const ShippingStatus = () => {
             <thead className='border-0'>
               <tr>
                 <th>Status</th>
-                <th>Sh. Reference</th>
-                <th>Cargo Type</th>
+                <th>Shipment Reference</th>
                 <th>Storage Free Gate In</th>
                 <th>Shipping Instruction</th>
                 <th>VGM Date</th>
                 <th>Departure Date</th>
-                <th>Created Date</th>
-                {/* <th>Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -86,15 +83,10 @@ const ShippingStatus = () => {
                     {storageFreeGateInDate(book?.storageFreeGateInDate)}
                   </td>
                   <td>{book?.reference}</td>
-                  <td>{book?.cargoType}</td>
-                  <td>{book?.storageFreeGateInDate?.slice(0, 10)}</td>
-                  <td>{book?.shippingInstructionDate?.slice(0, 10)}</td>
-                  <td>{book?.vgmDate?.slice(0, 10)}</td>
-                  <td>{book?.departureDate?.slice(0, 10)}</td>
-                  <td>{book?.createdAt?.slice(0, 10)}</td>
-                  {/* <td>
-                    <button className='btn btn-warning btn-sm'>Arrived</button>
-                  </td> */}
+                  <td>{book?.storageFreeGateInDate}</td>
+                  <td>{book?.shippingInstructionDate}</td>
+                  <td>{book?.vgmDate}</td>
+                  <td>{book?.departureDate}</td>
                 </tr>
               ))}
             </tbody>

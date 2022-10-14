@@ -58,12 +58,10 @@ handler.get(async (req, res) => {
       vgmDate: moment(trans.vgmDate).format('YYYY-MM-DD'),
       delayDate: moment(trans.delayDate).format('YYYY-MM-DD'),
       cost: priceFormat(
-        trans?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) ||
-          0
+        trans.container.reduce((acc, curr) => acc + Number(curr.cost), 0) || 0
       ),
       price: priceFormat(
-        trans?.container?.reduce((acc, curr) => acc + Number(curr?.price), 0) ||
-          0
+        trans.container.reduce((acc, curr) => acc + Number(curr.price), 0) || 0
       ),
     }))
 
@@ -126,7 +124,7 @@ handler.post(async (req, res) => {
 
     container = Array.isArray(container) ? container : [container]
 
-    container?.map(async (c) => {
+    container.map(async (c) => {
       const containerObj = await Container.findOne({
         _id: c,
         status: 'active',
@@ -141,11 +139,11 @@ handler.post(async (req, res) => {
 
       const costAmount = Array.isArray(cost)
         ? cost
-        : cost.split(',')?.map((c) => c.trim())
+        : cost.split(',').map((c) => c.trim())
 
       const priceAmount = Array.isArray(price)
         ? price
-        : price.split(',')?.map((c) => c.trim())
+        : price.split(',').map((c) => c.trim())
 
       if (
         containerLength !== costAmount.length ||

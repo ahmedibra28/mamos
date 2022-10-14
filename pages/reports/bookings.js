@@ -76,11 +76,10 @@ const Bookings = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Sh. Reference</th>
-                <th>B. Reference</th>
+                <th>Shipment Reference</th>
+                <th>Booking Reference</th>
                 <th>Booked Date</th>
                 <th>Departure Date</th>
-                <th>Cargo Type</th>
                 <th>Status</th>
                 <th>Total Amount</th>
               </tr>
@@ -89,12 +88,17 @@ const Bookings = () => {
               {data?.data?.map((book) => (
                 <tr key={book?._id}>
                   <td>{book?.other?.transportation?.reference}</td>
-                  <td>{book?.trackingNo}</td>
+                  <td>
+                    {book?.trackingNo === 'N/A' ? (
+                      <span className='badge bg-danger'>not provided</span>
+                    ) : (
+                      book?.trackingNo
+                    )}
+                  </td>
                   <td>{book?.createdAt?.slice(0, 10)}</td>
                   <td>
                     {book?.other?.transportation?.departureDate?.slice(0, 10)}
                   </td>
-                  <td>{book?.other?.cargoType}</td>
                   <td>
                     <span>
                       {book?.status === 'pending' && (

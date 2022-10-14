@@ -5,7 +5,6 @@ const CustomFormView = ({
   edit,
   formCleanHandler,
   form,
-  watch,
   isLoadingUpdate,
   isLoadingPost,
   handleSubmit,

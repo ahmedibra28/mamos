@@ -77,11 +77,10 @@ const Orders = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Sh. Reference</th>
+                <th>Shipment Reference</th>
                 <th>B. Reference</th>
                 <th>Booked Date</th>
                 <th>Departure Date</th>
-                <th>Cargo Type</th>
                 <th>Status</th>
                 <th>Process</th>
                 <th>Total Amount</th>
@@ -92,12 +91,17 @@ const Orders = () => {
               {data?.data?.map((order) => (
                 <tr key={order?._id}>
                   <td>{order?.other?.transportation?.reference}</td>
-                  <td>{order?.trackingNo}</td>
+                  <td>
+                    {order?.trackingNo === 'N/A' ? (
+                      <span className='badge bg-danger'>no provided</span>
+                    ) : (
+                      order?.trackingNo
+                    )}
+                  </td>
                   <td>{order?.createdAt?.slice(0, 10)}</td>
                   <td>
                     {order?.other?.transportation?.departureDate?.slice(0, 10)}
                   </td>
-                  <td>{order?.other?.cargoType}</td>
                   <td>
                     <span>
                       {order?.status === 'pending' && (
@@ -135,7 +139,9 @@ const Orders = () => {
                   <td>{order?.price?.totalPrice}</td>
                   <td>
                     <Link href={`orders/${order._id}`}>
-                      <a className='btn btn-warning btn-sm'>Details</a>
+                      <a className='badge bg-primary text-decoration-none p-2'>
+                        Details
+                      </a>
                     </Link>
                   </td>
                 </tr>

@@ -28,28 +28,50 @@ handler.put(async (req, res) => {
     if (!order) return res.status(404).json({ error: 'Order not found' })
 
     // validate order data
-    if (!order?.other?.payment)
+
+    if (
+      !order.process.loadingOnTrack ||
+      !order.process.containerInPort ||
+      !order.process.checkingVGM ||
+      !order.process.instructionForShipments ||
+      !order.process.clearanceCertificate ||
+      !order.process.paymentDetails
+    )
+      return res
+        .status(404)
+        .json({ error: 'You have to complete booking progress' })
+
+    if (order.other.containers.length === 0)
+      return res
+        .status(400)
+        .json({ error: 'You have not selected any containers' })
+
+    if (!order.other.payment)
       return res.status(400).json({ error: 'Payment is required' })
 
-    if (order?.status !== 'pending')
+    if (order.status !== 'pending')
       return res
         .status(400)
         .json({ error: 'You can not confirm or cancel this order' })
 
-    if (!order?.other?.isHasInvoice || !order?.other?.invoice)
+    if (!order.other.isHasInvoice || !order.other.invoice)
       return res
         .status(400)
         .json({ error: 'Please upload invoice before submitting' })
 
-    if (!order?.trackingNo)
+    if (
+      !order.trackingNo ||
+      order.trackingNo === 'N/A' ||
+      order.trackingNo === 'n/a'
+    )
       return res.status(400).json({ error: 'Booking trace number is required' })
 
-    if (!order?.buyer?.buyerEmail || !order?.buyer?.buyerMobileNumber)
+    if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
       return res.status(400).json({ error: 'Buyer information is not arrived' })
 
     const today = moment().format()
     const departureDate = moment(
-      order?.other?.transportation?.departureDate
+      order.other.transportation.departureDate
     ).format()
 
     if (today > departureDate)

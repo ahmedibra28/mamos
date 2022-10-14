@@ -27,7 +27,7 @@ handler.put(async (req, res) => {
 
     // check existence of object
     const exist = await schemaName.findOne({
-      mobile: req.body?.mobile?.trim(),
+      mobile: req.body.mobile.trim(),
       _id: { $ne: id },
     })
 

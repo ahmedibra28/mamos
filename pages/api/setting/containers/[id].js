@@ -20,7 +20,7 @@ handler.put(async (req, res) => {
 
     // check existence of object
     const exist = await schemaName.findOne({
-      name: { $regex: `^${name?.trim()}$`, $options: 'i' },
+      name: { $regex: `^${name.trim()}$`, $options: 'i' },
       _id: { $ne: id },
     })
 

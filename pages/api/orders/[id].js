@@ -1,6 +1,5 @@
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Container from '../../../models/Container'
 import Order from '../../../models/Order'
 import Transportation from '../../../models/Transportation'
 import Tradelane from '../../../models/Tradelane'
@@ -38,10 +37,9 @@ handler.get(async (req, res) => {
       .populate('other.commodity')
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
-
     const tradelane = await Tradelane.findOne(
       {
-        transportation: order?.other?.transportation?._id,
+        transportation: order.other.transportation._id,
       },
       { tradelane: 1 }
     ).lean()
@@ -61,24 +59,24 @@ handler.get(async (req, res) => {
       ? order.dropOff.dropOffTown.price
       : 0.0
 
-    const containerInfo = order?.other?.containers?.map((c) => ({
-      name: c?.container?.name,
-      CBM: c?.container?.details?.CBM,
-      quantity: c?.quantity,
-      price: c?.price,
+    const containerInfo = order.other.containers.map((c) => ({
+      name: c.container.name,
+      CBM: c.container.details.CBM,
+      quantity: c.quantity,
+      price: c.price,
     }))
 
-    const customerCBM = containerInfo?.reduce(
-      (acc, curr) => acc + Number(curr?.CBM) * Number(curr?.quantity),
+    const customerCBM = containerInfo.reduce(
+      (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
       0
     )
 
-    const customerPrice = containerInfo?.reduce(
-      (acc, curr) => acc + Number(curr?.price) * Number(curr?.quantity),
+    const customerPrice = containerInfo.reduce(
+      (acc, curr) => acc + Number(curr.price) * Number(curr.quantity),
       0
     )
-    const containerCBM = containerInfo?.reduce(
-      (acc, curr) => acc + Number(curr?.CBM) * Number(curr?.quantity),
+    const containerCBM = containerInfo.reduce(
+      (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
       0
     )
 
@@ -87,8 +85,8 @@ handler.get(async (req, res) => {
       pickUpPrice: priceFormat(pickUpPrice),
       dropOffPrice: priceFormat(dropOffPrice),
       customerPrice: priceFormat(customerPrice),
-      customerCBM: `${customerCBM?.toFixed(2)} cubic meter`,
-      containerCBM: `${containerCBM?.toFixed(2)} cubic meter`,
+      customerCBM: `${customerCBM.toFixed(2)} cubic meter`,
+      containerCBM: `${containerCBM.toFixed(2)} cubic meter`,
       containerInfo: containerInfo,
       totalPrice: priceFormat(
         Number(invoicePrice) +
@@ -102,52 +100,6 @@ handler.get(async (req, res) => {
       ...order,
       price,
     })
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
-
-// Not used endpoint
-handler.put(async (req, res) => {
-  await db()
-  try {
-    const { id } = req.query
-    const { name, status } = req.body
-
-    const object = await schemaName.findById(id)
-    if (!object)
-      return res.status(400).json({ error: `${schemaNameString} not found` })
-
-    // check existence of object
-    const exist = await schemaName.findOne({
-      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
-      _id: { $ne: id },
-    })
-
-    if (exist)
-      return res.status(400).json({ error: 'Duplicate value detected' })
-
-    object.name = name
-    object.status = status
-    object.updatedBy = req.user._id
-    await object.save()
-    res.status(200).send(`${schemaNameString} updated`)
-  } catch (error) {
-    res.status(500).json({ error: error.message })
-  }
-})
-
-// Not used endpoint
-handler.delete(async (req, res) => {
-  await db()
-  try {
-    const { id } = req.query
-    const object = await schemaName.findById(id)
-    if (!object)
-      return res.status(400).json({ error: `${schemaNameString} not found` })
-
-    await object.remove()
-    res.status(200).send(`${schemaNameString} removed`)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

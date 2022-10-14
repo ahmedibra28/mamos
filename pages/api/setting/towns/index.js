@@ -87,12 +87,12 @@ handler.post(async (req, res) => {
     const exist = await schemaName.findOne(
       isPort
         ? {
-            name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+            name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
             country: req.body.country,
             seaport: req.body.seaport,
           }
         : {
-            name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+            name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
             country: req.body.country,
           }
     )

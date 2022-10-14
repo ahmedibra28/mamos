@@ -52,12 +52,12 @@ const TransportationModalForm = ({
                       setSelectedTransportation={setSelectedTransportation}
                       selectedTransportation={selectedTransportation}
                       setSelectContainer={() => {}}
-                      cargoType={item[0]?.cargoType}
                     />
                   </div>
                 ))}
               </div>
             )}
+
             <div className='modal-footer'>
               <button
                 type='button'

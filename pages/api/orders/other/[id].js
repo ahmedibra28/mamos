@@ -15,10 +15,8 @@ handler.put(async (req, res) => {
     let {
       importExport,
       isTemperatureControlled,
-      containerLCL,
-      USED_CBM,
       transportation,
-      containerFCL,
+      containers,
       commodity,
       noOfPackages,
       cargoDescription,
@@ -41,66 +39,24 @@ handler.put(async (req, res) => {
     if (!order || !order.other.importExport)
       return res.status(404).json({ error: 'Order not found' })
 
-    if (order.other.cargoType !== 'FCL') {
-      const containers = Promise.all(
-        order?.other?.transportation.container.map(
-          async (o) =>
-            await Container.findOne({ status: 'active', _id: o.container })
-        )
-      )
-      const containersArray = await containers
+    transportation = transportation._id
+    if (containers.length === 0)
+      return res
+        .status(404)
+        .json({ error: 'Please select at least one container' })
 
-      const DEFAULT_CAPACITY_CONTAINERS = containersArray?.reduce(
-        (acc, curr) =>
-          acc +
-          (Number(curr.length) * Number(curr.width) * Number(curr.height)) /
-            1000,
-        0
-      )
+    order.other.importExport = importExport
+    order.other.isTemperatureControlled = isTemperatureControlled
+    order.other.containers = containers
+    order.other.transportation = transportation
+    order.other.commodity = commodity
+    order.other.noOfPackages = noOfPackages
+    order.other.cargoDescription = cargoDescription
+    order.other.grossWeight = grossWeight
+    order.trackingNo = trackingNo
 
-      const REQUEST_CBM = containerLCL?.reduce(
-        (acc, curr) =>
-          acc +
-          (Number(curr.length) * Number(curr.width) * Number(curr.height)) /
-            1000,
-        0
-      )
-
-      if (DEFAULT_CAPACITY_CONTAINERS < REQUEST_CBM + USED_CBM)
-        return res
-          .status(400)
-          .json({ error: 'You have exceeded the maximum available CBM' })
-
-      order.other.importExport = importExport
-      order.other.isTemperatureControlled = isTemperatureControlled
-
-      order.other.containerLCL = containerLCL
-
-      await order.save()
-      return res.status(200).send(order)
-    }
-
-    if (order.other.cargoType === 'FCL') {
-      transportation = transportation._id
-      if (containerFCL?.length === 0)
-        return res
-          .status(404)
-          .json({ error: 'Please select at least one container' })
-
-      order.other.importExport = importExport
-      order.other.isTemperatureControlled = isTemperatureControlled
-      order.other.containerFCL = containerFCL
-      order.other.transportation = transportation
-      order.other.commodity = commodity
-      order.other.noOfPackages = noOfPackages
-      order.other.cargoDescription = cargoDescription
-      order.other.grossWeight = grossWeight
-      order.trackingNo = trackingNo
-
-      await order.save()
-      return res.status(200).send(order)
-    }
-    return res.status(404).json({ error: 'Invalid cargo type' })
+    await order.save()
+    return res.status(200).send(order)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

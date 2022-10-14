@@ -67,7 +67,7 @@ handler.post(async (req, res) => {
     const { name, mobile, authEmail, authPassword } = req.body
     // check existence of object
     const exist = await schemaName.findOne({
-      mobile: mobile?.trim(),
+      mobile: mobile.trim(),
     })
 
     if (exist)
@@ -86,7 +86,7 @@ handler.post(async (req, res) => {
       })
 
     const existUser = await User.findOne({
-      email: authEmail?.trim().toLowerCase(),
+      email: authEmail.trim().toLowerCase(),
     })
 
     if (existUser)

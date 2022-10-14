@@ -47,15 +47,8 @@ handler.get(async (req, res) => {
       .sort({ arrivalDate: -1 })
       .lean()
       .populate('createdBy', ['name'])
-      .populate('departureSeaport', ['name'])
-      .populate('arrivalSeaport', ['name'])
 
     let result = await query
-
-    result = result.map((r) => ({
-      ...r,
-      price: priceFormat(r.price),
-    }))
 
     res.status(200).json({
       startIndex: skip + 1,

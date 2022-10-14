@@ -15,7 +15,7 @@ handler.put(async (req, res) => {
     const { selectedTransportation } = req.body
     const { role, _id } = req.user
 
-    if (selectedTransportation?.cargoType !== 'FCL')
+    if (selectedTransportation.cargoType !== 'FCL')
       return res.status(400).json({ error: 'Invalid cargo type request' })
 
     const allowed = ['AUTHENTICATED']
@@ -39,6 +39,7 @@ handler.put(async (req, res) => {
       return res.status(404).json({ error: 'Transportation not found' })
 
     order.other.transportation = transportation._id
+    order.other.containers = []
 
     await order.save()
 

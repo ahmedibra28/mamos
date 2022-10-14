@@ -51,7 +51,6 @@ const movementTypes = {
 handler.post(async (req, res) => {
   await db()
   try {
-    console.log(req.body)
     const {
       isTemperatureControlled,
       isHasInvoice,
@@ -96,7 +95,7 @@ handler.post(async (req, res) => {
       pickUpCity,
       pickUpAddress,
       pickUpSeaport,
-      pickUpCountry: transportation?.departureSeaport?.country,
+      pickUpCountry: transportation.departureSeaport.country,
     }
 
     const dropOff = {
@@ -105,7 +104,7 @@ handler.post(async (req, res) => {
       dropOffCity,
       dropOffAddress,
       dropOffSeaport,
-      dropOffCountry: transportation?.arrivalSeaport?.country,
+      dropOffCountry: transportation.arrivalSeaport.country,
     }
 
     const other = {
@@ -142,9 +141,9 @@ handler.post(async (req, res) => {
       delete other.invoice
     }
 
-    other.transportation = other?.transportation?._id
+    other.transportation = other.transportation._id
 
-    if (other?.containers?.length === 0)
+    if (other.containers.length === 0)
       return res
         .status(404)
         .json({ error: 'Please select at least one container' })

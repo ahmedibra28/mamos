@@ -105,9 +105,7 @@ const ArrivedShipments = () => {
             <thead className='border-0'>
               <tr>
                 <th>Name</th>
-                <th>Reference</th>
-                <th>Cargo Type</th>
-                <th>Price</th>
+                <th>Shipment Reference</th>
                 <th>Departure Date</th>
                 <th>Arrival Date</th>
                 <th>Action</th>
@@ -118,8 +116,6 @@ const ArrivedShipments = () => {
                 <tr key={transport?._id}>
                   <td>{transport?.name}</td>
                   <td>{transport?.reference}</td>
-                  <td>{transport?.cargoType}</td>
-                  <td>{transport?.price}</td>
                   <td>{transport?.departureDate?.slice(0, 10)}</td>
                   <td>{transport?.arrivalDate?.slice(0, 10)}</td>
 
@@ -142,7 +138,7 @@ const ArrivedShipments = () => {
                       )}
                     </button>
                     <Link href={`arrived-shipments/${transport._id}`}>
-                      <a className='btn btn-warning btn-sm ms-2'>Details</a>
+                      <a className='btn btn-primary btn-sm ms-2'>Details</a>
                     </Link>
                   </td>
                 </tr>

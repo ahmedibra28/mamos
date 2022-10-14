@@ -21,23 +21,7 @@ handler.get(async (req, res) => {
 
     const pages = Math.ceil(total / pageSize)
 
-    query = query
-      .skip(skip)
-      .limit(pageSize)
-      .sort({ createdAt: -1 })
-      .lean()
-      .lean()
-      .sort({ createdAt: -1 })
-      .lean()
-      .populate('container.container')
-      .populate({
-        path: 'departureSeaport',
-        populate: { path: 'country' },
-      })
-      .populate({
-        path: 'arrivalSeaport',
-        populate: { path: 'country' },
-      })
+    query = query.skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean()
 
     let result = await query
 
@@ -53,14 +37,6 @@ handler.get(async (req, res) => {
       ),
       vgmDate: moment(trans.vgmDate).format('YYYY-MM-DD'),
       delayDate: moment(trans.delayDate).format('YYYY-MM-DD'),
-      cost: priceFormat(
-        trans?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) ||
-          0
-      ),
-      price: priceFormat(
-        trans?.container?.reduce((acc, curr) => acc + Number(curr?.price), 0) ||
-          0
-      ),
     }))
 
     res.status(200).json({

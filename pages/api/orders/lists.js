@@ -2,7 +2,6 @@ import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
 import Order from '../../../models/Order'
-import UserRole from '../../../models/UserRole'
 import { isAuth } from '../../../utils/auth'
 
 const schemaName = Order
@@ -45,16 +44,16 @@ handler.post(async (req, res) => {
         .populate('other.transportation')
 
       query = query.filter(
-        (obj) => obj.createdBy?.email === 'temp@mamosbusiness.com' && obj
+        (obj) => obj.createdBy.email === 'booking@mamosbusiness.com' && obj
       )
 
       return res.status(200).send({
         startIndex: 1,
         endIndex: query.length,
-        count: query?.length,
+        count: query.length,
         page: 1,
         pages: 1,
-        total: query?.length,
+        total: query.length,
         data: query,
       })
     }

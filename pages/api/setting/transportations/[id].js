@@ -41,7 +41,7 @@ handler.put(async (req, res) => {
 
     // check existence of object
     const exist = await schemaName.findOne({
-      reference: { $regex: `^${req.body?.reference?.trim()}$`, $options: 'i' },
+      reference: { $regex: `^${req.body.reference.trim()}$`, $options: 'i' },
       _id: { $ne: id },
     })
     if (exist)
@@ -70,7 +70,7 @@ handler.put(async (req, res) => {
       })
     container = Array.isArray(container) ? container : [container]
 
-    container?.map(async (c) => {
+    container.map(async (c) => {
       const containerObj = await Container.findOne({
         _id: c,
         status: 'active',
@@ -85,11 +85,11 @@ handler.put(async (req, res) => {
 
       const costAmount = Array.isArray(cost)
         ? cost
-        : cost.split(',')?.map((c) => c.trim())
+        : cost.split(',').map((c) => c.trim())
 
       const priceAmount = Array.isArray(price)
         ? price
-        : price.split(',')?.map((c) => c.trim())
+        : price.split(',').map((c) => c.trim())
 
       if (
         containerLength !== costAmount.length ||

@@ -130,22 +130,23 @@ const ArrivedBookedShipments = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
+                <th>Booked By</th>
+                <th>Booked Date</th>
+                <th>Booking. Reference</th>
                 <th>Buyer Name</th>
                 <th>Buyer Mobile</th>
-                <th>B. Reference</th>
-                <th>Booked Date</th>
                 <th>Status</th>
-                <th>Total Amount</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {data?.map((book) => (
                 <tr key={book?._id}>
+                  <td>{book?.createdBy?.name}</td>
+                  <td>{book?.createdAt?.slice(0, 10)}</td>
+                  <td>{book?.trackingNo}</td>
                   <td>{book?.buyer?.buyerName}</td>
                   <td>{book?.buyer?.buyerMobileNumber}</td>
-                  <td>{book?.trackingNo}</td>
-                  <td>{book?.createdAt?.slice(0, 10)}</td>
                   <td>
                     <span>
                       {book?.status === 'pending' && (
@@ -162,11 +163,12 @@ const ArrivedBookedShipments = () => {
                       )}
                     </span>
                   </td>
-                  <td>{book?.price?.totalPrice}</td>
                   <th>
                     <div className='btn-group'>
                       <Link href={`/orders/details/${book?._id}`}>
-                        <a className='btn btn-warning btn-sm'>Details</a>
+                        <a className='badge bg-primary p-2 text-decoration-none'>
+                          Details
+                        </a>
                       </Link>
                       <button
                         data-bs-toggle='modal'

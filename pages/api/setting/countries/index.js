@@ -46,7 +46,7 @@ handler.post(async (req, res) => {
   try {
     // check existence of object
     const exist = await schemaName.findOne({
-      name: { $regex: `^${req.body?.name?.trim()}$`, $options: 'i' },
+      name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
     })
 
     if (exist)

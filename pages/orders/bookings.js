@@ -21,7 +21,7 @@ import {
   staticInputSelect,
 } from '../../utils/dynamicForm'
 import TransportationItem from '../../components/TransportationItem'
-import { FaMinusCircle, FaPlusCircle, FaSearch, FaTrash } from 'react-icons/fa'
+import { FaMinusCircle, FaPlusCircle, FaSearch } from 'react-icons/fa'
 
 const Orders = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
@@ -287,7 +287,6 @@ const Orders = () => {
                       setSelectedTransportation={setSelectedTransportation}
                       selectedTransportation={selectedTransportation}
                       setSelectContainer={setSelectContainer}
-                      cargoType={watch().cargoType}
                     />
                   </div>
                 ))}
