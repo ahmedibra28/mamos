@@ -119,11 +119,10 @@ const OrderOrders = () => {
             <thead className='border-0'>
               <tr>
                 <td>Booking No.</td>
-                <td>Ordered By</td>
-                <td>Order Date</td>
-                <td>Transportation</td>
-                <td>Reference</td>
-                <td>Cargo Type</td>
+                <td>Booked By</td>
+                <td>Buyer Email</td>
+                <td>Booking Date</td>
+                <td>T. Reference</td>
                 <td>Status</td>
                 <td>Details</td>
               </tr>
@@ -133,12 +132,17 @@ const OrderOrders = () => {
               {table?.data?.data?.map((item) => {
                 return (
                   <tr key={item._id}>
-                    <td>{item?.trackingNo}</td>
+                    <td>
+                      {item?.trackingNo === 'N/A' ? (
+                        <span className='badge bg-danger'>Not Provided</span>
+                      ) : (
+                        item?.trackingNo
+                      )}
+                    </td>
                     <td>{item?.createdBy?.name}</td>
+                    <td>{item?.buyer?.buyerEmail}</td>
                     <td>{moment(item?.createdAt).format('lll')}</td>
-                    <td>{item?.other?.transportationType}</td>
                     <td>{item?.other?.transportation?.reference}</td>
-                    <td>{item?.other?.cargoType}</td>
                     <td>
                       <span>
                         {item?.status === 'pending' && (
@@ -163,7 +167,9 @@ const OrderOrders = () => {
                     </td>
                     <td>
                       <Link href={`/orders/details/${item?._id}`}>
-                        <a className='btn btn-warning btn-sm'>Details</a>
+                        <a className='badge bg-primary p-2 text-decoration-none'>
+                          Details
+                        </a>
                       </Link>
                     </td>
                   </tr>

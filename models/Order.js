@@ -3,7 +3,6 @@ import User from './User'
 import Town from './Town'
 import Country from './Country'
 import Seaport from './Seaport'
-import Airport from './Airport'
 import Transportation from './Transportation'
 import Commodity from './Commodity'
 
@@ -26,7 +25,6 @@ const orderScheme = mongoose.Schema(
         required: true,
       },
       pickUpSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
-      pickUpAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     },
     dropOff: {
       dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
@@ -39,16 +37,13 @@ const orderScheme = mongoose.Schema(
         required: true,
       },
       dropOffSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
-      dropOffAirport: { type: mongoose.Schema.Types.ObjectId, ref: Airport },
     },
     other: {
       isTemperatureControlled: Boolean,
       isHasInvoice: Boolean,
       importExport: { type: String, required: true },
-      transportationType: { type: String, required: true },
       movementType: { type: String, required: true },
       cargoDescription: String,
-      cargoType: { type: String, required: true },
       commodity: {
         type: mongoose.Schema.Types.ObjectId,
         ref: Commodity,
@@ -60,12 +55,11 @@ const orderScheme = mongoose.Schema(
       transportation: {
         type: mongoose.Schema.Types.ObjectId,
         ref: Transportation,
-      }, // Not available FCL
-      containerLCL: [{}], // Not available FCL
-      containerFCL: [], // Available only FCL
+      }, // shipment reference
+      containers: [], // selected shipments
     },
 
-    trackingNo: { type: String, default: 'waiting' },
+    trackingNo: { type: String, default: 'N/A' },
     cancelledReason: String,
     status: {
       type: String,

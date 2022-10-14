@@ -4,7 +4,6 @@ import db from '../../../config/db'
 import Order from '../../../models/Order'
 import Transportation from '../../../models/Transportation'
 import { isAuth } from '../../../utils/auth'
-import autoIncrement from '../../../utils/autoIncrement'
 
 const schemaName = Order
 
@@ -49,205 +48,20 @@ const movementTypes = {
   dropOff: ['door to door', 'port to door'],
 }
 
-const FCL = async ({ buyer, pickUp, dropOff, other, res }) => {
-  if (!movementTypes.pickUp.includes(other.movementType)) {
-    delete pickUp.pickUpTown
-    delete pickUp.pickUpWarehouse
-    delete pickUp.pickUpCity
-    delete pickUp.pickUpAddress
-  }
-
-  if (!movementTypes.dropOff.includes(other.movementType)) {
-    delete dropOff.dropOffTown
-    delete dropOff.dropOffWarehouse
-    delete dropOff.dropOffCity
-    delete dropOff.dropOffAddress
-  }
-
-  if (!other.isHasInvoice) {
-    delete other.invoice
-  }
-  delete other.containerLCL
-
-  other.transportation = other?.transportation?._id
-
-  if (other?.containerFCL?.length === 0)
-    return res
-      .status(404)
-      .json({ error: 'Please select at least one container' })
-
-  const object = await Transportation.find({
-    departureSeaport: pickUp.pickUpSeaport,
-    arrivalSeaport: dropOff.dropOffSeaport,
-    cargoType: 'FCL',
-    status: 'active',
-    departureDate: { $gt: moment().format() },
-  }).lean()
-
-  if (object.length === 0)
-    return res.status(404).json({ error: 'Transportation not found' })
-
-  return {
-    buyer,
-    pickUp,
-    dropOff,
-    other,
-  }
-}
-const LCL = async ({ buyer, pickUp, dropOff, other, res }) => {
-  if (!movementTypes.pickUp.includes(other.movementType)) {
-    delete pickUp.pickUpTown
-    delete pickUp.pickUpWarehouse
-    delete pickUp.pickUpCity
-    delete pickUp.pickUpAddress
-  }
-
-  if (!movementTypes.dropOff.includes(other.movementType)) {
-    delete dropOff.dropOffTown
-    delete dropOff.dropOffWarehouse
-    delete dropOff.dropOffCity
-    delete dropOff.dropOffAddress
-  }
-
-  if (!other.isHasInvoice) {
-    delete other.invoice
-  }
-  delete other.containerFCL
-  delete other.cargoDescription
-  delete other.commodity
-  delete other.noOfPackages
-  delete other.grossWeight
-
-  const USED_CBM = other?.transportation?.USED_CBM
-
-  const DEFAULT_CAPACITY_CONTAINERS = other?.transportation?.container?.reduce(
-    (acc, curr) =>
-      acc +
-      (Number(curr.container.length) *
-        Number(curr.container.width) *
-        Number(curr.container.height)) /
-        1000,
-    0
-  )
-
-  const REQUEST_CBM = other?.containerLCL?.reduce(
-    (acc, curr) =>
-      acc +
-      (Number(curr.length) * Number(curr.width) * Number(curr.height)) / 1000,
-    0
-  )
-
-  if (DEFAULT_CAPACITY_CONTAINERS < REQUEST_CBM + USED_CBM)
-    return res
-      .status(400)
-      .json({ error: 'You have exceeded the maximum available CBM' })
-
-  other.transportation = other?.transportation?._id
-
-  const object = await Transportation.find({
-    departureSeaport: pickUp.pickUpSeaport,
-    arrivalSeaport: dropOff.dropOffSeaport,
-    cargoType: 'LCL',
-    status: 'active',
-    departureDate: { $gt: moment().format() },
-  }).lean()
-
-  if (object.length === 0)
-    return res.status(404).json({ error: 'Transportation not found' })
-
-  return {
-    buyer,
-    pickUp,
-    dropOff,
-    other,
-  }
-}
-const AIR = async ({ buyer, pickUp, dropOff, other, res }) => {
-  if (!movementTypes.pickUp.includes(other.movementType)) {
-    delete pickUp.pickUpTown
-    delete pickUp.pickUpWarehouse
-    delete pickUp.pickUpCity
-    delete pickUp.pickUpAddress
-  }
-  delete pickUp.pickUpSeaport
-
-  if (!movementTypes.dropOff.includes(other.movementType)) {
-    delete dropOff.dropOffTown
-    delete dropOff.dropOffWarehouse
-    delete dropOff.dropOffCity
-    delete dropOff.dropOffAddress
-  }
-  delete dropOff.dropOffSeaport
-
-  if (!other.isHasInvoice) {
-    delete other.invoice
-  }
-  delete other.containerFCL
-  delete other.cargoDescription
-  delete other.commodity
-  delete other.noOfPackages
-  delete other.grossWeight
-
-  const USED_CBM = other?.transportation?.USED_CBM
-
-  const DEFAULT_CAPACITY_CONTAINERS = other?.transportation?.container?.reduce(
-    (acc, curr) =>
-      acc +
-      (Number(curr.container.length) *
-        Number(curr.container.width) *
-        Number(curr.container.height)) /
-        1000,
-    0
-  )
-
-  const REQUEST_CBM = other?.containerLCL?.reduce(
-    (acc, curr) =>
-      acc +
-      (Number(curr.length) * Number(curr.width) * Number(curr.height)) / 1000,
-    0
-  )
-
-  if (DEFAULT_CAPACITY_CONTAINERS < REQUEST_CBM + USED_CBM)
-    return res
-      .status(400)
-      .json({ error: 'You have exceeded the maximum available CBM' })
-
-  other.transportation = other?.transportation?._id
-
-  const object = await Transportation.find({
-    cargoType: 'AIR',
-    status: 'active',
-    departureDate: { $gt: moment().format() },
-  }).lean()
-
-  if (object.length === 0)
-    return res.status(404).json({ error: 'Transportation not found' })
-
-  return {
-    buyer,
-    pickUp,
-    dropOff,
-    other,
-  }
-}
-
 handler.post(async (req, res) => {
   await db()
   try {
+    console.log(req.body)
     const {
       isTemperatureControlled,
       isHasInvoice,
       importExport,
-      transportationType,
       movementType,
-      cargoType,
       dropOffTown,
       dropOffWarehouse,
       dropOffCity,
       dropOffAddress,
-      pickUpCountry,
       pickUpSeaport,
-      dropOffCountry,
       dropOffSeaport,
       cargoDescription,
       commodity,
@@ -262,15 +76,9 @@ handler.post(async (req, res) => {
       pickUpCity,
       pickUpAddress,
       invoice,
-      transportation, // Not available FCL
-      containerLCL, // Not available FCL
-      containerFCL, // Available only FCL
+      transportation, // shipment reference
+      containers, // selected containers
     } = req.body
-
-    const validCargoTypes = ['FCL', 'LCL', 'AIR']
-
-    if (!cargoType || !validCargoTypes.includes(cargoType))
-      return res.status(400).json({ error: 'Invalid cargo type' })
 
     if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
       return res.status(400).json({ error: 'Buyer details are required' })
@@ -287,8 +95,8 @@ handler.post(async (req, res) => {
       pickUpWarehouse,
       pickUpCity,
       pickUpAddress,
-      pickUpCountry,
       pickUpSeaport,
+      pickUpCountry: transportation?.departureSeaport?.country,
     }
 
     const dropOff = {
@@ -296,60 +104,70 @@ handler.post(async (req, res) => {
       dropOffWarehouse,
       dropOffCity,
       dropOffAddress,
-      dropOffCountry,
       dropOffSeaport,
+      dropOffCountry: transportation?.arrivalSeaport?.country,
     }
 
     const other = {
       isTemperatureControlled,
       isHasInvoice,
       importExport,
-      transportationType,
       movementType,
       cargoDescription,
-      cargoType,
       commodity,
       noOfPackages,
       grossWeight,
       invoice,
-      transportation, // Not available FCL
-      containerLCL, // Not available FCL
-      containerFCL, // Available only FCL
+      transportation, // shipment reference
+      containers, // selected containers
     }
 
-    const trackingNo = 'waiting'
+    const trackingNo = 'N/A'
 
-    if (cargoType === 'FCL' && transportationType !== 'plane') {
-      const data = await FCL({ buyer, pickUp, dropOff, other, res })
-      const object = await Order.create({
-        ...data,
-        createdBy: req.user._id,
-        trackingNo,
-      })
-      return res.status(200).send(object)
+    if (!movementTypes.pickUp.includes(other.movementType)) {
+      delete pickUp.pickUpTown
+      delete pickUp.pickUpWarehouse
+      delete pickUp.pickUpCity
+      delete pickUp.pickUpAddress
     }
 
-    if (cargoType === 'LCL' && transportationType !== 'plane') {
-      const data = await LCL({ buyer, pickUp, dropOff, other, res })
-      const object = await Order.create({
-        ...data,
-        createdBy: req.user._id,
-        trackingNo,
-      })
-      return res.status(200).send(object)
+    if (!movementTypes.dropOff.includes(other.movementType)) {
+      delete dropOff.dropOffTown
+      delete dropOff.dropOffWarehouse
+      delete dropOff.dropOffCity
+      delete dropOff.dropOffAddress
     }
 
-    if (cargoType === 'AIR' && transportationType === 'plane') {
-      const data = await AIR({ buyer, pickUp, dropOff, other, res })
-      const object = await Order.create({
-        ...data,
-        createdBy: req.user._id,
-        trackingNo,
-      })
-      return res.status(200).send(object)
+    if (!other.isHasInvoice) {
+      delete other.invoice
     }
 
-    res.status(200).send(req.body)
+    other.transportation = other?.transportation?._id
+
+    if (other?.containers?.length === 0)
+      return res
+        .status(404)
+        .json({ error: 'Please select at least one container' })
+
+    const transObject = await Transportation.find({
+      departureSeaport: pickUp.pickUpSeaport,
+      arrivalSeaport: dropOff.dropOffSeaport,
+      status: 'active',
+      vgmDate: { $gt: moment().format() },
+    }).lean()
+
+    if (transObject.length === 0)
+      return res.status(404).json({ error: 'Transportation not found' })
+
+    const object = await Order.create({
+      buyer,
+      pickUp,
+      dropOff,
+      other,
+      createdBy: req.user._id,
+      trackingNo,
+    })
+    return res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

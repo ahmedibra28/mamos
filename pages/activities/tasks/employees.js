@@ -154,8 +154,18 @@ const Employees = () => {
                 <div className='card'>
                   <div className='card-body d-flex justify-content-between align-items-center'>
                     <div>
-                      <h5 className='card-title'>{task?.employee?.name}</h5>
-                      <div className='card-text'>
+                      <h6 className='card-title'>
+                        Sender:
+                        <span className='fw-bold'>
+                          {' '}
+                          {task?.createdBy?.name}
+                        </span>
+                      </h6>
+                      <h6 className='card-title'>
+                        Receiver:
+                        <span className='fw-bold'> {task?.employee?.name}</span>
+                      </h6>
+                      <div className='card-text font-monospace'>
                         <p>
                           <span className='fw-bold'> Comment: </span>{' '}
                           {task?.task}
@@ -163,7 +173,7 @@ const Employees = () => {
                         {task?.response && (
                           <p>
                             <span className='fw-bold'> Response: </span>
-                            {task?.task}
+                            {task?.response}
                           </p>
                         )}
                         <div

@@ -13,125 +13,45 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const { transportationType, pickUpSeaport, dropOffSeaport, cargoType } =
-      req.body
+    const { pickUpSeaport, dropOffSeaport } = req.body
 
-    if (transportationType === 'plane') {
-      let object = await schemaName
-        .find({
-          cargoType,
-          status: 'active',
-          departureDate: { $gt: moment().format() },
-        })
-        .lean()
-        .sort({ createdAt: -1 })
-        .populate('arrivalSeaport')
-        .populate('departureSeaport')
-        .populate('container.container')
+    let object = await schemaName
+      .find({
+        departureSeaport: pickUpSeaport,
+        arrivalSeaport: dropOffSeaport,
+        status: 'active',
+        vgmDate: { $gt: moment().format() },
+      })
+      .lean()
+      .sort({ createdAt: -1 })
+      .populate('arrivalSeaport')
+      .populate('departureSeaport')
+      .populate('container.container')
 
-      object = object.map((obj) => ({
-        ...obj,
-        price: priceFormat(obj.price),
-      }))
+    object = object.map((obj) => ({
+      ...obj,
+      cost: priceFormat(
+        obj?.container?.reduce((acc, curr) => acc + Number(curr?.cost), 0) || 0
+      ),
+      price: priceFormat(
+        obj?.container?.reduce((acc, curr) => acc + Number(curr?.price), 0) || 0
+      ),
+    }))
 
-      object = Promise.all(
-        object.map(async (obj) => {
-          const order = await Order.find(
-            {
-              transportation: obj._id,
-              'other.cargoType': 'AIR',
-              status: 'confirmed',
-            },
-            { 'other.containerLCL': 1 }
-          )
+    const data = []
+    const newPromiseObject = Promise.all(
+      object?.map(async (trans) => {
+        const order = await Order.find(
+          { 'other.transportation': trans?._id },
+          { _id: 1 }
+        ).lean()
+        if (order && order?.length === 0) data.push(trans)
+      })
+    )
 
-          return {
-            ...obj,
-            USED_CBM: order
-              ?.map((o) => o?.other?.containerLCL)
-              ?.flat(Infinity)
-              ?.reduce(
-                (acc, curr) =>
-                  acc +
-                  (Number(curr.length) *
-                    Number(curr.width) *
-                    Number(curr.height)) /
-                    1000,
-                0
-              ),
-          }
-        })
-      )
+    await newPromiseObject
 
-      res.status(200).send(await object)
-    }
-    if (transportationType === 'ship') {
-      let object = await schemaName
-        .find({
-          departureSeaport: pickUpSeaport,
-          arrivalSeaport: dropOffSeaport,
-          cargoType,
-          status: 'active',
-          departureDate: { $gt: moment().format() },
-        })
-        .lean()
-        .sort({ createdAt: -1 })
-        .populate('arrivalSeaport')
-        .populate('departureSeaport')
-        .populate('container.container')
-
-      object = object.map((obj) => ({
-        ...obj,
-        cost:
-          obj.cargoType === 'FCL'
-            ? priceFormat(
-                obj?.container?.reduce(
-                  (acc, curr) => acc + Number(curr?.cost),
-                  0
-                ) || 0
-              )
-            : priceFormat(obj.cost),
-        price:
-          obj.cargoType === 'FCL'
-            ? priceFormat(
-                obj?.container?.reduce(
-                  (acc, curr) => acc + Number(curr?.price),
-                  0
-                ) || 0
-              )
-            : priceFormat(obj.price),
-      }))
-
-      object = Promise.all(
-        object.map(async (obj) => {
-          const order = await Order.find(
-            {
-              transportation: obj._id,
-              'other.cargoType': 'LCL',
-              status: 'confirmed',
-            },
-            { 'other.containerLCL': 1 }
-          )
-          return {
-            ...obj,
-            USED_CBM: order
-              ?.map((o) => o?.other?.containerLCL)
-              ?.flat(Infinity)
-              ?.reduce(
-                (acc, curr) =>
-                  acc +
-                  (Number(curr.length) *
-                    Number(curr.width) *
-                    Number(curr.height)) /
-                    1000,
-                0
-              ),
-          }
-        })
-      )
-
-      res.status(200).send(await object)
-    }
+    res.status(200).send(data)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

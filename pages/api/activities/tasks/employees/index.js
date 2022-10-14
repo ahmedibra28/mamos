@@ -25,6 +25,7 @@ handler.get(async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .populate('employee', ['name'])
+      .populate('createdBy', ['name', 'email'])
 
     const result = await query
 

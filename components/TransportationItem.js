@@ -11,8 +11,10 @@ const TransportationItem = ({
 }) => {
   return (
     <div
-      className={`card ${
-        selectedTransportation?._id === item?._id ? 'shadow-lg' : 'shadow-sm'
+      className={`card border-0 ${
+        selectedTransportation?._id === item?._id
+          ? 'shadow-lg bg-primary text-light'
+          : 'shadow'
       }`}
     >
       <div className='card-body'>
@@ -61,7 +63,11 @@ const TransportationItem = ({
             setSelectContainer([]), setSelectedTransportation(item)
           }}
           type='button'
-          className='btn btn-primary btn-sm w-100'
+          className={`btn btn-primary btn-lg w-100 ${
+            selectedTransportation?._id === item?._id
+              ? ' btn-warning shadow-sm'
+              : 'shadow-sm'
+          }`}
         >
           <FaCheckCircle className='mb-1' /> SELECT
         </button>

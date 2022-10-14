@@ -465,7 +465,7 @@ const Tabs = ({
                           rows='3'
                           type='text'
                           className='form-control'
-                          onChange={(e) => setCancelledReason(!e.target.value)}
+                          onChange={(e) => setCancelledReason(e.target.value)}
                           value={cancelledReason}
                         />
                         <button
