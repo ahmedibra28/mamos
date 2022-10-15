@@ -7,7 +7,6 @@ import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
 const schemaName = Order
-const schemaNameString = 'Order'
 
 const handler = nc()
 handler.use(isAuth)

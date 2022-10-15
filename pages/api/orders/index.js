@@ -95,7 +95,6 @@ handler.post(async (req, res) => {
       pickUpCity,
       pickUpAddress,
       pickUpSeaport,
-      pickUpCountry: transportation.departureSeaport.country,
     }
 
     const dropOff = {
@@ -104,7 +103,6 @@ handler.post(async (req, res) => {
       dropOffCity,
       dropOffAddress,
       dropOffSeaport,
-      dropOffCountry: transportation.arrivalSeaport.country,
     }
 
     const other = {
@@ -148,15 +146,22 @@ handler.post(async (req, res) => {
         .status(404)
         .json({ error: 'Please select at least one container' })
 
-    const transObject = await Transportation.find({
+    const transObject = await Transportation.findOne({
+      _id: other.transportation,
       departureSeaport: pickUp.pickUpSeaport,
       arrivalSeaport: dropOff.dropOffSeaport,
       status: 'active',
       vgmDate: { $gt: moment().format() },
-    }).lean()
+    })
+      .lean()
+      .populate('departureSeaport')
+      .populate('arrivalSeaport')
 
     if (transObject.length === 0)
       return res.status(404).json({ error: 'Transportation not found' })
+
+    pickUp.pickUpCountry = transObject.departureSeaport.country
+    dropOff.dropOffCountry = transObject.arrivalSeaport.country
 
     const object = await Order.create({
       buyer,
@@ -166,7 +171,9 @@ handler.post(async (req, res) => {
       createdBy: req.user._id,
       trackingNo,
     })
-    return res.status(200).send(object)
+
+    return res.status(400).json({ error: 'no' })
+    // return res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

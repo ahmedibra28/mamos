@@ -1,6 +1,7 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
 import Container from '../../../../models/Container'
+import Order from '../../../../models/Order'
 import Seaport from '../../../../models/Seaport'
 import Tradelane from '../../../../models/Tradelane'
 import Transportation from '../../../../models/Transportation'
@@ -169,8 +170,15 @@ handler.delete(async (req, res) => {
 
     const tradelane = await Tradelane.findOne({ transportation: id })
 
-    await object.remove()
+    const orders = await Order.find({ 'other.transportation': id }, { _id: 1 })
+
+    if (orders.length > 0) {
+      orders.forEach(async (order) => {
+        await Order.remove({ _id: order._id })
+      })
+    }
     await tradelane.remove()
+    await object.remove()
 
     res.status(200).send(`${schemaNameString} removed`)
   } catch (error) {
