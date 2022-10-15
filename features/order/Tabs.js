@@ -723,7 +723,7 @@ const Tabs = ({
                     <tr>
                       <td className='fw-bold'>Invoice Amount: </td>
                       <td>
-                        {hide(['EXPORT']) ? (
+                        {hide(['LOGISTIC']) ? (
                           <span className='badge bg-danger'>N/A</span>
                         ) : (
                           data?.price?.invoicePrice
@@ -735,7 +735,7 @@ const Tabs = ({
                     <tr>
                       <td className='fw-bold'>Pick-up Amount: </td>
                       <td>
-                        {hide(['EXPORT']) ? (
+                        {hide(['LOGISTIC']) ? (
                           <span className='badge bg-danger'>N/A</span>
                         ) : (
                           data?.price?.pickUpPrice
@@ -747,7 +747,7 @@ const Tabs = ({
                     <tr>
                       <td className='fw-bold'>Drop-off Amount: </td>
                       <td>
-                        {hide(['EXPORT']) ? (
+                        {hide(['LOGISTIC']) ? (
                           <span className='badge bg-danger'>N/A</span>
                         ) : (
                           data?.price?.dropOffPrice
@@ -759,7 +759,7 @@ const Tabs = ({
                     <tr>
                       <td className='fw-bold'>Cargo Amount: </td>
                       <td>
-                        {hide(['EXPORT']) ? (
+                        {hide(['LOGISTIC']) ? (
                           <span className='badge bg-danger'>N/A</span>
                         ) : (
                           data?.price?.customerPrice
@@ -796,14 +796,14 @@ const Tabs = ({
                           <td>{item?.quantity}</td>
                           <td>
                             {' '}
-                            {hide(['EXPORT']) ? (
+                            {hide(['LOGISTIC']) ? (
                               <span className='badge bg-danger'>N/A</span>
                             ) : (
                               `$${Number(item?.price).toFixed(2)}`
                             )}{' '}
                           </td>
                           <td>
-                            {hide(['EXPORT']) ? (
+                            {hide(['LOGISTIC']) ? (
                               <span className='badge bg-danger'>N/A</span>
                             ) : (
                               `$${(

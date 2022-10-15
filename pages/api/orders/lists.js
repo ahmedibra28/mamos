@@ -12,9 +12,7 @@ handler.post(async (req, res) => {
   await db()
   try {
     const { startDate, endDate, status } = req.body
-    const { role, _id } = req.user
-
-    const allowed = ['AUTHENTICATED']
+    const { role } = req.user
 
     if (!startDate || !endDate)
       return res.status(404).json({ error: 'Dates must be provided' })
@@ -31,68 +29,46 @@ handler.post(async (req, res) => {
       }
     }
 
-    if (role === 'EXPORT') {
-      let query = await schemaName
-        .find(
-          status
-            ? { status, createdAt: { $gte: start, $lt: end } }
-            : { createdAt: { $gte: start, $lt: end } }
-        )
-        .sort({ createdAt: -1 })
-        .lean()
-        .populate('createdBy', ['name', 'email'])
-        .populate('other.transportation')
+    const allowedRoles = ['SUPER_ADMIN', 'ADMIN']
+    const canAccess = allowedRoles.includes(role)
 
-      query = query.filter(
-        (obj) => obj.createdBy.email === 'booking@mamosbusiness.com' && obj
-      )
-
-      return res.status(200).send({
-        startIndex: 1,
-        endIndex: query.length,
-        count: query.length,
-        page: 1,
-        pages: 1,
-        total: query.length,
-        data: query,
-      })
-    }
-
-    let query
-    if (!allowed.includes(role)) {
-      query = schemaName.find(
-        status
+    let query = schemaName.find(
+      status
+        ? canAccess
           ? { status, createdAt: { $gte: start, $lt: end } }
-          : { createdAt: { $gte: start, $lt: end } }
-      )
-    }
-    if (allowed.includes(role)) {
-      query = schemaName.find(
-        status
-          ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
-          : { createdAt: { $gte: start, $lt: end }, createdBy: _id }
-      )
-    }
+          : {
+              status,
+              createdBy: req.user._id,
+              createdAt: { $gte: start, $lt: end },
+            }
+        : canAccess
+        ? { createdAt: { $gte: start, $lt: end } }
+        : {
+            createdBy: req.user._id,
+            createdAt: { $gte: start, $lt: end },
+          }
+    )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
-    let total
 
-    if (!allowed.includes(role)) {
-      total = await schemaName.countDocuments(
-        status
+    let total = await schemaName.countDocuments(
+      status
+        ? canAccess
           ? { status, createdAt: { $gte: start, $lt: end } }
-          : { createdAt: { $gte: start, $lt: end } }
-      )
-    }
-    if (allowed.includes(role)) {
-      total = await schemaName.countDocuments(
-        status
-          ? { status, createdAt: { $gte: start, $lt: end }, createdBy: _id }
-          : { createdAt: { $gte: start, $lt: end }, createdBy: _id }
-      )
-    }
+          : {
+              status,
+              createdBy: req.user._id,
+              createdAt: { $gte: start, $lt: end },
+            }
+        : canAccess
+        ? { createdAt: { $gte: start, $lt: end } }
+        : {
+            createdBy: req.user._id,
+            createdAt: { $gte: start, $lt: end },
+          }
+    )
 
     const pages = Math.ceil(total / pageSize)
 

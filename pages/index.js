@@ -26,7 +26,10 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q])
 
-  const handleSearch = () => orderHook.getOrders.refetch()
+  const handleSearch = (e) => {
+    e.preventDefault()
+    orderHook.getOrders.refetch()
+  }
 
   return (
     <div className='container'>

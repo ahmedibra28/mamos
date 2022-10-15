@@ -33,7 +33,7 @@ const OrderOrders = () => {
   }
 
   useEffect(() => {
-    if (customLocalStorage()?.userAccessRoutes?.role === 'EXPORT') {
+    if (customLocalStorage()?.userAccessRoutes?.role === 'LOGISTIC') {
       mutateAsync({
         startDate: moment().subtract(90, 'days'),
         endDate: moment().format(),

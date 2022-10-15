@@ -5,6 +5,7 @@ import Transportation from '../../../models/Transportation'
 import Tradelane from '../../../models/Tradelane'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
+import User from '../../../models/User'
 
 const schemaName = Order
 
@@ -17,11 +18,23 @@ handler.get(async (req, res) => {
 
     const { role, _id } = req.user
 
-    const allowed = ['AUTHENTICATED']
+    const allowedRoles = ['SUPER_ADMIN', 'LOGISTIC', 'ADMIN']
+    const canAccess = allowedRoles.includes(role)
+    const mamosBooker = await User.findOne(
+      { email: 'booking@mamosbusiness.com' },
+      { _id: 1 }
+    )
 
     let order = await schemaName
       .findOne(
-        !allowed.includes(role) ? { _id: id } : { _id: id, createdBy: _id }
+        canAccess
+          ? role === 'LOGISTIC'
+            ? { createdBy: mamosBooker._id, _id: id }
+            : { _id: id }
+          : {
+              createdBy: _id,
+              _id: id,
+            }
       )
       .lean()
       .populate('createdBy', ['name'])

@@ -33,7 +33,6 @@ handler.put(async (req, res) => {
   try {
     const { id } = req.query
     const { name, confirmed, blocked, password, email } = req.body
-
     const object = await schemaName.findById(id)
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
@@ -43,7 +42,9 @@ handler.put(async (req, res) => {
     object.confirmed = confirmed
     object.blocked = blocked
 
-    password && (object.password = await object.encryptPassword(password))
+    if (password) {
+      object.password = password
+    }
 
     if (name) {
       await Profile.findOneAndUpdate({ user: id }, { name })

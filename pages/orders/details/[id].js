@@ -957,7 +957,7 @@ const Details = () => {
               </p>
               <p className='fw-bold'>
                 TOTAL PRICE:
-                {hide(['EXPORT']) ? (
+                {hide(['LOGISTIC']) ? (
                   <span className='badge bg-danger ms-2'>N/A</span>
                 ) : (
                   <span className='bg-dark text-light p-1 rounded-pill ms-2'>

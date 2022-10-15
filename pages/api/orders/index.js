@@ -3,6 +3,7 @@ import nc from 'next-connect'
 import db from '../../../config/db'
 import Order from '../../../models/Order'
 import Transportation from '../../../models/Transportation'
+import User from '../../../models/User'
 import { isAuth } from '../../../utils/auth'
 
 const schemaName = Order
@@ -14,21 +15,32 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    const allowedRoles = ['SUPER_ADMIN']
+    const allowedRoles = ['SUPER_ADMIN', 'LOGISTIC', 'ADMIN']
     const role = req.user.role
+    const mamosBooker = await User.findOne(
+      { email: 'booking@mamosbusiness.com' },
+      { _id: 1 }
+    )
 
     const canAccess = allowedRoles.includes(role)
 
     let query = schemaName.find(
       q
         ? canAccess
-          ? { trackingNo: { $regex: q, $options: 'i' } }
+          ? role === 'LOGISTIC'
+            ? {
+                trackingNo: { $regex: q, $options: 'i' },
+                createdBy: mamosBooker._id,
+              }
+            : { trackingNo: { $regex: q, $options: 'i' } }
           : {
               trackingNo: { $regex: q, $options: 'i' },
               createdBy: req.user._id,
             }
         : canAccess
-        ? {}
+        ? role === 'LOGISTIC'
+          ? { createdBy: mamosBooker._id }
+          : {}
         : { createdBy: req.user._id }
     )
 
@@ -39,13 +51,20 @@ handler.get(async (req, res) => {
     let total = await schemaName.countDocuments(
       q
         ? canAccess
-          ? { trackingNo: { $regex: q, $options: 'i' } }
+          ? role === 'LOGISTIC'
+            ? {
+                trackingNo: { $regex: q, $options: 'i' },
+                createdBy: mamosBooker.id,
+              }
+            : { trackingNo: { $regex: q, $options: 'i' } }
           : {
               trackingNo: { $regex: q, $options: 'i' },
               createdBy: req.user._id,
             }
         : canAccess
-        ? {}
+        ? role === 'LOGISTIC'
+          ? { createdBy: mamosBooker.id }
+          : {}
         : { createdBy: req.user._id }
     )
 

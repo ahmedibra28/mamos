@@ -36,9 +36,10 @@ const roles = [
     type: 'LOGISTIC',
   },
   {
-    name: 'Export',
-    description: 'Default role given to export user.',
-    type: 'EXPORT',
+    name: 'Admin',
+    description:
+      'Admin can do anything in the system except super admin areas.',
+    type: 'ADMIN',
   },
 ]
 
