@@ -27,7 +27,7 @@ handler.get(async (req, res) => {
     query = query
       .skip(skip)
       .limit(pageSize)
-      .sort({ createdAt: -1 })
+      // .sort({ createdAt: -1 })
       .lean()
       .populate('country', ['name'])
 

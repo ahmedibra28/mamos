@@ -172,8 +172,7 @@ handler.post(async (req, res) => {
       trackingNo,
     })
 
-    return res.status(400).json({ error: 'no' })
-    // return res.status(200).send(object)
+    return res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

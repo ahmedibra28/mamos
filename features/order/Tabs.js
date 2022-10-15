@@ -8,6 +8,7 @@ import {
   FaTimesCircle,
   FaTrash,
   FaPaperPlane,
+  FaTrain,
 } from 'react-icons/fa'
 import { inputCheckBox } from '../../utils/dynamicForm'
 import { getDays } from '../../utils/helper'
@@ -343,6 +344,9 @@ const Tabs = ({
                           )}
                           {trade?.tradeType === 'plane' && (
                             <FaPlane className='text-primary fs-1' />
+                          )}
+                          {trade?.tradeType === 'train' && (
+                            <FaTrain className='text-primary fs-1' />
                           )}
                         </td>
                         <td>{moment(trade?.dateTime).format('MMM Do YY')}</td>

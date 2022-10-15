@@ -5,7 +5,6 @@ const TradelaneFormView = ({
   edit,
   formCleanHandler,
   form,
-  watch,
   isLoadingUpdate,
   isLoadingPost,
   handleSubmit,
@@ -20,6 +19,13 @@ const TradelaneFormView = ({
   handleAddField,
   handleRemoveField,
 }) => {
+  const locations = [
+    'AVCILAR',
+    'Ambarli Port Istanbul, TR',
+    'Port Said East, EG',
+    'Salalah, OM',
+    'Mogadishu, SO',
+  ]
   return (
     <div
       className='modal fade'
@@ -96,7 +102,31 @@ const TradelaneFormView = ({
                         )}
                       </select>
                     </div>
+
                     <div className='col-md-3 col-6'>
+                      <label htmlFor='location' className='form-label'>
+                        Location Name
+                      </label>
+                      <input
+                        className='form-control form-control-sm'
+                        list='locationList'
+                        placeholder='Type to search...'
+                        name='location'
+                        id='location'
+                        value={inputField.location}
+                        onChange={(e) => handleInputChange(e, index)}
+                      />
+                      <datalist id='locationList'>
+                        {locations?.map((l, i) => (
+                          <option key={i} value={l}>
+                            {l}
+                          </option>
+                        ))}
+                      </datalist>
+                    </div>
+
+                    {/* dsfdfdfdkdsnfdsnfds */}
+                    {/* <div className='col-md-3 col-6'>
                       <label htmlFor='item' className='form-label'>
                         Location Name
                       </label>
@@ -109,7 +139,7 @@ const TradelaneFormView = ({
                         value={inputField.location}
                         onChange={(e) => handleInputChange(e, index)}
                       />
-                    </div>
+                    </div> */}
                     <div className='col-md-3 col-6'>
                       <label htmlFor='item' className='form-label'>
                         Action Type
