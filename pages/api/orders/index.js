@@ -14,18 +14,54 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
+    const allowedRoles = ['SUPER_ADMIN']
+    const role = req.user.role
+
+    const canAccess = allowedRoles.includes(role)
+
+    let query = schemaName.find(
+      q
+        ? canAccess
+          ? { trackingNo: { $regex: q, $options: 'i' } }
+          : {
+              trackingNo: { $regex: q, $options: 'i' },
+              createdBy: req.user._id,
+            }
+        : canAccess
+        ? {}
+        : { createdBy: req.user._id }
+    )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
+
     let total = await schemaName.countDocuments(
-      q ? { name: { $regex: q, $options: 'i' } } : {}
+      q
+        ? canAccess
+          ? { trackingNo: { $regex: q, $options: 'i' } }
+          : {
+              trackingNo: { $regex: q, $options: 'i' },
+              createdBy: req.user._id,
+            }
+        : canAccess
+        ? {}
+        : { createdBy: req.user._id }
     )
 
     const pages = Math.ceil(total / pageSize)
 
-    query = query.skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean()
+    query = query
+      .skip(skip)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .lean()
+      .populate('other.transportation')
+      .populate('pickUp.pickUpCountry')
+      .populate('pickUp.pickUpSeaport')
+      .populate('dropOff.dropOffCountry')
+      .populate('dropOff.dropOffSeaport')
+      .populate('createdBy', ['name'])
 
     const result = await query
 

@@ -6,7 +6,7 @@ const Search = ({ q, setQ, placeholder, searchHandler }) => {
       <div className='input-group'>
         <input
           type='text'
-          className='form-control'
+          className='form-control shadow-none'
           placeholder={placeholder}
           aria-label='Search'
           onChange={(e) => setQ(e.target.value)}

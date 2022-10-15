@@ -267,6 +267,28 @@ const Orders = () => {
           </div>
         </div>
 
+        {watch('movementType') &&
+          watch('importExport') &&
+          watch('pickUpSeaport') &&
+          watch('dropOffSeaport') && (
+            <div className='text-end'>
+              <button
+                type='button'
+                onClick={() => handleSearch()}
+                className='btn btn-primary my-2'
+                disabled={isLoadingUpload || isLoadingPost}
+              >
+                {isLoadingUpload || isLoadingPost ? (
+                  <span className='spinner-border spinner-border-sm' />
+                ) : (
+                  <>
+                    <FaSearch className='mb-1' /> Search Transporter
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
         {isLoadingTransportations ? (
           <Spinner />
         ) : (
@@ -373,7 +395,7 @@ const Orders = () => {
           <>
             {selectedTransportation &&
               !['port to port'].includes(watch().movementType) && (
-                <div className='bg-light p-3 my-2'>
+                <div className='bg-light p-3 my-3'>
                   <h4 className='fw-bold font-monospace'>Location Details</h4>
                   <label>
                     Please make sure to use the correct address(es). We will
@@ -483,7 +505,7 @@ const Orders = () => {
                 </div>
               )}
 
-            <div className='bg-light p-3 my-2'>
+            <div className='bg-light p-3 my-3'>
               <h4 className='fw-bold font-monospace'>Cargo Details</h4>
               <label>Tell us a bit more about your cargo.</label>
               <div className='row'>
@@ -543,7 +565,7 @@ const Orders = () => {
               </div>
             </div>
             {selectedTransportation && (
-              <div className='bg-light p-3 my-2'>
+              <div className='bg-light p-3 my-3'>
                 <h4 className='fw-bold font-monospace'>Buyer Details</h4>
                 <label>
                   Enter the buyers details so they can be notified about the
@@ -595,7 +617,7 @@ const Orders = () => {
               </div>
             )}
             {selectedTransportation && (
-              <div className='bg-light p-3 my-2'>
+              <div className='bg-light p-3 my-3'>
                 <h4 className='fw-bold font-monospace'>
                   Other Required Details
                 </h4>
@@ -648,22 +670,6 @@ const Orders = () => {
               ) : (
                 <>
                   <FaPlusCircle className='mb-1' /> Submit Your Order
-                </>
-              )}
-            </button>
-          )}
-          {watch().movementType && (
-            <button
-              type='button'
-              onClick={() => handleSearch()}
-              className='btn btn-outline-primary btn-lg mb-5 mt-3 ms-3'
-              disabled={isLoadingUpload || isLoadingPost}
-            >
-              {isLoadingUpload || isLoadingPost ? (
-                <span className='spinner-border spinner-border-sm' />
-              ) : (
-                <>
-                  <FaSearch className='mb-1' /> Search Available Transportors
                 </>
               )}
             </button>
