@@ -68,6 +68,14 @@ const clientPermissions = [
     description: 'Home page',
   },
   {
+    name: 'Notices',
+    path: '/admin/notices',
+    menu: 'admin',
+    sort: 1,
+    auth: true,
+    description: 'Notices page',
+  },
+  {
     name: 'Users',
     path: '/admin/auth/users',
     menu: 'admin',
@@ -279,6 +287,35 @@ const clientPermissions = [
 ]
 
 const permissions = [
+  {
+    description: 'Get All Notices',
+    route: '/api/notices',
+    auth: false,
+    name: 'Notices',
+    method: 'GET',
+  },
+  {
+    description: 'Create Notice',
+    route: '/api/notices',
+    auth: true,
+    name: 'Notices',
+    method: 'POST',
+  },
+  {
+    description: 'Update Notice',
+    route: '/api/notices/:id',
+    auth: true,
+    name: 'Notices',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Notice',
+    route: '/api/notices/:id',
+    auth: true,
+    name: 'Notices',
+    method: 'DELETE',
+  },
+
   {
     description: 'Get All Users',
     route: '/api/auth/users',
