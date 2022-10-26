@@ -33,8 +33,8 @@ const Tabs = ({
   editPickUpHandler,
   modalOther,
   editOtherHandler,
-  modalDocument,
-  editDocumentHandler,
+  // modalDocument,
+  // editDocumentHandler,
   isLoadingUpdateToConfirm,
   isLoadingUpdateToDelete,
   editBookingDateHandler,
@@ -56,7 +56,7 @@ const Tabs = ({
     'Pick-Up',
     'Drop-Off',
     'Prices',
-    'Documents',
+    // 'Documents',
     'Other',
     'Payments',
   ]
@@ -111,6 +111,11 @@ const Tabs = ({
       value: 'due',
     },
   ]
+
+  const movementTypes = {
+    pickUp: ['door to door', 'door to port'],
+    dropOff: ['door to door', 'port to door'],
+  }
 
   return (
     <div>
@@ -583,12 +588,12 @@ const Tabs = ({
                       <td>{data?.pickUp?.pickUpAirport?.name} </td>
                     </tr>
                   )}
-                  {data?.pickUp?.pickUpTown && (
+                  {/* {data?.pickUp?.pickUpTown && (
                     <tr>
                       <td className='fw-bold'>Town: </td>
                       <td>{data?.pickUp?.pickUpTown?.name} </td>
                     </tr>
-                  )}
+                  )} */}
                   {data?.pickUp?.pickUpWarehouse && (
                     <tr>
                       <td className='fw-bold'>Warehouse: </td>
@@ -611,7 +616,7 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-12'>
-              {data?.pickUp?.pickUpTown?._id && (
+              {movementTypes.pickUp.includes(data?.other?.movementType) && (
                 <>
                   <h6 className='fw-bold'>Other actions</h6>
                   <button
@@ -660,12 +665,12 @@ const Tabs = ({
                       <td>{data?.dropOff?.dropOffAirport?.name} </td>
                     </tr>
                   )}
-                  {data?.dropOff?.dropOffTown && (
+                  {/* {data?.dropOff?.dropOffTown && (
                     <tr>
                       <td className='fw-bold'>Town: </td>
                       <td>{data?.dropOff?.dropOffTown?.name} </td>
                     </tr>
-                  )}
+                  )} */}
                   {data?.dropOff?.dropOffWarehouse && (
                     <tr>
                       <td className='fw-bold'>Warehouse: </td>
@@ -688,7 +693,7 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-'>
-              {data?.dropOff?.dropOffTown?._id && (
+              {movementTypes.dropOff.includes(data?.other?.movementType) && (
                 <>
                   <h6 className='fw-bold'>Other actions</h6>
                   <button
@@ -719,7 +724,7 @@ const Tabs = ({
             <div className='col-md-7 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
-                  {data?.price?.invoicePrice && (
+                  {/* {data?.price?.invoicePrice && (
                     <tr>
                       <td className='fw-bold'>Invoice Amount: </td>
                       <td>
@@ -730,7 +735,7 @@ const Tabs = ({
                         )}{' '}
                       </td>
                     </tr>
-                  )}
+                  )} */}
                   {data?.price?.pickUpPrice && (
                     <tr>
                       <td className='fw-bold'>Pick-up Amount: </td>
@@ -821,7 +826,7 @@ const Tabs = ({
           </div>
         </div>
 
-        <div
+        {/* <div
           className='tab-pane fade'
           id='nav-Documents'
           role='tabpanel'
@@ -873,7 +878,7 @@ const Tabs = ({
               )}
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div
           className='tab-pane fade'

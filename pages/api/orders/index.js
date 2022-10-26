@@ -108,10 +108,10 @@ handler.post(async (req, res) => {
   try {
     const {
       isTemperatureControlled,
-      isHasInvoice,
+      // isHasInvoice,
       importExport,
       movementType,
-      dropOffTown,
+      // dropOffTown,
       dropOffWarehouse,
       dropOffCity,
       dropOffAddress,
@@ -125,11 +125,11 @@ handler.post(async (req, res) => {
       buyerMobileNumber,
       buyerEmail,
       buyerAddress,
-      pickUpTown,
+      // pickUpTown,
       pickUpWarehouse,
       pickUpCity,
       pickUpAddress,
-      invoice,
+      // invoice,
       transportation, // shipment reference
       containers, // selected containers
     } = req.body
@@ -145,31 +145,35 @@ handler.post(async (req, res) => {
     }
 
     const pickUp = {
-      pickUpTown,
+      // pickUpTown,
       pickUpWarehouse,
       pickUpCity,
       pickUpAddress,
       pickUpSeaport,
+      pickUpCost: 0,
+      pickUpPrice: 0,
     }
 
     const dropOff = {
-      dropOffTown,
+      // dropOffTown,
       dropOffWarehouse,
       dropOffCity,
       dropOffAddress,
       dropOffSeaport,
+      dropOffCost: 0,
+      dropOffPrice: 0,
     }
 
     const other = {
       isTemperatureControlled,
-      isHasInvoice,
+      // isHasInvoice,
       importExport,
       movementType,
       cargoDescription,
       commodity,
       noOfPackages,
       grossWeight,
-      invoice,
+      // invoice,
       transportation, // shipment reference
       containers, // selected containers
     }
@@ -177,22 +181,22 @@ handler.post(async (req, res) => {
     const trackingNo = 'N/A'
 
     if (!movementTypes.pickUp.includes(other.movementType)) {
-      delete pickUp.pickUpTown
+      // delete pickUp.pickUpTown
       delete pickUp.pickUpWarehouse
       delete pickUp.pickUpCity
       delete pickUp.pickUpAddress
     }
 
     if (!movementTypes.dropOff.includes(other.movementType)) {
-      delete dropOff.dropOffTown
+      // delete dropOff.dropOffTown
       delete dropOff.dropOffWarehouse
       delete dropOff.dropOffCity
       delete dropOff.dropOffAddress
     }
 
-    if (!other.isHasInvoice) {
-      delete other.invoice
-    }
+    // if (!other.isHasInvoice) {
+    //   delete other.invoice
+    // }
 
     other.transportation = other.transportation._id
 

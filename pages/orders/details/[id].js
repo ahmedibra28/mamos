@@ -11,7 +11,7 @@ import {
   dynamicInputSelect,
   inputCheckBox,
   inputEmail,
-  inputFile,
+  // inputFile,
   inputNumber,
   inputTel,
   inputText,
@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react'
 
 import { useForm } from 'react-hook-form'
 import useUploadHook from '../../../utils/api/upload'
-import useTownsHook from '../../../utils/api/towns'
+// import useTownsHook from '../../../utils/api/towns'
 import useCommoditiesHook from '../../../utils/api/commodities'
 import CustomFormView from '../../../components/CustomFormView'
 import Tabs from '../../../features/order/Tabs'
@@ -32,8 +32,8 @@ const Details = () => {
   const router = useRouter()
   const { id } = router.query
 
-  const [file, setFile] = useState('')
-  const [fileLink, setFileLink] = useState(null)
+  // const [file, setFile] = useState('')
+  // const [fileLink, setFileLink] = useState(null)
   const [selectedTransportation, setSelectedTransportation] = useState(null)
   const [selectContainer, setSelectContainer] = useState([])
   const [transportationsData, setTransportationsData] = useState([])
@@ -56,13 +56,13 @@ const Details = () => {
   } = useOrdersHook({
     id,
   })
-  const { getTowns } = useTownsHook({ limit: 1000000 })
+  // const { getTowns } = useTownsHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
 
   const { postUpload } = useUploadHook()
 
   const { data, isLoading, isError, error } = getOrderDetails
-  const { data: townsData } = getTowns
+  // const { data: townsData } = getTowns
   const { data: commoditiesData } = getCommodities
 
   const [payment, setPayment] = useState('')
@@ -164,26 +164,26 @@ const Details = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessTransactions])
 
-  useEffect(() => {
-    if (isSuccessUpload) {
-      setFileLink(
-        dataUpload &&
-          dataUpload.filePaths &&
-          dataUpload.filePaths[0] &&
-          dataUpload.filePaths[0].path
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessUpload])
+  // useEffect(() => {
+  //   if (isSuccessUpload) {
+  //     setFileLink(
+  //       dataUpload &&
+  //         dataUpload.filePaths &&
+  //         dataUpload.filePaths[0] &&
+  //         dataUpload.filePaths[0].path
+  //     )
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isSuccessUpload])
 
-  useEffect(() => {
-    if (file) {
-      const formData = new FormData()
-      formData.append('file', file)
-      mutateAsyncUpload({ type: 'file', formData })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file])
+  // useEffect(() => {
+  //   if (file) {
+  //     const formData = new FormData()
+  //     formData.append('file', file)
+  //     mutateAsyncUpload({ type: 'file', formData })
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [file])
 
   const confirmOrderHandler = () => {
     mutateAsyncUpdateToConfirm({ _id: id })
@@ -256,13 +256,15 @@ const Details = () => {
     setValuePickUp('pickUpWarehouse', data?.pickUp?.pickUpWarehouse)
     setValuePickUp('pickUpCity', data?.pickUp?.pickUpCity)
     setValuePickUp('pickUpAddress', data?.pickUp?.pickUpAddress)
-    setValuePickUp('pickUpTown', data?.pickUp?.pickUpTown?._id)
+    setValuePickUp('pickUpCost', data?.pickUp?.pickUpCost)
+    setValuePickUp('pickUpPrice', data?.pickUp?.pickUpPrice)
   }
   const editDropOffHandler = () => {
     setValueDropOff('dropOffWarehouse', data?.dropOff?.dropOffWarehouse)
     setValueDropOff('dropOffCity', data?.dropOff?.dropOffCity)
     setValueDropOff('dropOffAddress', data?.dropOff?.dropOffAddress)
-    setValueDropOff('dropOffTown', data?.dropOff?.dropOffTown?._id)
+    setValueDropOff('dropOffCost', data?.dropOff?.dropOffCost)
+    setValueDropOff('dropOffPrice', data?.dropOff?.dropOffPrice)
   }
   const editOtherHandler = () => {
     setValueOther('importExport', data?.other?.importExport)
@@ -279,14 +281,14 @@ const Details = () => {
     setValueOther('noOfPackages', data?.other?.noOfPackages)
   }
 
-  const editDocumentHandler = () => {
-    setValueDocument('invoice', data?.other?.invoice)
-    setValueDocument('isHasInvoice', data?.other?.isHasInvoice)
+  // const editDocumentHandler = () => {
+  //   setValueDocument('invoice', data?.other?.invoice)
+  //   setValueDocument('isHasInvoice', data?.other?.isHasInvoice)
 
-    if (data?.other?.isHasInvoice) {
-      setFileLink(data?.other?.invoice)
-    }
-  }
+  //   if (data?.other?.isHasInvoice) {
+  //     setFileLink(data?.other?.invoice)
+  //   }
+  // }
 
   const editBookingDateHandler = () => {
     transportationsMutateAsync({
@@ -422,15 +424,29 @@ const Details = () => {
       name: 'pickUpAddress',
       placeholder: 'Enter address',
     }),
-    dynamicInputSelect({
+    // dynamicInputSelect({
+    //   register: registerPickUp,
+    //   errors: errorsPickUp,
+    //   label: 'PickUp town',
+    //   name: 'pickUpTown',
+    //   value: 'name',
+    //   data: townsData?.data?.filter(
+    //     (town) => town?.seaport?._id === data?.pickUp?.pickUpSeaport?._id
+    //   ),
+    // }),
+    inputText({
       register: registerPickUp,
       errors: errorsPickUp,
-      label: 'PickUp town',
-      name: 'pickUpTown',
-      value: 'name',
-      data: townsData?.data?.filter(
-        (town) => town?.seaport?._id === data?.pickUp?.pickUpSeaport?._id
-      ),
+      label: 'Pick Up Cost',
+      name: 'pickUpCost',
+      placeholder: 'Enter pick up cost',
+    }),
+    inputText({
+      register: registerPickUp,
+      errors: errorsPickUp,
+      label: 'Pick Up Price',
+      name: 'pickUpPrice',
+      placeholder: 'Enter pick up price',
     }),
   ]
 
@@ -456,15 +472,29 @@ const Details = () => {
       name: 'dropOffAddress',
       placeholder: 'Enter address',
     }),
-    dynamicInputSelect({
+    // dynamicInputSelect({
+    //   register: registerDropOff,
+    //   errors: errorsDropOff,
+    //   label: 'DropOff town',
+    //   name: 'dropOffTown',
+    //   value: 'name',
+    //   data: townsData?.data?.filter(
+    //     (town) => town?.seaport?._id === data?.dropOff?.dropOffSeaport?._id
+    //   ),
+    // }),
+    inputText({
       register: registerDropOff,
       errors: errorsDropOff,
-      label: 'DropOff town',
-      name: 'dropOffTown',
-      value: 'name',
-      data: townsData?.data?.filter(
-        (town) => town?.seaport?._id === data?.dropOff?.dropOffSeaport?._id
-      ),
+      label: 'Drop Off Cost',
+      name: 'dropOffCost',
+      placeholder: 'Enter drop off cost',
+    }),
+    inputText({
+      register: registerDropOff,
+      errors: errorsDropOff,
+      label: 'Drop Off Price',
+      name: 'dropOffPrice',
+      placeholder: 'Enter drop off price',
     }),
   ]
 
@@ -536,32 +566,32 @@ const Details = () => {
     }),
   ]
 
-  const formDocument = [
-    inputCheckBox({
-      register: registerDocument,
-      errors: errorsDocument,
-      name: 'isHasInvoice',
-      label: 'Do you have an invoice?',
-      isRequired: false,
-    }),
+  // const formDocument = [
+  //   inputCheckBox({
+  //     register: registerDocument,
+  //     errors: errorsDocument,
+  //     name: 'isHasInvoice',
+  //     label: 'Do you have an invoice?',
+  //     isRequired: false,
+  //   }),
 
-    fileLink && (
-      <div key={'fileLink'} className='text-warning'>
-        This order has already uploaded invoice, just click submit button if you
-        don not what upload new one again
-      </div>
-    ),
+  //   fileLink && (
+  //     <div key={'fileLink'} className='text-warning'>
+  //       This order has already uploaded invoice, just click submit button if you
+  //       don not what upload new one again
+  //     </div>
+  //   ),
 
-    watchDocument().isHasInvoice &&
-      inputFile({
-        register: registerDocument,
-        errors: errorsDocument,
-        name: 'invoiceFile',
-        label: 'Upload Invoice',
-        isRequired: false,
-        setFile,
-      }),
-  ]
+  //   watchDocument().isHasInvoice &&
+  //     inputFile({
+  //       register: registerDocument,
+  //       errors: errorsDocument,
+  //       name: 'invoiceFile',
+  //       label: 'Upload Invoice',
+  //       isRequired: false,
+  //       setFile,
+  //     }),
+  // ]
 
   const row = false
   const column = 'col-md-6 col-12'
@@ -579,8 +609,8 @@ const Details = () => {
   const labelOther = 'Other'
   const modalOther = 'other'
 
-  const labelDocument = 'Document'
-  const modalDocument = 'document'
+  // const labelDocument = 'Document'
+  // const modalDocument = 'document'
 
   const labelBookingDate = 'Change Booking Date'
   const modalBookingDate = 'bookingDate'
@@ -591,7 +621,7 @@ const Details = () => {
     resetDropOff()
     resetOther()
     resetDocument()
-    setFileLink(null)
+    // setFileLink(null)
     setSelectedTransportation(null)
     setSelectContainer([])
     setTransportationsData([])
@@ -697,15 +727,15 @@ const Details = () => {
     })
   }
 
-  const submitHandlerDocument = (dataObj) => {
-    if (!fileLink) return
+  // const submitHandlerDocument = (dataObj) => {
+  //   if (!fileLink) return
 
-    mutateAsyncUpdateDocument({
-      ...dataObj,
-      invoice: fileLink,
-      _id: id,
-    })
-  }
+  //   mutateAsyncUpdateDocument({
+  //     ...dataObj,
+  //     invoice: fileLink,
+  //     _id: id,
+  //   })
+  // }
 
   const submitHandlerBookingDate = () => {
     mutateAsyncUpdateBookingDate({
@@ -904,7 +934,7 @@ const Details = () => {
       />
 
       {/* Document Modal Form */}
-      <FormView
+      {/* <FormView
         edit={true}
         formCleanHandler={formCleanHandler}
         form={formDocument}
@@ -918,7 +948,7 @@ const Details = () => {
         column={column}
         row={row}
         modalSize={modalSize}
-      />
+      /> */}
 
       {/* Update booking date */}
       <TransportationModalForm
@@ -1006,8 +1036,8 @@ const Details = () => {
             editDropOffHandler={editDropOffHandler}
             modalOther={modalOther}
             editOtherHandler={editOtherHandler}
-            modalDocument={modalDocument}
-            editDocumentHandler={editDocumentHandler}
+            // modalDocument={modalDocument}
+            // editDocumentHandler={editDocumentHandler}
             isLoadingUpdateProgress={isLoadingUpdateProgress}
             cancelOrderHandler={cancelOrderHandler}
             setCancelledReason={setCancelledReason}

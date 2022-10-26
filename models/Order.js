@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import User from './User'
-import Town from './Town'
+// import Town from './Town'
 import Country from './Country'
 import Seaport from './Seaport'
 import Transportation from './Transportation'
@@ -15,7 +15,7 @@ const orderScheme = mongoose.Schema(
       buyerName: { type: String, required: true },
     },
     pickUp: {
-      pickUpTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
+      // pickUpTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
       pickUpWarehouse: String,
       pickUpCity: String,
       pickUpAddress: String,
@@ -25,9 +25,11 @@ const orderScheme = mongoose.Schema(
         required: true,
       },
       pickUpSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      pickUpCost: Number,
+      pickUpPrice: Number,
     },
     dropOff: {
-      dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
+      // dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
       dropOffWarehouse: String,
       dropOffCity: String,
       dropOffAddress: String,
@@ -37,10 +39,12 @@ const orderScheme = mongoose.Schema(
         required: true,
       },
       dropOffSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
+      dropOffCost: Number,
+      dropOffPrice: Number,
     },
     other: {
       isTemperatureControlled: Boolean,
-      isHasInvoice: Boolean,
+      // isHasInvoice: Boolean,
       importExport: { type: String, required: true },
       movementType: { type: String, required: true },
       cargoDescription: String,
@@ -50,7 +54,7 @@ const orderScheme = mongoose.Schema(
       },
       noOfPackages: String,
       grossWeight: String,
-      invoice: String,
+      // invoice: String,
       payment: String,
       transportation: {
         type: mongoose.Schema.Types.ObjectId,

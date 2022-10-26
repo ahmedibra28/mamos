@@ -54,10 +54,10 @@ handler.put(async (req, res) => {
         .status(400)
         .json({ error: 'You can not confirm or cancel this order' })
 
-    if (!order.other.isHasInvoice || !order.other.invoice)
-      return res
-        .status(400)
-        .json({ error: 'Please upload invoice before submitting' })
+    // if (!order.other.isHasInvoice || !order.other.invoice)
+    //   return res
+    //     .status(400)
+    //     .json({ error: 'Please upload invoice before submitting' })
 
     if (
       !order.trackingNo ||
@@ -68,6 +68,23 @@ handler.put(async (req, res) => {
 
     if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
       return res.status(400).json({ error: 'Buyer information is not arrived' })
+
+    const movementTypes = {
+      pickUp: ['door to door', 'door to port'],
+      dropOff: ['door to door', 'port to door'],
+    }
+    if (movementTypes.pickUp.includes(order.other.movementType)) {
+      if (order.pickUp.pickUpCost <= 0 || order.pickUp.pickUpPrice <= 0)
+        return res
+          .status(400)
+          .json({ error: 'Pick up cost and price are required' })
+    }
+    if (movementTypes.dropOff.includes(order.other.movementType)) {
+      if (order.dropOff.dropOffCost <= 0 || order.dropOff.dropOffPrice <= 0)
+        return res
+          .status(400)
+          .json({ error: 'Drop off cost and price are required' })
+    }
 
     const today = moment().format()
     const departureDate = moment(

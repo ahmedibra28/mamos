@@ -47,10 +47,10 @@ handler.get(async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .populate('createdBy', ['name'])
-      .populate('pickUp.pickUpTown')
+      // .populate('pickUp.pickUpTown')
       .populate('pickUp.pickUpCountry')
       .populate('pickUp.pickUpSeaport')
-      .populate('dropOff.dropOffTown')
+      // .populate('dropOff.dropOffTown')
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('other.transportation')
@@ -74,14 +74,11 @@ handler.get(async (req, res) => {
           order.other.transportation._id
         ).populate('container.container')
 
-        const invoicePrice = order.other.isHasInvoice ? 0.0 : 200.0
+        // const invoicePrice = order.other.isHasInvoice ? 0.0 : 200.0
 
-        const pickUpPrice = order.pickUp.pickUpTown
-          ? order.pickUp.pickUpTown.price
-          : 0.0
-        const dropOffPrice = order.dropOff.dropOffTown
-          ? order.dropOff.dropOffTown.price
-          : 0.0
+        const pickUpPrice = order.pickUp.pickUpPrice || 0.0
+
+        const dropOffPrice = order.dropOff.dropOffPrice || 0.0
 
         const containerInfo = order.other.containers.map((c) => ({
           name: c.container.name,
@@ -105,7 +102,7 @@ handler.get(async (req, res) => {
         )
 
         const price = {
-          invoicePrice: priceFormat(invoicePrice),
+          // invoicePrice: priceFormat(invoicePrice),
           pickUpPrice: priceFormat(pickUpPrice),
           dropOffPrice: priceFormat(dropOffPrice),
           customerPrice: priceFormat(customerPrice),
@@ -113,10 +110,8 @@ handler.get(async (req, res) => {
           containerCBM: `${containerCBM.toFixed(2)} cubic meter`,
           containerInfo: containerInfo,
           totalPrice: priceFormat(
-            Number(invoicePrice) +
-              Number(pickUpPrice) +
-              Number(dropOffPrice) +
-              Number(customerPrice)
+            // Number(invoicePrice) +
+            Number(pickUpPrice) + Number(dropOffPrice) + Number(customerPrice)
           ),
         }
 

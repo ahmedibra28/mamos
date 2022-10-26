@@ -184,7 +184,9 @@ export const dynamicInputSelect = (args) => {
         {data &&
           data.map((d) => (
             <option key={d._id} value={d._id}>
-              {d[value]}
+              {name === 'pickUpSeaport' || name === 'dropOffSeaport'
+                ? `${d?.name} - ${d?.country?.name}`
+                : d[value]}
             </option>
           ))}
       </select>

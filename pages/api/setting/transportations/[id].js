@@ -177,7 +177,9 @@ handler.delete(async (req, res) => {
         await Order.remove({ _id: order._id })
       })
     }
-    await tradelane.remove()
+    if (tradelane) {
+      await tradelane.remove()
+    }
     await object.remove()
 
     res.status(200).send(`${schemaNameString} removed`)

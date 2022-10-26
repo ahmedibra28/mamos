@@ -6,15 +6,15 @@ import { useForm } from 'react-hook-form'
 import useOrdersHook from '../../utils/api/orders'
 import useSeaportsHook from '../../utils/api/seaports'
 import useCommoditiesHook from '../../utils/api/commodities'
-import useTownsHook from '../../utils/api/towns'
-import useUploadHook from '../../utils/api/upload'
+// import useTownsHook from '../../utils/api/towns'
+// import useUploadHook from '../../utils/api/upload'
 
 import { Spinner, Message } from '../../components'
 import {
   dynamicInputSelect,
   inputCheckBox,
   inputEmail,
-  inputFile,
+  // inputFile,
   inputNumber,
   inputTel,
   inputText,
@@ -27,28 +27,28 @@ const Orders = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
   const [selectContainer, setSelectContainer] = useState([])
 
-  const [file, setFile] = useState('')
-  const [fileLink, setFileLink] = useState(null)
+  // const [file, setFile] = useState('')
+  // const [fileLink, setFileLink] = useState(null)
   const { postOrder, postAvailableTransportations } = useOrdersHook({})
   const [transportationsData, setTransportationsData] = useState(null)
 
   const { getSeaports } = useSeaportsHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
-  const { getTowns } = useTownsHook({ limit: 1000000 })
-  const { postUpload } = useUploadHook()
+  // const { getTowns } = useTownsHook({ limit: 1000000 })
+  // const { postUpload } = useUploadHook()
 
   const { data: seaportsData } = getSeaports
   const { data: commoditiesData } = getCommodities
-  const { data: townsData } = getTowns
+  // const { data: townsData } = getTowns
 
-  const {
-    data: dataUpload,
-    isLoading: isLoadingUpload,
-    isError: isErrorUpload,
-    error: errorUpload,
-    mutateAsync: mutateAsyncUpload,
-    isSuccess: isSuccessUpload,
-  } = postUpload
+  // const {
+  //   data: dataUpload,
+  //   isLoading: isLoadingUpload,
+  //   isError: isErrorUpload,
+  //   error: errorUpload,
+  //   mutateAsync: mutateAsyncUpload,
+  //   isSuccess: isSuccessUpload,
+  // } = postUpload
 
   const {
     isSuccess: isSuccessPost,
@@ -72,26 +72,26 @@ const Orders = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessTransactions])
 
-  useEffect(() => {
-    if (file) {
-      const formData = new FormData()
-      formData.append('file', file)
-      mutateAsyncUpload({ type: 'file', formData })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file])
+  // useEffect(() => {
+  //   if (file) {
+  //     const formData = new FormData()
+  //     formData.append('file', file)
+  //     mutateAsyncUpload({ type: 'file', formData })
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [file])
 
-  useEffect(() => {
-    if (isSuccessUpload) {
-      setFileLink(
-        dataUpload &&
-          dataUpload.filePaths &&
-          dataUpload.filePaths[0] &&
-          dataUpload.filePaths[0].path
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessUpload])
+  // useEffect(() => {
+  //   if (isSuccessUpload) {
+  //     setFileLink(
+  //       dataUpload &&
+  //         dataUpload.filePaths &&
+  //         dataUpload.filePaths[0] &&
+  //         dataUpload.filePaths[0].path
+  //     )
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isSuccessUpload])
 
   const {
     register,
@@ -102,7 +102,7 @@ const Orders = () => {
   } = useForm({
     defaultValues: {
       isTemperatureControlled: true,
-      isHasInvoice: false,
+      // isHasInvoice: false,
     },
   })
 
@@ -110,8 +110,8 @@ const Orders = () => {
     if (isSuccessPost) {
       reset()
       setSelectedTransportation(null)
-      setFile('')
-      setFileLink(null)
+      // setFile('')
+      // setFileLink(null)
       setSelectContainer([])
       // eslint-disable-next-line react-hooks/exhaustive-deps
       setTransportationsData(null)
@@ -133,7 +133,7 @@ const Orders = () => {
       ...data,
       transportation: selectedTransportation,
       containers: selectContainer,
-      invoice: fileLink,
+      // invoice: fileLink,
     })
   }
 
@@ -198,7 +198,7 @@ const Orders = () => {
         </Message>
       )}
 
-      {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>}
+      {/* {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>} */}
       {isErrorPost && <Message variant='danger'>{errorPost}</Message>}
 
       <div className='bg-light p-3 my-2'>
@@ -276,9 +276,9 @@ const Orders = () => {
                 type='button'
                 onClick={() => handleSearch()}
                 className='btn btn-primary my-2'
-                disabled={isLoadingUpload || isLoadingPost}
+                disabled={isLoadingPost}
               >
-                {isLoadingUpload || isLoadingPost ? (
+                {isLoadingPost ? (
                   <span className='spinner-border spinner-border-sm' />
                 ) : (
                   <>
@@ -407,7 +407,7 @@ const Orders = () => {
                         <label className='fw-bold'>
                           What is the pick-up address of your cargo?
                         </label>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        {/* <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
                           {dynamicInputSelect({
                             register,
                             errors,
@@ -420,8 +420,8 @@ const Orders = () => {
                                 town?.seaport?._id === watch().pickUpSeaport
                             ),
                           })}
-                        </div>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        </div> */}
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -430,7 +430,7 @@ const Orders = () => {
                             placeholder: 'Enter pickUp warehouse name',
                           })}
                         </div>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -440,7 +440,7 @@ const Orders = () => {
                           })}
                         </div>
 
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -457,7 +457,7 @@ const Orders = () => {
                         <label className='fw-bold'>
                           What is the drop-off address of your cargo?
                         </label>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        {/* <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
                           {dynamicInputSelect({
                             register,
                             errors,
@@ -470,8 +470,8 @@ const Orders = () => {
                                 town?.seaport?._id === watch().dropOffSeaport
                             ),
                           })}
-                        </div>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        </div> */}
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -480,7 +480,7 @@ const Orders = () => {
                             placeholder: 'Enter drop-off warehouse name',
                           })}
                         </div>
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -490,7 +490,7 @@ const Orders = () => {
                           })}
                         </div>
 
-                        <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                        <div className='col-md-4 col-sm-6 col-12'>
                           {inputText({
                             register,
                             errors,
@@ -616,7 +616,7 @@ const Orders = () => {
                 </div>
               </div>
             )}
-            {selectedTransportation && (
+            {/* {selectedTransportation && (
               <div className='bg-light p-3 my-3'>
                 <h4 className='fw-bold font-monospace'>
                   Other Required Details
@@ -654,7 +654,7 @@ const Orders = () => {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
           </>
         )}
 
@@ -663,9 +663,9 @@ const Orders = () => {
             <button
               type='submit'
               className='btn btn-primary btn-lg mb-5 mt-3'
-              disabled={isLoadingUpload || isLoadingPost}
+              disabled={isLoadingPost}
             >
-              {isLoadingUpload || isLoadingPost ? (
+              {isLoadingPost ? (
                 <span className='spinner-border spinner-border-sm' />
               ) : (
                 <>

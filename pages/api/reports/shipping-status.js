@@ -3,7 +3,7 @@ import db from '../../../config/db'
 import Transportation from '../../../models/Transportation'
 import { isAuth } from '../../../utils/auth'
 import moment from 'moment'
-import { priceFormat } from '../../../utils/priceFormat'
+// import { priceFormat } from '../../../utils/priceFormat'
 
 const schemaName = Transportation
 
