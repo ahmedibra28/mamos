@@ -5,6 +5,7 @@ import withAuth from '../../HOC/withAuth'
 import useReportsHook from '../../utils/api/reports'
 import { Message, Pagination, Spinner } from '../../components'
 import { FaSearch } from 'react-icons/fa'
+import { hide } from '../../utils/UnlockAccess'
 
 const Bookings = () => {
   const [page, setPage] = useState(1)
@@ -115,7 +116,13 @@ const Bookings = () => {
                       )}
                     </span>
                   </td>
-                  <td>{book?.price?.totalPrice}</td>
+                  <td>
+                    {hide(['LOGISTIC']) ? (
+                      <span className='badge bg-danger'>N/A</span>
+                    ) : (
+                      book?.price?.totalPrice
+                    )}{' '}
+                  </td>
                 </tr>
               ))}
             </tbody>
