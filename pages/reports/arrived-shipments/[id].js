@@ -165,10 +165,11 @@ const ArrivedBookedShipments = () => {
                   </td>
                   <th>
                     <div className='btn-group'>
-                      <Link href={`/orders/details/${book?._id}`}>
-                        <a className='badge bg-primary p-2 text-decoration-none'>
-                          Details
-                        </a>
+                      <Link
+                        href={`/orders/details/${book?._id}`}
+                        className='badge bg-primary p-2 text-decoration-none'
+                      >
+                        Details
                       </Link>
                       <button
                         data-bs-toggle='modal'

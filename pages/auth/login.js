@@ -107,8 +107,11 @@ const Login = () => {
       </form>
       <div className='row pt-3'>
         <div className='col'>
-          <Link href='/auth/forgot-password'>
-            <a className='ps-1 text-decoration-none'> Forgot Password?</a>
+          <Link
+            href='/auth/forgot-password'
+            className='ps-1 text-decoration-none'
+          >
+            Forgot Password?
           </Link>
         </div>
       </div>

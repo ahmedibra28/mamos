@@ -138,10 +138,11 @@ const Orders = () => {
                   </td>
                   <td>{order?.price?.totalPrice}</td>
                   <td>
-                    <Link href={`orders/${order._id}`}>
-                      <a className='badge bg-primary text-decoration-none p-2'>
-                        Details
-                      </a>
+                    <Link
+                      href={`orders/${order._id}`}
+                      className='badge bg-primary text-decoration-none p-2'
+                    >
+                      Details
                     </Link>
                   </td>
                 </tr>

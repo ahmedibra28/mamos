@@ -33,18 +33,14 @@ const Navigation = () => {
       <>
         <ul className='navbar-nav ms-auto'>
           {/* <li className='nav-item'>
-            <Link href='/auth/register'>
-              <a className='nav-link' aria-current='page'>
+            <Link href='/auth/register' className='nav-link' aria-current='page'>
                 <FaUserPlus className='mb-1' /> Register
-              </a>
             </Link> 
           </li>
             */}
           <li className='nav-item'>
-            <Link href='/auth/login'>
-              <a className='nav-link' aria-current='page'>
-                <FaSignInAlt className='mb-1' /> Login
-              </a>
+            <Link href='/auth/login' className='nav-link' aria-current='page'>
+              <FaSignInAlt className='mb-1' /> Login
             </Link>
           </li>
         </ul>
@@ -105,10 +101,12 @@ const Navigation = () => {
               (menu) =>
                 menu.menu === 'normal' && (
                   <li key={menu._id} className='nav-item'>
-                    <Link href={menu.path}>
-                      <a className='nav-link' aria-current='page'>
-                        {menu.name}
-                      </a>
+                    <Link
+                      href={menu.path}
+                      className='nav-link'
+                      aria-current='page'
+                    >
+                      {menu.name}
                     </Link>
                   </li>
                 )
@@ -139,8 +137,8 @@ const Navigation = () => {
                       (menu) =>
                         menu.menu === item?.menu && (
                           <li key={menu._id}>
-                            <Link href={menu.path}>
-                              <a className='dropdown-item'>{menu.name}</a>
+                            <Link href={menu.path} className='dropdown-item'>
+                              {menu.name}
                             </Link>
                           </li>
                         )
@@ -150,14 +148,13 @@ const Navigation = () => {
             ))}
 
           <li className='nav-item'>
-            <Link href='/auth/login'>
-              <a
-                className='nav-link'
-                aria-current='page'
-                onClick={logoutHandler}
-              >
-                <FaPowerOff className='mb-1' /> Logout
-              </a>
+            <Link
+              href='/auth/login'
+              className='nav-link'
+              aria-current='page'
+              onClick={logoutHandler}
+            >
+              <FaPowerOff className='mb-1' /> Logout
             </Link>
           </li>
         </ul>
@@ -169,16 +166,14 @@ const Navigation = () => {
     <nav className='navbar navbar-expand-sm navbar-dark bg-primary'>
       <div className='container'>
         <Link href='/'>
-          <a>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              width='90'
-              height='auto'
-              src='/logo.png'
-              className='img-fluid brand-logos'
-              alt='logo'
-            />
-          </a>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            width='90'
+            height='auto'
+            src='/logo.png'
+            className='img-fluid brand-logos'
+            alt='logo'
+          />
         </Link>
 
         <button

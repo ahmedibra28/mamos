@@ -166,10 +166,11 @@ const OrderOrders = () => {
                       </span>
                     </td>
                     <td>
-                      <Link href={`/orders/details/${item?._id}`}>
-                        <a className='badge bg-primary p-2 text-decoration-none'>
-                          Details
-                        </a>
+                      <Link
+                        href={`/orders/details/${item?._id}`}
+                        className='badge bg-primary p-2 text-decoration-none'
+                      >
+                        Details
                       </Link>
                     </td>
                   </tr>

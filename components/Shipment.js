@@ -26,10 +26,11 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
 
       <div className='row gy-3 mb-3'>
         <div className='d-flex justify-content-between'>
-          <Link href='/orders/bookings'>
-            <a className='btn btn-primary btn text-light rounded-pill px-3 py-2 my-auto'>
-              Start booking
-            </a>
+          <Link
+            href='/orders/bookings'
+            className='btn btn-primary btn text-light rounded-pill px-3 py-2 my-auto'
+          >
+            Start booking
           </Link>
           <div className='ms-auto text-end'>
             <Pagination data={data} setPage={setPage} />
@@ -66,8 +67,11 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                     >
                       Booking is {obj?.status}
                     </button>
-                    <Link href={`/orders/details/${obj?._id}`}>
-                      <a className='btn btn-info btn-sm'>Details</a>
+                    <Link
+                      href={`/orders/details/${obj?._id}`}
+                      className='btn btn-info btn-sm'
+                    >
+                      Details
                     </Link>
                   </div>
                 </div>

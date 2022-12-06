@@ -137,8 +137,11 @@ const ArrivedShipments = () => {
                         <>Confirm Arrival</>
                       )}
                     </button>
-                    <Link href={`arrived-shipments/${transport._id}`}>
-                      <a className='btn btn-primary btn-sm ms-2'>Details</a>
+                    <Link
+                      href={`arrived-shipments/${transport._id}`}
+                      className='btn btn-primary btn-sm ms-2'
+                    >
+                      Details
                     </Link>
                   </td>
                 </tr>
