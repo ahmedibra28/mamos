@@ -357,11 +357,9 @@ const Tabs = ({
                         <td>{moment(trade?.dateTime).format('MMM Do YY')}</td>
                         <td>{moment(trade?.dateTime).format('LT')}</td>
                         <td>
-                          <span className='fw-bold'>
+                          <span>
                             {trade?.actionType} {trade?.location}
                           </span>
-                          <br />
-                          <span>Terminal: {trade?.description}</span>
                         </td>
                       </tr>
                     ))}

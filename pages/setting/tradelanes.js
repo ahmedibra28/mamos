@@ -24,7 +24,6 @@ const Tradelanes = () => {
       tradeType: '',
       actionType: '',
       location: '',
-      description: '',
     },
   ])
 
@@ -121,7 +120,6 @@ const Tradelanes = () => {
             tradeType: fields.tradeType,
             actionType: fields.actionType,
             location: fields.location,
-            description: fields.description,
           }))
         : [
             {
@@ -129,7 +127,6 @@ const Tradelanes = () => {
               tradeType: '',
               actionType: '',
               location: '',
-              description: '',
             },
           ]
     )
@@ -156,7 +153,6 @@ const Tradelanes = () => {
         tradeType: '',
         actionType: '',
         location: '',
-        description: '',
       },
     ])
   }
@@ -205,7 +201,6 @@ const Tradelanes = () => {
         tradeType: '',
         actionType: '',
         location: '',
-        description: '',
       },
     ])
   }

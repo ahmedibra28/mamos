@@ -20,11 +20,29 @@ const TradelaneFormView = ({
   handleRemoveField,
 }) => {
   const locations = [
-    'AVCILAR',
     'Ambarli Port Istanbul, TR',
     'Port Said East, EG',
     'Salalah, OM',
-    'Mogadishu, SO',
+    'Turkey, TR',
+    'Ambarli Port Istanbul, TR',
+    'Izmir Port, TR',
+    'Gebze Port of Izmit, TR',
+    'Mersin Port, TR',
+    'Iskenderum Port, TR',
+    'Egypt, EG ',
+    'Port Said East, EG',
+    'Alexandria Port, EG',
+    'Oman, OM',
+    'Salalah Port, OM',
+    'Saudi Arabia, KSA',
+    'King Abdullah Port, KSA',
+    'Djibouti, DJ',
+    'Djibouti Port, DJ ',
+    'Somalia, SO ',
+    'Mogdisho Port, SO',
+    'Berbera Port, SO',
+    'Kenya, KE',
+    'Mombasa Port, KE',
   ]
 
   return (
@@ -158,20 +176,6 @@ const TradelaneFormView = ({
                       </select>
                     </div>
                     <div className='col-12'>
-                      <label htmlFor='item' className='form-label'>
-                        Description
-                      </label>
-                      <textarea
-                        cols={30}
-                        rows={5}
-                        type='text'
-                        className='form-control form-control-sm'
-                        placeholder='Description'
-                        name='description'
-                        id='description'
-                        value={inputField.description}
-                        onChange={(e) => handleInputChange(e, index)}
-                      />
                       <button
                         type='button'
                         onClick={() => handleRemoveField(index)}

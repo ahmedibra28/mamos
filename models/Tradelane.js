@@ -19,7 +19,6 @@ const tradelaneScheme = mongoose.Schema(
           enum: ['track', 'ship', 'train', 'plane'],
         },
         location: { type: String, required: true },
-        description: { type: String, required: true },
       },
     ],
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
