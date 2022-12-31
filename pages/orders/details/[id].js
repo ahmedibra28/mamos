@@ -279,6 +279,10 @@ const Details = () => {
     setValueOther('grossWeight', data?.other?.grossWeight)
     setValueOther('cargoDescription', data?.other?.cargoDescription)
     setValueOther('noOfPackages', data?.other?.noOfPackages)
+
+    setValueOther('demurrage', data?.demurrage)
+    setValueOther('customClearance', data?.customClearance)
+    setValueOther('overWeight', data?.overWeight)
   }
 
   // const editDocumentHandler = () => {
@@ -563,6 +567,26 @@ const Details = () => {
       name: 'cargoDescription',
       label: 'Cargo Description',
       placeholder: 'Enter cargo description',
+    }),
+
+    <hr key='hr0' />,
+    inputNumber({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Demurrage',
+      name: 'demurrage',
+    }),
+    inputNumber({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Custom Clearance',
+      name: 'customClearance',
+    }),
+    inputNumber({
+      register: registerOther,
+      errors: errorsOther,
+      label: 'Over Weight',
+      name: 'overWeight',
     }),
   ]
 

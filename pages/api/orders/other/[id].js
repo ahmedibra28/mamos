@@ -22,6 +22,9 @@ handler.put(async (req, res) => {
       cargoDescription,
       grossWeight,
       trackingNo,
+      demurrage,
+      customClearance,
+      overWeight,
     } = req.body
 
     const { role, _id } = req.user
@@ -54,6 +57,10 @@ handler.put(async (req, res) => {
     order.other.cargoDescription = cargoDescription
     order.other.grossWeight = grossWeight
     order.trackingNo = trackingNo
+
+    order.demurrage = demurrage
+    order.customClearance = customClearance
+    order.overWeight = overWeight
 
     await order.save()
     return res.status(200).send(order)

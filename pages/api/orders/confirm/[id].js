@@ -2,6 +2,8 @@ import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../../config/db'
 import Order from '../../../../models/Order'
+import Account from '../../../../models/Account'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
 const schemaName = Order
@@ -99,6 +101,85 @@ handler.put(async (req, res) => {
     order.status = 'confirmed'
 
     await order.save()
+
+    // update the transaction => accounts receivable
+    const acc = await Account.findOne({ accNo: 10910 }, { _id: 1 })
+    const accExp = await Account.findOne({ accNo: 501 }, { _id: 1 })
+
+    const common = {
+      refId: order._id,
+      transactionType: 'debit',
+      discount: 0,
+      createdBy: order.createdBy,
+      date: moment().format(),
+    }
+
+    if (order.pickUp.pickUpCost) {
+      const pickUpTransaction = {
+        ...common,
+        account: acc?._id,
+        amount: Number(order.pickUp.pickUpCost),
+        being: 'Pick up container',
+        description: `Pick up container`,
+      }
+      await Transaction.create(pickUpTransaction)
+    }
+    if (order.dropOff.dropOffCost) {
+      const dropOffTransaction = {
+        ...common,
+        account: acc?._id,
+        amount: Number(order.dropOff.dropOffCost),
+        being: 'Drop off container',
+        description: `Drop off container`,
+      }
+      await Transaction.create(dropOffTransaction)
+    }
+
+    if (order.demurrage > 0) {
+      const demurrageTransaction = {
+        ...common,
+        account: accExp?._id,
+        amount: Number(order.demurrage),
+        being: 'Demurrage',
+        description: `Demurrage`,
+      }
+      await Transaction.create(demurrageTransaction)
+    }
+    if (order.customClearance > 0) {
+      const customClearanceTransaction = {
+        ...common,
+        account: accExp?._id,
+        amount: Number(order.customClearance),
+        being: 'Custom clearance',
+        description: `Custom clearance`,
+      }
+      await Transaction.create(customClearanceTransaction)
+    }
+    if (order.overWeight > 0) {
+      const overWeightTransaction = {
+        ...common,
+        account: accExp?._id,
+        amount: Number(order.overWeight),
+        being: 'Over weight',
+        description: `Over weight`,
+      }
+      await Transaction.create(overWeightTransaction)
+    }
+
+    const containerTransaction = {
+      ...common,
+      account: acc?._id,
+      amount: Number(
+        order.other.containers.reduce(
+          (acc, cur) => (acc + cur.cost) * cur.quantity,
+          0
+        )
+      ),
+      being: 'FCL booking',
+      description: `FCL booking`,
+    }
+
+    await Transaction.create(containerTransaction)
 
     return res.status(200).send('Order confirmed successfully')
   } catch (error) {

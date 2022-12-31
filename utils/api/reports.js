@@ -3,7 +3,7 @@ import {
   useQuery,
   //  useMutation,
   // useQueryClient,
-} from 'react-query'
+} from '@tanstack/react-query'
 
 const url = '/api/reports'
 

@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/setting/commodities'
 
-const queryKey = 'commodities'
+const queryKey = ['commodities']
 
 export default function useCommoditiesHook(props) {
   const { page = 1, q = '', limit = 25 } = props

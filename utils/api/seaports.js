@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/setting/seaports'
 
-const queryKey = 'seaports'
+const queryKey = ['seaports']
 
 export default function useSeaportsHook(props) {
   const { page = 1, q = '', limit = 25 } = props

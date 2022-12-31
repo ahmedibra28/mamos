@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/setting/countries'
 
-const queryKey = 'countries'
+const queryKey = ['countries']
 
 export default function useCountriesHook(props) {
   const { page = 1, q = '', limit = 25 } = props

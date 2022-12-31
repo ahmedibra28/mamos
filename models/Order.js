@@ -82,6 +82,9 @@ const orderScheme = mongoose.Schema(
       clearanceCertificate: { type: Boolean, default: false },
       paymentDetails: { type: Boolean, default: false },
     },
+    demurrage: { type: Number, default: 0 },
+    customClearance: { type: Number, default: 0 },
+    overWeight: { type: Number, default: 0 },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

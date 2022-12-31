@@ -1,5 +1,5 @@
 import dynamicAPI from './dynamicAPI'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/auth'
 

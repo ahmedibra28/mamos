@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/auth/users'
 
-const queryKey = 'users'
+const queryKey = ['users']
 
 export default function useUsersHook(props) {
   const { page = 1, id, q = '', limit = 25 } = props

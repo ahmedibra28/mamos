@@ -7,6 +7,8 @@ import { undefinedChecker } from '../../../../utils/helper'
 import moment from 'moment'
 import { priceFormat } from '../../../../utils/priceFormat'
 import Seaport from '../../../../models/Seaport'
+import Transaction from '../../../../models/Transaction'
+import Account from '../../../../models/Account'
 
 const schemaName = Transportation
 
@@ -213,6 +215,23 @@ handler.post(async (req, res) => {
       status,
       createdBy: req.user._id,
     })
+
+    // update the transaction => accounts payable
+    const acc = await Account.findOne({ accNo: 2000 }, { _id: 1 })
+    const transaction = {
+      account: acc?._id,
+      refId: object._id,
+      transactionType: 'debit',
+      discount: 0,
+      amount: Number(
+        object.container?.reduce((acc, curr) => acc + curr.cost, 0)
+      ),
+      being: 'Container',
+      description: `Container rent from ${object.name}`,
+      createdBy: object.createdBy,
+      date: moment().format(),
+    }
+    await Transaction.create(transaction)
     res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })

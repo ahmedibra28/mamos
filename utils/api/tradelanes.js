@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/setting/tradelanes'
 
-const queryKey = 'tradelanes'
+const queryKey = ['tradelanes']
 
 export default function useTradelanesHook(props) {
   const { page = 1, q = '', limit = 25 } = props

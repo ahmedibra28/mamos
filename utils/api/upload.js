@@ -1,5 +1,5 @@
 import dynamicAPI from './dynamicAPI'
-import { useMutation } from 'react-query'
+import { useMutation } from '@tanstack/react-query'
 
 const url = '/api/upload'
 

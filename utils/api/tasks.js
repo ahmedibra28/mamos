@@ -1,9 +1,9 @@
 import dynamicAPI from './dynamicAPI'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const url = '/api/activities/tasks'
 
-const queryKey = 'tasks'
+const queryKey = ['tasks']
 
 export default function useTasksHook(props) {
   const { page = 1, q = '', limit = 25 } = props

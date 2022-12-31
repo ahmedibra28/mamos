@@ -284,6 +284,55 @@ const clientPermissions = [
     auth: true,
     description: 'Tasks by employees page',
   },
+
+  {
+    name: 'Account Types',
+    path: '/accounts/account-types',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Account type page',
+  },
+  {
+    name: 'Account',
+    path: '/accounts/accounts',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Account page',
+  },
+  {
+    name: 'Dashboard',
+    path: '/accounts/dashboard',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Dashboard page',
+  },
+  {
+    name: 'Receipt',
+    path: '/accounts/receipts',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Receipt page',
+  },
+  {
+    name: 'Payment',
+    path: '/accounts/payments',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Payment page',
+  },
+  {
+    name: 'Transaction',
+    path: '/accounts/transactions',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Transaction page',
+  },
 ]
 
 const permissions = [
@@ -916,6 +965,13 @@ const permissions = [
     method: 'GET',
   },
   {
+    description: 'Accounts',
+    route: '/api/reports/accounts',
+    auth: true,
+    name: 'Reports',
+    method: 'GET',
+  },
+  {
     description: 'Order Activities',
     route: '/api/activities/orders',
     auth: true,
@@ -972,6 +1028,140 @@ const permissions = [
     auth: true,
     name: 'Task',
     method: 'PUT',
+  },
+
+  // Account type endpoint
+  {
+    description: 'Get All Account Types',
+    route: '/api/accounts/account-types',
+    auth: true,
+    name: 'Account Type',
+    method: 'GET',
+  },
+  {
+    description: 'Create Account Type',
+    route: '/api/accounts/account-types',
+    auth: true,
+    name: 'Account Type',
+    method: 'POST',
+  },
+  {
+    description: 'Update Account Type',
+    route: '/api/accounts/account-types/:id',
+    auth: true,
+    name: 'Account Type',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Account Type',
+    route: '/api/accounts/account-types/:id',
+    auth: true,
+    name: 'Account Type',
+    method: 'DELETE',
+  },
+
+  // Account endpoint
+  {
+    description: 'Get All Account',
+    route: '/api/accounts/accounts',
+    auth: true,
+    name: 'Account',
+    method: 'GET',
+  },
+  {
+    description: 'Create Account',
+    route: '/api/accounts/accounts',
+    auth: true,
+    name: 'Account',
+    method: 'POST',
+  },
+  {
+    description: 'Update Account',
+    route: '/api/accounts/accounts/:id',
+    auth: true,
+    name: 'Account',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Account',
+    route: '/api/accounts/accounts/:id',
+    auth: true,
+    name: 'Account',
+    method: 'DELETE',
+  },
+  // Dashboard endpoint
+  {
+    description: 'Accounts Dashboard',
+    route: '/api/accounts/dashboard',
+    auth: true,
+    name: 'Dashboard',
+    method: 'GET',
+  },
+  {
+    description: 'Accounts Transaction',
+    route: '/api/accounts/transactions',
+    auth: true,
+    name: 'Dashboard',
+    method: 'GET',
+  },
+
+  // Receipt endpoint
+  {
+    description: 'Get All Receipt',
+    route: '/api/accounts/receipt',
+    auth: true,
+    name: 'Receipt',
+    method: 'GET',
+  },
+  {
+    description: 'Create Receipt',
+    route: '/api/accounts/receipt',
+    auth: true,
+    name: 'Receipt',
+    method: 'POST',
+  },
+  {
+    description: 'Update Receipt',
+    route: '/api/accounts/receipt/:id',
+    auth: true,
+    name: 'Receipt',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Receipt',
+    route: '/api/accounts/receipt/:id',
+    auth: true,
+    name: 'Receipt',
+    method: 'DELETE',
+  },
+  // Receipt endpoint
+  {
+    description: 'Get All Payment',
+    route: '/api/accounts/payment',
+    auth: true,
+    name: 'Payment',
+    method: 'GET',
+  },
+  {
+    description: 'Create Payment',
+    route: '/api/accounts/payment',
+    auth: true,
+    name: 'Payment',
+    method: 'POST',
+  },
+  {
+    description: 'Update Payment',
+    route: '/api/accounts/payment/:id',
+    auth: true,
+    name: 'Payment',
+    method: 'PUT',
+  },
+  {
+    description: 'Delete Payment',
+    route: '/api/accounts/payment/:id',
+    auth: true,
+    name: 'Payment',
+    method: 'DELETE',
   },
 ]
 
