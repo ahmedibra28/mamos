@@ -19,13 +19,15 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
+    let query = schemaName.find(
+      q ? { reference: { $regex: q, $options: 'i' } } : {}
+    )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
     const total = await schemaName.countDocuments(
-      q ? { name: { $regex: q, $options: 'i' } } : {}
+      q ? { reference: { $regex: q, $options: 'i' } } : {}
     )
 
     const pages = Math.ceil(total / pageSize)
@@ -36,6 +38,7 @@ handler.get(async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .populate('container.container')
+      .populate('vendor')
       .populate({
         path: 'departureSeaport',
         populate: { path: 'country' },
@@ -85,7 +88,7 @@ handler.post(async (req, res) => {
   await db()
   try {
     const {
-      name,
+      vendor,
       reference,
       transportationType,
       cargoType,
@@ -199,7 +202,7 @@ handler.post(async (req, res) => {
     if (trans) return res.status(400).json({ error: 'Reference already exist' })
 
     const object = await schemaName.create({
-      name,
+      vendor,
       transportationType,
       cargoType,
       container,
@@ -227,7 +230,7 @@ handler.post(async (req, res) => {
         object.container?.reduce((acc, curr) => acc + curr.cost, 0)
       ),
       being: 'Container',
-      description: `Container rent from ${object.name}`,
+      description: `Container rent from ${object.reference}`,
       createdBy: object.createdBy,
       date: moment().format(),
     }

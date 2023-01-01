@@ -18,6 +18,7 @@ import {
 } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
+import apiHook from '../../api'
 
 const Transportations = () => {
   const [page, setPage] = useState(1)
@@ -40,6 +41,12 @@ const Transportations = () => {
   const { getSeaports } = useSeaportsHook({
     limit: 10000000,
   })
+
+  const getApi = apiHook({
+    key: ['vendor-list'],
+    method: 'GET',
+    url: `setting/vendors?page=${page}&q=&limit=${250}`,
+  })?.get
 
   const {
     register,
@@ -104,7 +111,7 @@ const Transportations = () => {
   // TableView
   const table = {
     header: [
-      'Name',
+      'Vendor',
       'Reference',
       'Cargo',
       'Cost',
@@ -114,7 +121,7 @@ const Transportations = () => {
       'Status',
     ],
     body: [
-      'name',
+      'vendor.name',
       'reference',
       'cargoType',
       'cost',
@@ -134,6 +141,7 @@ const Transportations = () => {
     setValue('transportationType', item?.transportationType)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
+    setValue('vendor', item?.vendor?._id)
     setValue('vgmDate', item?.vgmDate)
     setValue('storageFreeGateInDate', item?.storageFreeGateInDate)
     setValue('shippingInstructionDate', item?.shippingInstructionDate)
@@ -178,13 +186,16 @@ const Transportations = () => {
   }
 
   const form = [
-    inputText({
+    dynamicInputSelect({
       register,
       errors,
-      label: 'Name',
-      name: 'name',
-      placeholder: 'Enter name',
+      label: 'Vendor',
+      name: 'vendor',
+      placeholder: 'Select vendor',
+      value: 'name',
+      data: getApi?.data?.data?.filter((item) => item.status === 'active'),
     }),
+
     staticInputSelect({
       register,
       errors,

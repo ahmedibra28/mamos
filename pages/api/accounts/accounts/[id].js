@@ -12,8 +12,7 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { accNo, name, accountType, openingBalance, description, status } =
-      req.body
+    const { code, name, type, openingBalance, description, status } = req.body
 
     const object = await schemaName.findById(id)
     if (!object)
@@ -30,8 +29,8 @@ handler.put(async (req, res) => {
 
     object.status = status
     object.name = name
-    object.accNo = accNo
-    object.accountType = accountType
+    object.code = code
+    object.type = type
     object.openingBalance = openingBalance
     object.description = description
     object.updatedBy = req.user._id

@@ -1,9 +1,12 @@
 import mongoose from 'mongoose'
 import User from './User'
 
-const accountTypeSchema = mongoose.Schema(
+const vendorSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
+    mobile: { type: String, required: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    address: { type: String, required: true },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 
     createdBy: {
@@ -16,7 +19,5 @@ const accountTypeSchema = mongoose.Schema(
   { timestamps: true }
 )
 
-const AccountType =
-  mongoose.models.AccountType ||
-  mongoose.model('AccountType', accountTypeSchema)
-export default AccountType
+const Vendor = mongoose.models.Vendor || mongoose.model('Vendor', vendorSchema)
+export default Vendor

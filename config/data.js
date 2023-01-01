@@ -197,6 +197,15 @@ const clientPermissions = [
     description: 'Tradelanes page',
   },
   {
+    name: 'Vendors',
+    path: '/setting/vendors',
+    menu: 'setting',
+    sort: 2,
+    auth: true,
+    description: 'Vendors page',
+  },
+
+  {
     name: 'Bookings',
     path: '/orders',
     menu: 'book',
@@ -283,15 +292,6 @@ const clientPermissions = [
     sort: 4,
     auth: true,
     description: 'Tasks by employees page',
-  },
-
-  {
-    name: 'Account Types',
-    path: '/accounts/account-types',
-    menu: 'account',
-    sort: 6,
-    auth: true,
-    description: 'Account type page',
   },
   {
     name: 'Account',
@@ -1030,33 +1030,33 @@ const permissions = [
     method: 'PUT',
   },
 
-  // Account type endpoint
+  // Vendor endpoint
   {
-    description: 'Get All Account Types',
-    route: '/api/accounts/account-types',
+    description: 'Get All Vendors',
+    route: '/api/setting/vendors',
     auth: true,
-    name: 'Account Type',
+    name: 'Vendor',
     method: 'GET',
   },
   {
-    description: 'Create Account Type',
-    route: '/api/accounts/account-types',
+    description: 'Create Vendor',
+    route: '/api/setting/vendors',
     auth: true,
-    name: 'Account Type',
+    name: 'Vendor',
     method: 'POST',
   },
   {
-    description: 'Update Account Type',
-    route: '/api/accounts/account-types/:id',
+    description: 'Update Vendor',
+    route: '/api/setting/vendors/:id',
     auth: true,
-    name: 'Account Type',
+    name: 'Vendor',
     method: 'PUT',
   },
   {
-    description: 'Delete Account Type',
-    route: '/api/accounts/account-types/:id',
+    description: 'Delete Vendor',
+    route: '/api/setting/vendors/:id',
     auth: true,
-    name: 'Account Type',
+    name: 'Vendor',
     method: 'DELETE',
   },
 

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import User from './User'
 import Account from './Account'
+import Vendor from './Vendor'
 
 const transactionSchema = mongoose.Schema(
   {
@@ -10,15 +11,18 @@ const transactionSchema = mongoose.Schema(
       ref: Account,
       required: true,
     },
-    refId: { type: String, required: true },
-    transactionType: {
-      type: String,
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Vendor,
       required: true,
-      enum: ['credit', 'debit'],
     },
-    discount: { type: Number, required: true },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: User,
+      required: true,
+    },
     amount: { type: Number, required: true },
-    being: { type: String, required: true },
+    discount: { type: Number, required: true },
     description: String,
 
     createdBy: {

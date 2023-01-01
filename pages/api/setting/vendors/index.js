@@ -1,25 +1,25 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import AccountType from '../../../../models/AccountType'
+import Vendor from '../../../../models/Vendor'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = AccountType
+const schemaName = Vendor
 
 const handler = nc()
+
+handler.use(isAuth)
 handler.get(async (req, res) => {
   await db()
   try {
     const q = req.query && req.query.q
 
-    let query = schemaName.find(
-      q ? { description: { $regex: q, $options: 'i' } } : {}
-    )
+    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
     const total = await schemaName.countDocuments(
-      q ? { description: { $regex: q, $options: 'i' } } : {}
+      q ? { name: { $regex: q, $options: 'i' } } : {}
     )
 
     const pages = Math.ceil(total / pageSize)
@@ -42,22 +42,24 @@ handler.get(async (req, res) => {
   }
 })
 
-handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const { status, name } = req.body
+    const { name, mobile, email, address, status } = req.body
 
-    const exist = await AccountType.findOne({
-      name: { $regex: `^${name?.trim()}$`, $options: 'i' },
+    const exist = await Vendor.findOne({
+      email: { $regex: `^${email?.trim()}$`, $options: 'i' },
     })
 
     if (exist)
       return res.status(400).json({ error: 'Duplicate account type detected' })
 
     const object = await schemaName.create({
-      status,
       name,
+      mobile,
+      email,
+      address,
+      status,
       createdBy: req.user._id,
     })
 

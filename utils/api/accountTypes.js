@@ -20,7 +20,7 @@ export default function useAccountTypesHook(props) {
     async (obj) => await dynamicAPI('put', `${url}/${obj._id}`, obj),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+      onSuccess: () => queryClient.invalidateQueries(queryKey),
     }
   )
 
@@ -28,7 +28,7 @@ export default function useAccountTypesHook(props) {
     async (id) => await dynamicAPI('delete', `${url}/${id}`, {}),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+      onSuccess: () => queryClient.invalidateQueries(queryKey),
     }
   )
 
@@ -36,7 +36,7 @@ export default function useAccountTypesHook(props) {
     async (obj) => await dynamicAPI('post', url, obj),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+      onSuccess: () => queryClient.invalidateQueries(queryKey),
     }
   )
 

@@ -31,7 +31,7 @@ export default function useProfilesHook(props) {
     async (obj) => await dynamicAPI('post', `${url}/profile`, obj),
     {
       retry: 0,
-      onSuccess: () => queryClient.invalidateQueries([queryKey]),
+      onSuccess: () => queryClient.invalidateQueries(queryKey),
     }
   )
 

@@ -1,16 +1,11 @@
 import mongoose from 'mongoose'
 import User from './User'
-import AccountType from './AccountType'
 
 const accountSchema = mongoose.Schema(
   {
-    accNo: { type: Number, required: true, unique: true },
+    code: { type: Number, required: true, unique: true },
     name: { type: String, required: true },
-    accountType: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: AccountType,
-      required: true,
-    },
+    type: { type: String, enum: ['default', 'custom'], default: 'custom' },
     openingBalance: { type: Number, default: 0 },
     description: String,
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },

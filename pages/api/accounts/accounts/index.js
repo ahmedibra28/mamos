@@ -11,25 +11,18 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    let query = schemaName.find(
-      q ? { description: { $regex: q, $options: 'i' } } : {}
-    )
+    let query = schemaName.find(q ? { name: { $regex: q, $options: 'i' } } : {})
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
     const total = await schemaName.countDocuments(
-      q ? { description: { $regex: q, $options: 'i' } } : {}
+      q ? { name: { $regex: q, $options: 'i' } } : {}
     )
 
     const pages = Math.ceil(total / pageSize)
 
-    query = query
-      .skip(skip)
-      .limit(pageSize)
-      .sort({ createdAt: -1 })
-      .lean()
-      .populate('accountType', ['name'])
+    query = query.skip(skip).limit(pageSize).sort({ createdAt: -1 }).lean()
 
     const result = await query
 
@@ -51,8 +44,7 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const { accNo, name, accountType, openingBalance, description, status } =
-      req.body
+    const { code, name, type, openingBalance, description, status } = req.body
 
     const exist = await Account.findOne({
       name: { $regex: `^${name?.trim()}$`, $options: 'i' },
@@ -63,9 +55,9 @@ handler.post(async (req, res) => {
       return res.status(400).json({ error: 'Duplicate account type detected' })
 
     const object = await schemaName.create({
-      accNo,
+      code,
       name,
-      accountType,
+      type,
       openingBalance,
       description,
       status,

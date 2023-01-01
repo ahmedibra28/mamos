@@ -20,7 +20,7 @@ handler.put(async (req, res) => {
   try {
     const { id } = req.query
     const {
-      name,
+      vendor,
       transportationType,
       reference,
       cargoType,
@@ -140,7 +140,7 @@ handler.put(async (req, res) => {
           .json({ error: 'Departure or arrival seaport not found' })
     }
 
-    object.name = name
+    object.vendor = vendor
     object.transportationType = transportationType
     object.cargoType = cargoType
     object.container = container
@@ -168,7 +168,7 @@ handler.put(async (req, res) => {
         object.container?.reduce((acc, curr) => acc + curr.cost, 0)
       ),
       being: 'Container',
-      description: `Container rent from ${object.name}`,
+      description: `Container rent from ${object.reference}`,
       updatedBy: object.createdBy,
     }
 

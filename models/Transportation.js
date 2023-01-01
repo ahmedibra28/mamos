@@ -2,10 +2,15 @@ import mongoose from 'mongoose'
 import User from './User'
 import Container from './Container'
 import Seaport from './Seaport'
+import Vendor from './Vendor'
 
 const transportationScheme = mongoose.Schema(
   {
-    name: { type: String, required: true },
+    vendor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Vendor,
+      required: true,
+    },
     reference: { type: String, required: true, uppercase: true },
     transportationType: {
       type: String,

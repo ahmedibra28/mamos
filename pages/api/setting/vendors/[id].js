@@ -1,10 +1,10 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import AccountType from '../../../../models/AccountType'
+import Vendor from '../../../../models/Vendor'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = AccountType
-const schemaNameString = 'Account Type'
+const schemaName = Vendor
+const schemaNameString = 'Vendor'
 
 const handler = nc()
 handler.use(isAuth)
@@ -12,14 +12,14 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { status, name } = req.body
+    const { name, mobile, email, address, status } = req.body
 
     const object = await schemaName.findById(id)
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
-    const exist = await AccountType.findOne({
-      name: { $regex: `^${name?.trim()}$`, $options: 'i' },
+    const exist = await Vendor.findOne({
+      email: { $regex: `^${email?.trim()}$`, $options: 'i' },
       _id: { $ne: id },
     })
 
@@ -28,6 +28,9 @@ handler.put(async (req, res) => {
 
     object.status = status
     object.name = name
+    object.mobile = mobile
+    object.email = email
+    object.address = address
     object.updatedBy = req.user._id
 
     await object.save()
