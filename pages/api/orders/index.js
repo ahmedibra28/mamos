@@ -81,6 +81,12 @@ handler.get(async (req, res) => {
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('createdBy', ['name'])
+      .populate({
+        path: 'other.transportation',
+        populate: {
+          path: 'vendor',
+        },
+      })
 
     const result = await query
 

@@ -69,6 +69,7 @@ const ShippingStatus = () => {
             <thead className='border-0'>
               <tr>
                 <th>Status</th>
+                <th>Vendor</th>
                 <th>Shipment Reference</th>
                 <th>Storage Free Gate In</th>
                 <th>Shipping Instruction</th>
@@ -82,6 +83,7 @@ const ShippingStatus = () => {
                   <td style={{ paddingTop: '0.4rem' }}>
                     {storageFreeGateInDate(book?.storageFreeGateInDate)}
                   </td>
+                  <td>{book?.vendor?.name}</td>
                   <td>{book?.reference}</td>
                   <td>{book?.storageFreeGateInDate}</td>
                   <td>{book?.shippingInstructionDate}</td>

@@ -1,4 +1,3 @@
-import moment from 'moment'
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
 import { Message, Spinner } from '../components'
@@ -14,6 +13,7 @@ const Home = () => {
   const orderHook = useOrdersHook({
     page,
     q,
+    limit: 10,
   })
 
   useEffect(() => {

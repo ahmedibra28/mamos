@@ -79,6 +79,7 @@ handler.post(async (req, res) => {
       .lean()
       .populate('createdBy', ['name'])
       .populate('other.transportation')
+      .populate('other.transportation.vendor')
 
     const result = await query
 

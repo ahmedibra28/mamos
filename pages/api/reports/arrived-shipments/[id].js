@@ -17,6 +17,12 @@ handler.get(async (req, res) => {
       .lean()
       .sort({ createdAt: -1 })
       .populate('createdBy', ['name'])
+      .populate({
+        path: 'other.transportation',
+        populate: {
+          path: 'vendor',
+        },
+      })
 
     res.status(200).send(result)
   } catch (error) {

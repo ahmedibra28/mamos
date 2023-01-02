@@ -33,7 +33,13 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('transportation')
+      // .populate('transportation')
+      .populate({
+        path: 'transportation',
+        populate: {
+          path: 'vendor',
+        },
+      })
 
     const result = await query
 

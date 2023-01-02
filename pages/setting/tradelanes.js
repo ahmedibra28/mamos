@@ -96,7 +96,7 @@ const Tradelanes = () => {
   // TableView
   const table = {
     header: ['Transportation', 'Reference', 'Status'],
-    body: ['transportation.name', 'transportation.reference', 'status'],
+    body: ['transportation.vendor.name', 'transportation.reference', 'status'],
     createdAt: 'createdAt',
     data: data,
   }

@@ -47,6 +47,7 @@ handler.get(async (req, res) => {
       .sort({ arrivalDate: -1 })
       .lean()
       .populate('createdBy', ['name'])
+      .populate('vendor', ['name'])
 
     let result = await query
 

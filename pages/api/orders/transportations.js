@@ -25,6 +25,7 @@ handler.post(async (req, res) => {
       .lean()
       .sort({ createdAt: -1 })
       .populate('container.container')
+      .populate('vendor')
 
     object = object.map((obj) => ({
       ...obj,

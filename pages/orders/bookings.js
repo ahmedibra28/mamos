@@ -201,7 +201,7 @@ const Orders = () => {
       {/* {isErrorUpload && <Message variant='danger'>{errorUpload}</Message>} */}
       {isErrorPost && <Message variant='danger'>{errorPost}</Message>}
 
-      <div className='bg-light p-3 my-2'>
+      <div className='bg-light p-3 my-2 text-center'>
         <h4 className='fw-bold font-monospace'>Book New Shipment</h4>
         <p>Please complete as much as you can.</p>
       </div>

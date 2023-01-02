@@ -19,7 +19,7 @@ const TransportationItem = ({
     >
       <div className='card-body'>
         <label>
-          <span className='fw-bold'> Transporter: </span> {item?.name}
+          <span className='fw-bold'> Transporter: </span> {item?.vendor?.name}
         </label>
         <br />
         <label>

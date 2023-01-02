@@ -60,7 +60,9 @@ handler.get(async (req, res) => {
 
     order.other.transportation = await Transportation.findById(
       order.other.transportation._id
-    ).populate('container.container')
+    )
+      .populate('container.container')
+      .populate('vendor')
 
     // const invoicePrice = order.other.isHasInvoice ? 0.0 : 200.0
 

@@ -1022,7 +1022,7 @@ const Details = () => {
             </div>
             <div className='col-lg-3 col-md-4 col-12'>
               <h6>Transporter </h6>
-              <p>{data?.other?.transportation?.name}</p>
+              <p>{data?.other?.transportation?.vendor?.name}</p>
             </div>
             <div className='col-lg-3 col-md-4 col-12'>
               <h6>

@@ -54,6 +54,9 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                     <span className='badge bg-primary ms-1'>
                       {obj?.other?.movementType}
                     </span>
+                    <span className='badge bg-warning ms-1'>
+                      {obj?.other?.transportation?.vendor?.name}
+                    </span>
                   </div>
                   <div>
                     <button
@@ -109,6 +112,10 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                 </div>
 
                 <div className='d-flex justify-content-between my-3'>
+                  <div>
+                    <span>Buyer</span>
+                    <h6 className='fw-bold'>{obj?.buyer?.buyerName}</h6>
+                  </div>
                   <div>
                     <span>Booked By</span>
                     <h6 className='fw-bold'>{obj?.createdBy?.name}</h6>
