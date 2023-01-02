@@ -8,7 +8,7 @@ export const inputText = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -27,7 +27,7 @@ export const inputTel = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='tel'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -48,7 +48,7 @@ export const inputTextArea = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -84,7 +84,7 @@ export const inputNumber = (args) => {
         type='number'
         step='0.01'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -109,7 +109,7 @@ export const inputEmail = (args) => {
         })}
         type='email'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -150,7 +150,7 @@ export const inputPassword = (args) => {
         })}
         type='password'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -178,7 +178,7 @@ export const dynamicInputSelect = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       >
         <option value=''>-------</option>
         {data &&
@@ -215,7 +215,7 @@ export const staticInputSelect = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       >
         <option value=''>-------</option>
         {data &&
@@ -321,7 +321,7 @@ export const inputFile = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='file'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
         id='formFile'
         onChange={(e) => setFile(e.target.files[0])}
       />
@@ -342,7 +342,7 @@ export const inputDate = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='date'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       {errors && errors[name] && (
         <span className='text-danger'>{errors[name].message}</span>
@@ -374,7 +374,7 @@ export const InputAutoCompleteSelect = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       />
       <datalist id='datalistOptions'>
         <option value=''>-------------</option>
@@ -411,7 +411,7 @@ export const dynamicInputSelectNumber = (args) => {
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
-        className='form-control form-control-lg'
+        className='form-control form-control-lg2'
       >
         <option value=''>-------</option>
 

@@ -13,7 +13,7 @@ handler.get(async (req, res) => {
 
     let account = null
     if (q) {
-      account = await Account.findOne({ accNo: q }, { _id: 1 })
+      account = await Account.findOne({ code: q }, { _id: 1 })
     }
 
     let query = Transaction.find(account ? { account: account._id } : {})

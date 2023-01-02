@@ -163,7 +163,10 @@ const Navigation = () => {
   }
 
   return (
-    <nav className='navbar navbar-expand-sm navbar-dark bg-primary'>
+    <nav
+      className='navbar navbar-expand-md navbar-dark bg-primary'
+      style={{ minHeight: 55 }}
+    >
       <div className='container'>
         <Link href='/'>
           {/* eslint-disable-next-line @next/next/no-img-element */}

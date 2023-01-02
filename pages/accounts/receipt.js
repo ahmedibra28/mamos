@@ -1,7 +1,8 @@
 import React from 'react'
+import { FormContainer } from '../../components'
 
 const Receipt = () => {
-  return <div>Receipt</div>
+  return <FormContainer>Receipt</FormContainer>
 }
 
 export default Receipt

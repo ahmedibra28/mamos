@@ -12,9 +12,14 @@ export default function Layout({ children }) {
       </Head>
       <Notice />
       <Navigation />
-      <main className='container py-2' style={{ minHeight: '70vh' }}>
-        {children}
-      </main>
+      <div className='d-flex justify-content-between'>
+        <main
+          className='container py-2'
+          style={{ minHeight: 'calc(100vh - 120px)' }}
+        >
+          {children}
+        </main>
+      </div>
       <Footer />
     </>
   )

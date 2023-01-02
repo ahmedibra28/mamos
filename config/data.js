@@ -366,7 +366,7 @@ const clientPermissions = [
     description: 'Account page',
   },
   {
-    name: 'Dashboard',
+    name: 'Account',
     path: '/accounts/dashboard',
     menu: 'account',
     sort: 6,
@@ -374,7 +374,7 @@ const clientPermissions = [
     description: 'Dashboard page',
   },
   {
-    name: 'Receipt',
+    name: 'Account',
     path: '/accounts/receipts',
     menu: 'account',
     sort: 6,
@@ -382,7 +382,7 @@ const clientPermissions = [
     description: 'Receipt page',
   },
   {
-    name: 'Payment',
+    name: 'Account',
     path: '/accounts/payments',
     menu: 'account',
     sort: 6,
@@ -390,7 +390,15 @@ const clientPermissions = [
     description: 'Payment page',
   },
   {
-    name: 'Transaction',
+    name: 'Account',
+    path: '/accounts/transactions',
+    menu: 'account',
+    sort: 6,
+    auth: true,
+    description: 'Transaction page',
+  },
+  {
+    name: 'Account',
     path: '/accounts/transactions',
     menu: 'account',
     sort: 6,
@@ -1158,14 +1166,14 @@ const permissions = [
     description: 'Accounts Dashboard',
     route: '/api/accounts/dashboard',
     auth: true,
-    name: 'Dashboard',
+    name: 'Account',
     method: 'GET',
   },
   {
     description: 'Accounts Transaction',
     route: '/api/accounts/transactions',
     auth: true,
-    name: 'Dashboard',
+    name: 'Account',
     method: 'GET',
   },
 
@@ -1198,7 +1206,7 @@ const permissions = [
     name: 'Receipt',
     method: 'DELETE',
   },
-  // Receipt endpoint
+  // Payment endpoint
   {
     description: 'Get All Payment',
     route: '/api/accounts/payment',

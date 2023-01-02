@@ -104,7 +104,7 @@ handler.put(async (req, res) => {
         .status(400)
         .json({ error: 'The booked date has already expired' })
 
-    order.status = 'confirmed'
+    // order.status = 'confirmed'
 
     // update the transaction => accounts receivable
     const ap = await Account.findOne({ code: 21000 }, { _id: 1 })

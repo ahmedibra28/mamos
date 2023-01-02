@@ -64,20 +64,19 @@ const Login = () => {
         <title>Login</title>
         <meta property='og:title' content='Login' key='title' />
       </Head>
-
       <div className='text-center'>
         <Image
           src='/dark-logo.png'
           alt='logo'
-          width='300'
-          height='132'
-          className='img-fluid card-img-top'
+          width={225}
+          height={99}
+          className='img-fluid'
         />
       </div>
+      <hr />
       {/* <h3 className='fw-light font-monospace text-center'>Sign In</h3> */}
       {isError && <Message variant='danger'>{error}</Message>}
       {isErrorUserRole && <Message variant='danger'>{errorUserRole}</Message>}
-
       <form onSubmit={handleSubmit(submitHandler)}>
         {inputEmail({
           register,

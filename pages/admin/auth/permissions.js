@@ -89,8 +89,8 @@ const Permissions = () => {
 
   // TableView
   const table = {
-    header: ['Name', 'Method', 'Route'],
-    body: ['name', 'method', 'route'],
+    header: ['Name', 'Method', 'Route', 'Description'],
+    body: ['name', 'method', 'route', 'description'],
     createdAt: 'createdAt',
     auth: 'auth',
     data: data,

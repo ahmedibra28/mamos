@@ -61,7 +61,7 @@ handler.get(async (req, res) => {
       if (tId.includes(account._id.toString())) {
         accountResults.push({
           accountType: account.accountType.toString(),
-          accNo: account.accNo,
+          code: account.code,
           name: account.name,
           transactions: transactions.filter(
             (t) => t.account.toString() === account._id.toString()

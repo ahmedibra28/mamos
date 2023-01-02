@@ -7,17 +7,23 @@ $warning: #fac410;
 @import '../node_modules/bootstrap/scss/bootstrap';
 @import url('https://fonts.googleapis.com/css2?family=Yellowtail&display=swap');
 
-input,
 button,
+a,
+link,
+input,
 select,
 textarea {
-  border-radius: 0 !important;
+  border-radius: 0px !important;
 }
 
 body {
-  color: #173662 !important;
   background-color: #f2f6fb !important;
-  font-size: 105% !important;
+  font-family: 'Roboto', sans-serif !important;
+  color: #173662 !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
 }
 
 .title {
