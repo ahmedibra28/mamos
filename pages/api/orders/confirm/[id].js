@@ -26,6 +26,12 @@ handler.put(async (req, res) => {
           : { _id: id, status: 'pending', createdBy: _id }
       )
       .populate('other.transportation', ['departureDate'])
+      .populate({
+        path: 'other.transportation',
+        populate: {
+          path: 'vendor',
+        },
+      })
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
 
@@ -100,85 +106,79 @@ handler.put(async (req, res) => {
 
     order.status = 'confirmed'
 
+    // update the transaction => accounts receivable
+    const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
+    const ar = await Account.findOne({ code: 12100 }, { _id: 1 })
+
     await order.save()
 
-    // update the transaction => accounts receivable
-    const acc = await Account.findOne({ accNo: 10910 }, { _id: 1 })
-    const accExp = await Account.findOne({ accNo: 501 }, { _id: 1 })
-
     const common = {
-      refId: order._id,
-      transactionType: 'debit',
+      date: new Date(),
       discount: 0,
       createdBy: order.createdBy,
-      date: moment().format(),
+      order: order._id,
     }
 
+    // Pick Up
     if (order.pickUp.pickUpCost) {
       const pickUpTransaction = {
         ...common,
-        account: acc?._id,
+        account: ap?._id,
+        vendor: order.pickUp.pickUpVendor,
         amount: Number(order.pickUp.pickUpCost),
-        being: 'Pick up container',
-        description: `Pick up container`,
+        description: `Pick-Up Track Rent`,
       }
       await Transaction.create(pickUpTransaction)
     }
+
+    // Drop Off
     if (order.dropOff.dropOffCost) {
       const dropOffTransaction = {
         ...common,
-        account: acc?._id,
+        account: ap?._id,
+        vendor: order.dropOff.dropOffVendor,
         amount: Number(order.dropOff.dropOffCost),
-        being: 'Drop off container',
-        description: `Drop off container`,
+        description: `Drop-Off Track Rent`,
       }
       await Transaction.create(dropOffTransaction)
     }
-
+    // Demurrage
     if (order.demurrage > 0) {
       const demurrageTransaction = {
         ...common,
-        account: accExp?._id,
-        amount: Number(order.demurrage),
-        being: 'Demurrage',
+        account: ap?._id,
+        vendor: order.other.transportation.vendor._id,
+        amount: Number(order.demurrage), // Marsek
         description: `Demurrage`,
       }
       await Transaction.create(demurrageTransaction)
     }
-    if (order.customClearance > 0) {
-      const customClearanceTransaction = {
-        ...common,
-        account: accExp?._id,
-        amount: Number(order.customClearance),
-        being: 'Custom clearance',
-        description: `Custom clearance`,
-      }
-      await Transaction.create(customClearanceTransaction)
-    }
-    if (order.overWeight > 0) {
+
+    // Overweight
+    if (order.overWeight.amount > 0) {
       const overWeightTransaction = {
         ...common,
-        account: accExp?._id,
-        amount: Number(order.overWeight),
-        being: 'Over weight',
-        description: `Over weight`,
+        account: ap?._id,
+        vendor: order.overWeight.vendor, // Gov
+        amount: Number(order.overWeight.amount),
+        description: `Overweight`,
       }
       await Transaction.create(overWeightTransaction)
     }
 
+    // Container
     const containerTransaction = {
       ...common,
-      account: acc?._id,
       amount: Number(
         order.other.containers.reduce(
           (acc, cur) => (acc + cur.cost) * cur.quantity,
           0
         )
       ),
-      being: 'FCL booking',
-      description: `FCL booking`,
+      account: ar?._id,
+      customer: order.createdBy,
+      description: `FCL Booking`,
     }
-
     await Transaction.create(containerTransaction)
 
     return res.status(200).send('Order confirmed successfully')

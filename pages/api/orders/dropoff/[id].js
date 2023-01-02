@@ -16,7 +16,7 @@ handler.put(async (req, res) => {
       dropOffWarehouse,
       dropOffCity,
       dropOffAddress,
-      // dropOffTown,
+      dropOffVendor,
       dropOffCost,
       dropOffPrice,
     } = req.body
@@ -48,7 +48,7 @@ handler.put(async (req, res) => {
     order.dropOff.dropOffWarehouse = dropOffWarehouse
     order.dropOff.dropOffCity = dropOffCity
     order.dropOff.dropOffAddress = dropOffAddress
-    // order.dropOff.dropOffTown = dropOffTown
+    order.dropOff.dropOffVendor = dropOffVendor
     order.dropOff.dropOffCost = dropOffCost
     order.dropOff.dropOffPrice = dropOffPrice
 

@@ -45,7 +45,7 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
-    const { name, mobile, email, address, status } = req.body
+    const { name, mobile, email, address, status, type } = req.body
 
     const exist = await Vendor.findOne({
       email: { $regex: `^${email?.trim()}$`, $options: 'i' },
@@ -57,6 +57,7 @@ handler.post(async (req, res) => {
     const object = await schemaName.create({
       name,
       mobile,
+      type,
       email,
       address,
       status,

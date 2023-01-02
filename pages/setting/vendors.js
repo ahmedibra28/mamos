@@ -83,6 +83,7 @@ const Vendors = () => {
     setValue('email', item?.email)
     setValue('address', item?.address)
     setValue('status', item?.status)
+    setValue('type', item?.type)
 
     setEdit(true)
   }
@@ -138,6 +139,14 @@ const Vendors = () => {
       label: 'Address',
       name: 'address',
       placeholder: 'Enter address',
+    }),
+    staticInputSelect({
+      register,
+      errors,
+      label: 'Vendor Type',
+      name: 'type',
+      placeholder: 'Enter vendor type',
+      data: [{ name: 'ship' }, { name: 'track' }, { name: 'government' }],
     }),
     staticInputSelect({
       register,
@@ -200,7 +209,7 @@ const Vendors = () => {
       {getApi?.isLoading ? (
         <Spinner />
       ) : getApi?.isError ? (
-        <Message variant='danger' value={getApi?.error} />
+        <Message variant='danger'> {getApi?.error} </Message>
       ) : (
         <div className='table-responsive bg-light p-3 mt-2'>
           <div className='d-flex align-items-center flex-column mb-2'>
@@ -227,7 +236,8 @@ const Vendors = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Name</th>
+                <th>Vendor</th>
+                <th>Type</th>
                 <th>Mobile</th>
                 <th>Email</th>
                 <th>Address</th>
@@ -239,6 +249,7 @@ const Vendors = () => {
               {getApi?.data?.data?.map((item, i) => (
                 <tr key={i}>
                   <td>{item?.name}</td>
+                  <td>{item?.type}</td>
                   <td>{item?.mobile}</td>
                   <td>{item?.email}</td>
                   <td>{item?.address}</td>

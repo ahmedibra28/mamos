@@ -5,10 +5,8 @@ import withAuth from '../../HOC/withAuth'
 import { confirmAlert } from 'react-confirm-alert'
 import { useForm } from 'react-hook-form'
 import useAccountsHook from '../../utils/api/accounts'
-import useAccountTypesHook from '../../utils/api/accountTypes'
 import { Spinner, Pagination, Message, Confirm } from '../../components'
 import {
-  dynamicInputSelect,
   inputNumber,
   inputText,
   inputTextArea,
@@ -29,12 +27,6 @@ const Account = () => {
       q,
     })
 
-  const { getAccountTypes } = useAccountTypesHook({
-    page,
-    q,
-    limit: 100,
-  })
-
   const {
     register,
     handleSubmit,
@@ -50,7 +42,6 @@ const Account = () => {
   })
 
   const { data, isLoading, isError, error, refetch } = getAccounts
-  const { data: accountTypeData } = getAccountTypes
 
   const {
     isLoading: isLoadingUpdate,
@@ -99,8 +90,8 @@ const Account = () => {
 
   // TableView
   const table = {
-    header: ['Account No', 'Name', 'Account Type', 'Opening Balance', 'Status'],
-    body: ['accNo', 'name', 'accountType.name', 'openingBalance', 'status'],
+    header: ['Acc. Code', 'Acc. Name', 'Opening Balance', 'Status'],
+    body: ['code', 'name', 'openingBalance', 'status'],
     data: data,
   }
 
@@ -109,7 +100,6 @@ const Account = () => {
 
     table.body.map((t) => setValue(t, item[t]))
     setValue('description', item?.description)
-    setValue('accountType', item?.accountType?._id)
     setEdit(true)
   }
 
@@ -132,18 +122,19 @@ const Account = () => {
     edit
       ? mutateAsyncUpdate({
           _id: id,
-          ...data
+          type: 'custom',
+          ...data,
         })
-      : mutateAsyncPost(data)
+      : mutateAsyncPost({ ...data, type: 'custom' })
   }
 
   const form = [
     inputNumber({
       register,
       errors,
-      label: 'Account No',
-      name: 'accNo',
-      placeholder: 'Enter account no',
+      label: 'Account code',
+      name: 'code',
+      placeholder: 'Enter account code',
     }),
     inputText({
       register,
@@ -151,15 +142,6 @@ const Account = () => {
       label: 'Name',
       name: 'name',
       placeholder: 'Enter name',
-    }),
-    dynamicInputSelect({
-      register,
-      errors,
-      label: 'Account Type',
-      name: 'accountType',
-      placeholder: 'Select account type',
-      value: 'name',
-      data: accountTypeData?.data?.filter((acc) => acc.status === 'active'),
     }),
     inputNumber({
       register,
@@ -187,8 +169,8 @@ const Account = () => {
   ]
 
   const row = true
-  const column = 'col-md-6 col-12'
-  const modalSize = 'modal-xl'
+  const column = 'col-12'
+  const modalSize = 'modal-md'
 
   return (
     <>

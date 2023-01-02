@@ -7,6 +7,11 @@ const vendorSchema = mongoose.Schema(
     mobile: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true },
     address: { type: String, required: true },
+    type: {
+      type: String,
+      required: true,
+      enum: ['ship', 'track', 'government'],
+    },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 
     createdBy: {

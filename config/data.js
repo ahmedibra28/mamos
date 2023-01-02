@@ -58,6 +58,70 @@ const profile = {
   bio: 'Full Stack Developer',
 }
 
+const defaultAccounts = [
+  {
+    _id: '63b28f2acc5b18dda70b8451',
+    code: 21000,
+    name: 'Accounts Payable',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Accounts Payable',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+  {
+    _id: '63b28f2acc5b18dda70b8452',
+    code: 12100,
+    name: 'Accounts Receivable',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Accounts Receivable',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+  {
+    _id: '63b28f2acc5b18dda70b8453',
+    code: 50000,
+    name: 'Expenses',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Expenses',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+  {
+    _id: '63b28f2acc5b18dda70b8454',
+    code: 40000,
+    name: 'GOS',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Cost Of Sales (GOS)',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+
+  {
+    _id: '63b291bfcc5b18dda70b8455',
+    code: 2022,
+    name: 'Payments',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Payments',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+  {
+    _id: '63b291bfcc5b18dda70b8456',
+    code: 2023,
+    name: 'Receipts',
+    type: 'default',
+    openingBalance: 0,
+    description: 'Receipts',
+    status: 'active',
+    createdBy: '63b28f2acc5b18dda70b8450',
+  },
+]
+
 const clientPermissions = [
   {
     name: 'Home',
@@ -1165,4 +1229,11 @@ const permissions = [
   },
 ]
 
-export { roles, users, profile, permissions, clientPermissions }
+export {
+  roles,
+  users,
+  profile,
+  permissions,
+  clientPermissions,
+  defaultAccounts,
+}

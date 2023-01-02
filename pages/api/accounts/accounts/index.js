@@ -44,11 +44,10 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const { code, name, type, openingBalance, description, status } = req.body
+    const { code, name, openingBalance, description, status } = req.body
 
     const exist = await Account.findOne({
       name: { $regex: `^${name?.trim()}$`, $options: 'i' },
-      accountType,
     })
 
     if (exist)
@@ -57,7 +56,6 @@ handler.post(async (req, res) => {
     const object = await schemaName.create({
       code,
       name,
-      type,
       openingBalance,
       description,
       status,

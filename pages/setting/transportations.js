@@ -193,7 +193,9 @@ const Transportations = () => {
       name: 'vendor',
       placeholder: 'Select vendor',
       value: 'name',
-      data: getApi?.data?.data?.filter((item) => item.status === 'active'),
+      data: getApi?.data?.data?.filter(
+        (item) => item.status === 'active' && item.type === 'ship'
+      ),
     }),
 
     staticInputSelect({

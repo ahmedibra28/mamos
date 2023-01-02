@@ -12,15 +12,17 @@ handler.put(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    const { code, name, type, openingBalance, description, status } = req.body
+    const { code, name, openingBalance, description, status } = req.body
 
     const object = await schemaName.findById(id)
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
+    if (object.type !== 'custom')
+      return res.status(401).json({ error: `Unexpected type` })
+
     const exist = await schemaName.findOne({
       name: { $regex: `^${name?.trim()}$`, $options: 'i' },
-      accountType,
       _id: { $ne: id },
     })
 
@@ -30,7 +32,7 @@ handler.put(async (req, res) => {
     object.status = status
     object.name = name
     object.code = code
-    object.type = type
+    object.type = 'custom'
     object.openingBalance = openingBalance
     object.description = description
     object.updatedBy = req.user._id
@@ -50,6 +52,9 @@ handler.delete(async (req, res) => {
     const object = await schemaName.findById(id)
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
+
+    if (object.type !== 'custom')
+      return res.status(401).json({ error: `Unexpected type` })
 
     await object.remove()
     res.status(200).send(`${schemaNameString} removed`)

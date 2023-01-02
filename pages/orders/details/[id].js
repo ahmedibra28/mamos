@@ -27,6 +27,7 @@ import CustomFormView from '../../../components/CustomFormView'
 import Tabs from '../../../features/order/Tabs'
 import TransportationModalForm from '../../../components/TransportationModalForm'
 import { hide } from '../../../utils/UnlockAccess'
+import apiHook from '../../../api'
 
 const Details = () => {
   const router = useRouter()
@@ -56,6 +57,13 @@ const Details = () => {
   } = useOrdersHook({
     id,
   })
+
+  const getApi = apiHook({
+    key: ['vendors'],
+    method: 'GET',
+    url: `setting/vendors?page=${1}&q=&limit=${250}`,
+  })?.get
+
   // const { getTowns } = useTownsHook({ limit: 1000000 })
   const { getCommodities } = useCommoditiesHook({ limit: 1000000 })
 
@@ -258,6 +266,7 @@ const Details = () => {
     setValuePickUp('pickUpAddress', data?.pickUp?.pickUpAddress)
     setValuePickUp('pickUpCost', data?.pickUp?.pickUpCost)
     setValuePickUp('pickUpPrice', data?.pickUp?.pickUpPrice)
+    setValuePickUp('pickUpVendor', data?.pickUp?.pickUpVendor?._id)
   }
   const editDropOffHandler = () => {
     setValueDropOff('dropOffWarehouse', data?.dropOff?.dropOffWarehouse)
@@ -265,6 +274,7 @@ const Details = () => {
     setValueDropOff('dropOffAddress', data?.dropOff?.dropOffAddress)
     setValueDropOff('dropOffCost', data?.dropOff?.dropOffCost)
     setValueDropOff('dropOffPrice', data?.dropOff?.dropOffPrice)
+    setValueDropOff('dropOffVendor', data?.dropOff?.dropOffVendor?._id)
   }
   const editOtherHandler = () => {
     setValueOther('importExport', data?.other?.importExport)
@@ -281,8 +291,8 @@ const Details = () => {
     setValueOther('noOfPackages', data?.other?.noOfPackages)
 
     setValueOther('demurrage', data?.demurrage)
-    setValueOther('customClearance', data?.customClearance)
-    setValueOther('overWeight', data?.overWeight)
+    setValueOther('overWeight', data?.overWeight?.amount)
+    setValueOther('overWeightVendor', data?.overWeight?.vendor?._id)
   }
 
   // const editDocumentHandler = () => {
@@ -316,9 +326,7 @@ const Details = () => {
   const {
     register: registerProcess,
     handleSubmit: handleSubmitProcess,
-    watch: watchProcess,
     setValue: setValueProcess,
-    reset: resetProcess,
     formState: { errors: errorsProcess },
   } = useForm({
     defaultValues: {
@@ -428,16 +436,16 @@ const Details = () => {
       name: 'pickUpAddress',
       placeholder: 'Enter address',
     }),
-    // dynamicInputSelect({
-    //   register: registerPickUp,
-    //   errors: errorsPickUp,
-    //   label: 'PickUp town',
-    //   name: 'pickUpTown',
-    //   value: 'name',
-    //   data: townsData?.data?.filter(
-    //     (town) => town?.seaport?._id === data?.pickUp?.pickUpSeaport?._id
-    //   ),
-    // }),
+    dynamicInputSelect({
+      register: registerPickUp,
+      errors: errorsPickUp,
+      label: 'Vendor',
+      name: 'pickUpVendor',
+      value: 'name',
+      data: getApi?.data?.data?.filter(
+        (v) => v.status === 'active' && v.type === 'track'
+      ),
+    }),
     inputText({
       register: registerPickUp,
       errors: errorsPickUp,
@@ -476,16 +484,16 @@ const Details = () => {
       name: 'dropOffAddress',
       placeholder: 'Enter address',
     }),
-    // dynamicInputSelect({
-    //   register: registerDropOff,
-    //   errors: errorsDropOff,
-    //   label: 'DropOff town',
-    //   name: 'dropOffTown',
-    //   value: 'name',
-    //   data: townsData?.data?.filter(
-    //     (town) => town?.seaport?._id === data?.dropOff?.dropOffSeaport?._id
-    //   ),
-    // }),
+    dynamicInputSelect({
+      register: registerDropOff,
+      errors: errorsDropOff,
+      label: 'Vendor',
+      name: 'dropOffVendor',
+      value: 'name',
+      data: getApi?.data?.data?.filter(
+        (v) => v.status === 'active' && v.type === 'track'
+      ),
+    }),
     inputText({
       register: registerDropOff,
       errors: errorsDropOff,
@@ -576,18 +584,24 @@ const Details = () => {
       label: 'Demurrage',
       name: 'demurrage',
     }),
-    inputNumber({
+    dynamicInputSelect({
       register: registerOther,
       errors: errorsOther,
-      label: 'Custom Clearance',
-      name: 'customClearance',
+      label: 'Vendor',
+      name: 'overWeightVendor',
+      value: 'name',
+      data: getApi?.data?.data?.filter(
+        (v) => v.status === 'active' && v.type === 'government'
+      ),
     }),
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      label: 'Over Weight',
-      name: 'overWeight',
-    }),
+    watchOther().overWeightVendor &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        label: 'Over Weight',
+        name: 'overWeight',
+        placeholder: 'Overweight',
+      }),
   ]
 
   // const formDocument = [

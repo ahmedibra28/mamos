@@ -2,6 +2,8 @@ import mongoose from 'mongoose'
 import User from './User'
 import Account from './Account'
 import Vendor from './Vendor'
+import Transportation from './Transportation'
+import Order from './Order'
 
 const transactionSchema = mongoose.Schema(
   {
@@ -14,16 +16,22 @@ const transactionSchema = mongoose.Schema(
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Vendor,
-      required: true,
     },
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,
-      required: true,
     },
     amount: { type: Number, required: true },
-    discount: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
     description: String,
+    transportation: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Transportation,
+    },
+    order: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Order,
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -18,7 +18,7 @@ handler.put(async (req, res) => {
       pickUpWarehouse,
       pickUpCity,
       pickUpAddress,
-      // pickUpTown,
+      pickUpVendor,
       pickUpCost,
       pickUpPrice,
     } = req.body
@@ -50,6 +50,7 @@ handler.put(async (req, res) => {
     order.pickUp.pickUpWarehouse = pickUpWarehouse
     order.pickUp.pickUpCity = pickUpCity
     order.pickUp.pickUpAddress = pickUpAddress
+    order.pickUp.pickUpVendor = pickUpVendor
     // order.pickUp.pickUpTown = pickUpTown
     order.pickUp.pickUpCost = pickUpCost
     order.pickUp.pickUpPrice = pickUpPrice

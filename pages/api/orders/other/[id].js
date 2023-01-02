@@ -23,8 +23,8 @@ handler.put(async (req, res) => {
       grossWeight,
       trackingNo,
       demurrage,
-      customClearance,
       overWeight,
+      overWeightVendor,
     } = req.body
 
     const { role, _id } = req.user
@@ -59,10 +59,13 @@ handler.put(async (req, res) => {
     order.trackingNo = trackingNo
 
     order.demurrage = demurrage
-    order.customClearance = customClearance
-    order.overWeight = overWeight
+    order.overWeight = {
+      amount: overWeight,
+      vendor: overWeightVendor,
+    }
 
     await order.save()
+
     return res.status(200).send(order)
   } catch (error) {
     res.status(500).json({ error: error.message })

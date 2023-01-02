@@ -5,6 +5,7 @@ import Country from './Country'
 import Seaport from './Seaport'
 import Transportation from './Transportation'
 import Commodity from './Commodity'
+import Vendor from './Vendor'
 
 const orderScheme = mongoose.Schema(
   {
@@ -27,6 +28,14 @@ const orderScheme = mongoose.Schema(
       pickUpSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
       pickUpCost: Number,
       pickUpPrice: Number,
+      pickUpVendor: { type: mongoose.Schema.Types.ObjectId, ref: Vendor },
+      pickUpCustomClearance: {
+        amount: { type: Number, default: 0 },
+        vendor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: Vendor,
+        },
+      },
     },
     dropOff: {
       // dropOffTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },
@@ -41,6 +50,14 @@ const orderScheme = mongoose.Schema(
       dropOffSeaport: { type: mongoose.Schema.Types.ObjectId, ref: Seaport },
       dropOffCost: Number,
       dropOffPrice: Number,
+      dropOffVendor: { type: mongoose.Schema.Types.ObjectId, ref: Vendor },
+      dropOffCustomClearance: {
+        amount: { type: Number, default: 0 },
+        vendor: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: Vendor,
+        },
+      },
     },
     other: {
       isTemperatureControlled: Boolean,
@@ -83,8 +100,14 @@ const orderScheme = mongoose.Schema(
       paymentDetails: { type: Boolean, default: false },
     },
     demurrage: { type: Number, default: 0 },
-    customClearance: { type: Number, default: 0 },
-    overWeight: { type: Number, default: 0 },
+
+    overWeight: {
+      amount: { type: Number, default: 0 },
+      vendor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: Vendor,
+      },
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

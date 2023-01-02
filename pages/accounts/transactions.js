@@ -10,7 +10,7 @@ const Transaction = () => {
   const [q, setQ] = useState('')
 
   const getApi = apiHook({
-    key: ['roles'],
+    key: ['transactions'],
     method: 'GET',
     url: `accounts/transactions?page=${page}&q=${q}&limit=${25}`,
   })?.get
@@ -46,7 +46,7 @@ const Transaction = () => {
       {getApi?.isLoading ? (
         <Spinner />
       ) : getApi?.isError ? (
-        <Message variant='danger' value={getApi?.error} />
+        <Message variant='danger'> {getApi?.error} </Message>
       ) : (
         <div className='table-responsive bg-light p-3 mt-2'>
           <div className='d-flex align-items-center flex-column mb-2'>
@@ -67,10 +67,10 @@ const Transaction = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Account No</th>
+                <th>Acc. Code</th>
                 <th>Account</th>
-                <th>Being</th>
-                <th>Transaction</th>
+                <th>Vendor/Customer</th>
+                <th>Reference</th>
                 <th>Amount</th>
                 <th>Discount</th>
                 <th>Description</th>
@@ -80,19 +80,15 @@ const Transaction = () => {
             <tbody>
               {getApi?.data?.data?.map((item, i) => (
                 <tr key={i}>
-                  <td>{item?.account?.accNo}</td>
+                  <td>{item?.account?.code}</td>
                   <td>{item?.account?.name}</td>
-                  <td>{item?.being}</td>
                   <td>
-                    {item?.transactionType === 'credit' ? (
-                      <span className='badge bg-success'>
-                        {item?.transactionType}
-                      </span>
-                    ) : (
-                      <span className='badge bg-danger'>
-                        {item?.transactionType}
-                      </span>
-                    )}
+                    {item?.vendor?.name}
+                    {item?.customer?.name}
+                  </td>
+                  <td>
+                    {item?.transportation}
+                    {item?.order}
                   </td>
                   <td>{currency(item?.amount)}</td>
                   <td>{currency(item?.discount)}</td>

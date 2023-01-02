@@ -38,15 +38,16 @@ handler.get(async (req, res) => {
       )
       .lean()
       .populate('createdBy', ['name'])
-      // .populate('pickUp.pickUpTown')
+      .populate('pickUp.pickUpVendor')
       .populate('pickUp.pickUpCountry')
       .populate('pickUp.pickUpSeaport')
-      // .populate('dropOff.dropOffTown')
+      .populate('dropOff.dropOffVendor')
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('other.transportation')
       .populate('other.transportation.container.container')
       .populate('other.commodity')
+      .populate('overWeight.vendor')
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
     const tradelane = await Tradelane.findOne(

@@ -32,7 +32,9 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('account', ['name', 'accNo'])
+      .populate('account', ['name', 'code'])
+      .populate('customer', ['name'])
+      .populate('vendor', ['name'])
 
     const result = await query
 
