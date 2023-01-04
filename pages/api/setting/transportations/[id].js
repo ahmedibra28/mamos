@@ -7,6 +7,8 @@ import Tradelane from '../../../../models/Tradelane'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
 import { undefinedChecker } from '../../../../utils/helper'
+import Account from '../../../../models/Account'
+import Transaction from '../../../../models/Transaction'
 
 const schemaName = Transportation
 const schemaNameString = 'Transportation'
@@ -154,6 +156,23 @@ handler.put(async (req, res) => {
     object.status = status
     object.updatedBy = req.user._id
     await object.save()
+
+    // update the transaction => accounts payable
+    const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
+    const transaction = {
+      date: new Date(),
+      account: ap?._id,
+      vendor: object.vendor,
+      amount: Number(
+        object.container?.reduce((acc, curr) => acc + curr.cost, 0)
+      ),
+      discount: 0,
+      description: 'Container Rent',
+      transportation: object._id,
+      createdBy: object.createdBy,
+    }
+    console.log(transaction)
+    await Transaction.create(transaction)
 
     res.status(200).send(`${schemaNameString} updated`)
   } catch (error) {

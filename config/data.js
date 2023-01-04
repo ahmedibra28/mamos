@@ -405,6 +405,14 @@ const clientPermissions = [
     auth: true,
     description: 'Transaction page',
   },
+  {
+    name: 'Account',
+    path: '/accounts/transactions/[id]',
+    menu: 'hidden',
+    sort: -1,
+    auth: true,
+    description: 'Transaction details page',
+  },
 ]
 
 const permissions = [
@@ -1176,64 +1184,44 @@ const permissions = [
     name: 'Account',
     method: 'GET',
   },
+  {
+    description: 'Accounts Transaction Details',
+    route: '/api/accounts/transactions/:id',
+    auth: true,
+    name: 'Account',
+    method: 'GET',
+  },
 
   // Receipt endpoint
   {
     description: 'Get All Receipt',
-    route: '/api/accounts/receipt',
+    route: '/api/accounts/receipts',
     auth: true,
-    name: 'Receipt',
+    name: 'Receipts',
     method: 'GET',
-  },
-  {
-    description: 'Create Receipt',
-    route: '/api/accounts/receipt',
-    auth: true,
-    name: 'Receipt',
-    method: 'POST',
   },
   {
     description: 'Update Receipt',
-    route: '/api/accounts/receipt/:id',
+    route: '/api/accounts/receipts/:id',
     auth: true,
-    name: 'Receipt',
+    name: 'Receipts',
     method: 'PUT',
   },
-  {
-    description: 'Delete Receipt',
-    route: '/api/accounts/receipt/:id',
-    auth: true,
-    name: 'Receipt',
-    method: 'DELETE',
-  },
+
   // Payment endpoint
   {
     description: 'Get All Payment',
-    route: '/api/accounts/payment',
+    route: '/api/accounts/payments',
     auth: true,
-    name: 'Payment',
+    name: 'Payments',
     method: 'GET',
   },
   {
-    description: 'Create Payment',
-    route: '/api/accounts/payment',
-    auth: true,
-    name: 'Payment',
-    method: 'POST',
-  },
-  {
     description: 'Update Payment',
-    route: '/api/accounts/payment/:id',
+    route: '/api/accounts/payments/:id',
     auth: true,
-    name: 'Payment',
+    name: 'Payments',
     method: 'PUT',
-  },
-  {
-    description: 'Delete Payment',
-    route: '/api/accounts/payment/:id',
-    auth: true,
-    name: 'Payment',
-    method: 'DELETE',
   },
 ]
 

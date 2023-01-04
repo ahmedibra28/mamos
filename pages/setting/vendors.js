@@ -124,7 +124,7 @@ const Vendors = () => {
       errors,
       label: 'Mobile',
       name: 'mobile',
-      placeholder: 'Enter mobilie',
+      placeholder: 'Enter mobile',
     }),
     inputEmail({
       register,
@@ -146,7 +146,12 @@ const Vendors = () => {
       label: 'Vendor Type',
       name: 'type',
       placeholder: 'Enter vendor type',
-      data: [{ name: 'ship' }, { name: 'track' }, { name: 'government' }],
+      data: [
+        { name: 'ship' },
+        { name: 'track' },
+        { name: 'government' },
+        { name: 'customer' },
+      ],
     }),
     staticInputSelect({
       register,
@@ -236,7 +241,7 @@ const Vendors = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Vendor</th>
+                <th>Vendor/Customer</th>
                 <th>Type</th>
                 <th>Mobile</th>
                 <th>Email</th>

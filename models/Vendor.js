@@ -10,7 +10,7 @@ const vendorSchema = mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['ship', 'track', 'government'],
+      enum: ['ship', 'track', 'government', 'customer'],
     },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
 

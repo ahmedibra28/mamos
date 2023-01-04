@@ -1,10 +1,19 @@
 export const inputText = (args) => {
-  const { register, placeholder, errors, name, label, isRequired = true } = args
+  const {
+    register,
+    placeholder,
+    errors,
+    name,
+    label,
+    isRequired = true,
+    disabled = false,
+  } = args
 
   return (
     <div className='mb-3'>
       <label htmlFor={name}>{label}</label>
       <input
+        disabled={disabled}
         {...register(name, isRequired && { required: `${label} is required` })}
         type='text'
         placeholder={`${placeholder}`}
@@ -94,12 +103,13 @@ export const inputNumber = (args) => {
 }
 
 export const inputEmail = (args) => {
-  const { register, placeholder, errors, label, name } = args
+  const { register, placeholder, errors, label, name, disabled = false } = args
 
   return (
     <div className='mb-3'>
       <label htmlFor={name}>{label}</label>
       <input
+        disabled={disabled}
         {...register(name, {
           required: `${label} is required`,
           pattern: {

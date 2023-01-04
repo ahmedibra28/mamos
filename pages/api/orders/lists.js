@@ -80,6 +80,7 @@ handler.post(async (req, res) => {
       .populate('createdBy', ['name'])
       .populate('other.transportation')
       .populate('other.transportation.vendor')
+      .populate('buyer.buyerName', ['name'])
 
     const result = await query
 

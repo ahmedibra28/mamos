@@ -39,98 +39,100 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
 
         <hr className='mt-4 mb-2' />
 
-        {data?.data?.map((obj) => (
-          <div key={obj?._id} className='col-lg-6 col-12'>
-            <div className='card border-0 bg-light'>
-              <div className='card-body'>
-                <div className='d-flex justify-content-between'>
-                  <div>
-                    <span className='badge bg-primary ms-1'>
-                      {obj?.trackingNo}
-                    </span>
-                    <span className='badge bg-primary ms-1'>
-                      {obj?.other?.importExport}
-                    </span>
-                    <span className='badge bg-primary ms-1'>
-                      {obj?.other?.movementType}
-                    </span>
-                    <span className='badge bg-warning ms-1'>
-                      {obj?.other?.transportation?.vendor?.name}
-                    </span>
+        {data?.data
+          ?.filter((d) => d?.status === 'pending')
+          ?.map((obj) => (
+            <div key={obj?._id} className='col-lg-6 col-12'>
+              <div className='card border-0 bg-light'>
+                <div className='card-body'>
+                  <div className='d-flex justify-content-between'>
+                    <div>
+                      <span className='badge bg-primary ms-1'>
+                        {obj?.trackingNo}
+                      </span>
+                      <span className='badge bg-primary ms-1'>
+                        {obj?.other?.importExport}
+                      </span>
+                      <span className='badge bg-primary ms-1'>
+                        {obj?.other?.movementType}
+                      </span>
+                      <span className='badge bg-warning ms-1'>
+                        {obj?.other?.transportation?.vendor?.name}
+                      </span>
+                    </div>
+                    <div>
+                      <button
+                        className={`btn btn-${
+                          obj?.status === 'pending'
+                            ? 'warning'
+                            : obj?.status === 'confirmed'
+                            ? 'success'
+                            : obj?.status === 'cancelled' && 'danger'
+                        } btn-sm me-1`}
+                      >
+                        Booking is {obj?.status}
+                      </button>
+                      <Link
+                        href={`/orders/details/${obj?._id}`}
+                        className='btn btn-info btn-sm'
+                      >
+                        Details
+                      </Link>
+                    </div>
                   </div>
-                  <div>
-                    <button
-                      className={`btn btn-${
-                        obj?.status === 'pending'
-                          ? 'warning'
-                          : obj?.status === 'confirmed'
-                          ? 'success'
-                          : obj?.status === 'cancelled' && 'danger'
-                      } btn-sm me-1`}
-                    >
-                      Booking is {obj?.status}
-                    </button>
-                    <Link
-                      href={`/orders/details/${obj?._id}`}
-                      className='btn btn-info btn-sm'
-                    >
-                      Details
-                    </Link>
-                  </div>
-                </div>
 
-                <div className='d-flex justify-content-between my-3'>
-                  <div>
-                    <span>
-                      {moment(obj?.other?.transportation?.departureDate).format(
-                        'D MMM'
-                      )}
-                    </span>
-                    <FaCircle className='mb-1 mx-2' />
+                  <div className='d-flex justify-content-between my-3'>
+                    <div>
+                      <span>
+                        {moment(
+                          obj?.other?.transportation?.departureDate
+                        ).format('D MMM')}
+                      </span>
+                      <FaCircle className='mb-1 mx-2' />
 
-                    <span className='fw-bold'>
-                      {obj?.pickUp?.pickUpSeaport?.name},
-                    </span>
-                    <span className='fw-bold ms-1'>
-                      {obj?.pickUp?.pickUpCountry?.name}
-                    </span>
+                      <span className='fw-bold'>
+                        {obj?.pickUp?.pickUpSeaport?.name},
+                      </span>
+                      <span className='fw-bold ms-1'>
+                        {obj?.pickUp?.pickUpCountry?.name}
+                      </span>
+                    </div>
+                    <div>
+                      <span>
+                        {moment(obj?.other?.transportation?.delayDate).format(
+                          'D MMM'
+                        )}
+                      </span>
+                      <FaCircle className='mb-1 mx-2' />
+                      <span className='fw-bold'>
+                        {obj?.dropOff?.dropOffSeaport?.name},
+                      </span>
+                      <span className='fw-bold ms-1'>
+                        {obj?.dropOff?.dropOffCountry?.name}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span>
-                      {moment(obj?.other?.transportation?.delayDate).format(
-                        'D MMM'
-                      )}
-                    </span>
-                    <FaCircle className='mb-1 mx-2' />
-                    <span className='fw-bold'>
-                      {obj?.dropOff?.dropOffSeaport?.name},
-                    </span>
-                    <span className='fw-bold ms-1'>
-                      {obj?.dropOff?.dropOffCountry?.name}
-                    </span>
-                  </div>
-                </div>
 
-                <div className='d-flex justify-content-between my-3'>
-                  <div>
-                    <span>Buyer</span>
-                    <h6 className='fw-bold'>{obj?.buyer?.buyerName}</h6>
-                  </div>
-                  <div>
-                    <span>Booked By</span>
-                    <h6 className='fw-bold'>{obj?.createdBy?.name}</h6>
-                  </div>
-                  <div>
-                    <span>Shipment Reference</span>
-                    <h6 className='fw-bold'>
-                      {obj?.other?.transportation?.reference}
-                    </h6>
+                  <div className='d-flex justify-content-between my-3'>
+                    <div>
+                      <span>Buyer</span>
+                      <h6 className='fw-bold'>{obj?.buyer?.buyerName?.name}</h6>
+                    </div>
+                    <div>
+                      <span>Booked By</span>
+                      <h6 className='fw-bold'>{obj?.createdBy?.name}</h6>
+                    </div>
+                    <div>
+                      <span>Shipment Reference</span>
+                      <h6 className='fw-bold'>
+                        {obj?.other?.transportation?.reference}
+                      </h6>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
         {data?.data.length === 0 && (
           <div className='text-center text-danger'>

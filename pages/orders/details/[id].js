@@ -255,10 +255,10 @@ const Details = () => {
   }, [data])
 
   const editBuyerHandler = () => {
-    setValueBuyer('buyerName', data?.buyer?.buyerName)
-    setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
-    setValueBuyer('buyerEmail', data?.buyer?.buyerEmail)
-    setValueBuyer('buyerAddress', data?.buyer?.buyerAddress)
+    setValueBuyer('buyerName', data?.buyer?.buyerName?._id)
+    // setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
+    // setValueBuyer('buyerEmail', data?.buyer?.buyerEmail)
+    // setValueBuyer('buyerAddress', data?.buyer?.buyerAddress)
   }
   const editPickUpHandler = () => {
     setValuePickUp('pickUpWarehouse', data?.pickUp?.pickUpWarehouse)
@@ -384,34 +384,39 @@ const Details = () => {
   })
 
   const formBuyer = [
-    inputText({
+    dynamicInputSelect({
       register: registerBuyer,
       errors: errorsBuyer,
-      label: 'Name',
       name: 'buyerName',
-      placeholder: 'Enter name',
+      label: 'Who is your buyer?',
+      placeholder: 'Select buyer name',
+      value: 'name',
+      data: getApi?.data?.data?.filter(
+        (v) => v?.type === 'customer' && v?.status === 'active'
+      ),
     }),
-    inputTel({
-      register: registerBuyer,
-      errors: errorsBuyer,
-      label: 'Mobile',
-      name: 'buyerMobileNumber',
-      placeholder: 'Enter mobile',
-    }),
-    inputEmail({
-      register: registerBuyer,
-      errors: errorsBuyer,
-      label: 'Email',
-      name: 'buyerEmail',
-      placeholder: 'Enter email',
-    }),
-    inputText({
-      register: registerBuyer,
-      errors: errorsBuyer,
-      label: 'Address',
-      name: 'buyerAddress',
-      placeholder: 'Enter address',
-    }),
+
+    // inputTel({
+    //   register: registerBuyer,
+    //   errors: errorsBuyer,
+    //   label: 'Mobile',
+    //   name: 'buyerMobileNumber',
+    //   placeholder: 'Enter mobile',
+    // }),
+    // inputEmail({
+    //   register: registerBuyer,
+    //   errors: errorsBuyer,
+    //   label: 'Email',
+    //   name: 'buyerEmail',
+    //   placeholder: 'Enter email',
+    // }),
+    // inputText({
+    //   register: registerBuyer,
+    //   errors: errorsBuyer,
+    //   label: 'Address',
+    //   name: 'buyerAddress',
+    //   placeholder: 'Enter address',
+    // }),
   ]
 
   const formPickUp = [

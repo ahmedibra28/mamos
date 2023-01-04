@@ -5,6 +5,7 @@ import Order from '../../../models/Order'
 import Transportation from '../../../models/Transportation'
 import User from '../../../models/User'
 import { isAuth } from '../../../utils/auth'
+import Vendor from '../../../models/Vendor'
 
 const schemaName = Order
 
@@ -81,6 +82,7 @@ handler.get(async (req, res) => {
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('createdBy', ['name'])
+      .populate('buyer.buyerName', ['name'])
       .populate({
         path: 'other.transportation',
         populate: {
@@ -128,9 +130,9 @@ handler.post(async (req, res) => {
       noOfPackages,
       grossWeight,
       buyerName,
-      buyerMobileNumber,
-      buyerEmail,
-      buyerAddress,
+      // buyerMobileNumber,
+      // buyerEmail,
+      // buyerAddress,
       // pickUpTown,
       pickUpWarehouse,
       pickUpCity,
@@ -140,14 +142,23 @@ handler.post(async (req, res) => {
       containers, // selected containers
     } = req.body
 
-    if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
+    if (!buyerName)
       return res.status(400).json({ error: 'Buyer details are required' })
+    // if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
+    // return res.status(400).json({ error: 'Buyer details are required' })
+
+    const vendor = await Vendor.findOne({
+      _id: buyerName,
+      type: 'customer',
+      status: 'active',
+    })
+    if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
 
     const buyer = {
       buyerName,
-      buyerMobileNumber,
-      buyerEmail,
-      buyerAddress,
+      buyerMobileNumber: '',
+      buyerEmail: '',
+      buyerAddress: '',
     }
 
     const pickUp = {

@@ -10,10 +10,15 @@ import Vendor from './Vendor'
 const orderScheme = mongoose.Schema(
   {
     buyer: {
-      buyerAddress: { type: String, required: true },
-      buyerEmail: { type: String, required: true },
-      buyerMobileNumber: { type: Number, required: true },
-      buyerName: { type: String, required: true },
+      buyerName: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: Vendor,
+        required: true,
+      },
+      buyerAddress: { type: String },
+      buyerEmail: { type: String },
+      buyerMobileNumber: { type: Number },
+      // buyerName: { type: String },
     },
     pickUp: {
       // pickUpTown: { type: mongoose.Schema.Types.ObjectId, ref: Town },

@@ -513,10 +513,10 @@ const Tabs = ({
             <div className='col-md-8 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
-                  {data?.buyer?.buyerName && (
+                  {data?.buyer?.buyerName?.name && (
                     <tr>
                       <td className='fw-bold'>Name </td>
-                      <td>{data?.buyer?.buyerName} </td>
+                      <td>{data?.buyer?.buyerName?.name} </td>
                     </tr>
                   )}
                   {data?.buyer?.buyerMobileNumber && (

@@ -48,6 +48,7 @@ handler.get(async (req, res) => {
       .populate('other.transportation.container.container')
       .populate('other.commodity')
       .populate('overWeight.vendor')
+      .populate('buyer.buyerName', ['name'])
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
     const tradelane = await Tradelane.findOne(

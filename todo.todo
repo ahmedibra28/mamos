@@ -1,1 +1,15 @@
-TODO: When implementing payment functionality, add custom clearance charges to accounts payable.
+TODO: Read buyers from vendor table (new booking)
+
+TODO: When implementing account receivable for booking, tag the payment with the buyer and store it in the buyer object (order model)
+
+TODO: Add transaction details for specific vendor/customer
+
+
+TODO: Update the dashboard and show:
+    - expenses
+    - accounts payable
+    - accounts receivable
+    - payments
+    - receipts
+    - current cash balance (payment - receipt)
+    - current bank balance (payment - receipt)

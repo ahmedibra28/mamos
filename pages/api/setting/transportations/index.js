@@ -220,10 +220,10 @@ handler.post(async (req, res) => {
     })
 
     // update the transaction => accounts payable
-    const acc = await Account.findOne({ code: 21000 }, { _id: 1 })
+    const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
     const transaction = {
       date: new Date(),
-      account: acc?._id,
+      account: ap?._id,
       vendor: object.vendor,
       amount: Number(
         object.container?.reduce((acc, curr) => acc + curr.cost, 0)
@@ -232,7 +232,7 @@ handler.post(async (req, res) => {
       description: 'Container Rent',
       transportation: object._id,
     }
-    await Transaction.create({ transaction })
+    await Transaction.create(transaction)
 
     res.status(200).send(object)
   } catch (error) {

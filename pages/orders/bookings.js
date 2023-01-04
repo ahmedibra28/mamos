@@ -22,6 +22,7 @@ import {
 } from '../../utils/dynamicForm'
 import TransportationItem from '../../components/TransportationItem'
 import { FaMinusCircle, FaPlusCircle, FaSearch } from 'react-icons/fa'
+import apiHook from '../../api'
 
 const Orders = () => {
   const [selectedTransportation, setSelectedTransportation] = useState(null)
@@ -184,6 +185,12 @@ const Orders = () => {
     dropOff: ['door to door', 'port to door'],
     seaport: ['port to port'],
   }
+
+  const getVendorsApi = apiHook({
+    key: ['vendors'],
+    method: 'GET',
+    url: `setting/vendors?page=${1}&q=&limit=${2500}`,
+  })?.get
 
   return (
     <>
@@ -577,16 +584,27 @@ const Orders = () => {
                       Person who will receive packages
                     </label>
                   </div>
-                  <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
-                    {inputText({
+                  <div className='col-lg-4 col-md-8 col-12'>
+                    {dynamicInputSelect({
+                      register,
+                      errors,
+                      name: 'buyerName',
+                      label: 'Who is your buyer?',
+                      placeholder: 'Select buyer name',
+                      value: 'name',
+                      data: getVendorsApi?.data?.data?.filter(
+                        (v) => v?.type === 'customer' && v?.status === 'active'
+                      ),
+                    })}
+                    {/* {inputText({
                       register,
                       errors,
                       name: 'buyerName',
                       label: 'Who is your buyer?',
                       placeholder: 'Enter buyer name',
-                    })}
+                    })} */}
                   </div>
-                  <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  {/* <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
                     {inputTel({
                       register,
                       errors,
@@ -612,7 +630,7 @@ const Orders = () => {
                       label: 'Buyer address',
                       placeholder: 'Enter buyer address',
                     })}
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}

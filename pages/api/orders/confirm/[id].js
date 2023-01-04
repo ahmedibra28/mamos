@@ -74,7 +74,8 @@ handler.put(async (req, res) => {
     )
       return res.status(400).json({ error: 'Booking trace number is required' })
 
-    if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
+    // if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
+    if (!order.buyer.buyerName)
       return res.status(400).json({ error: 'Buyer information is not arrived' })
 
     const movementTypes = {
@@ -109,6 +110,7 @@ handler.put(async (req, res) => {
     // update the transaction => accounts receivable
     const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
     const ar = await Account.findOne({ code: 12100 }, { _id: 1 })
+    const gos = await Account.findOne({ code: 40000 }, { _id: 1 })
 
     await order.save()
 
@@ -120,7 +122,7 @@ handler.put(async (req, res) => {
     }
 
     // Pick Up
-    if (order.pickUp.pickUpCost) {
+    if (order.pickUp.pickUpCost && order.pickUp.pickUpPrice) {
       const pickUpTransaction = {
         ...common,
         account: ap?._id,
@@ -129,10 +131,28 @@ handler.put(async (req, res) => {
         description: `Pick-Up Track Rent`,
       }
       await Transaction.create(pickUpTransaction)
+
+      const pickUpGOSTransaction = {
+        ...common,
+        account: gos?._id,
+        vendor: order.buyer?.buyerName,
+        amount: Number(order.pickUp.pickUpPrice),
+        description: `Pick-Up Track Rent`,
+      }
+      await Transaction.create(pickUpGOSTransaction)
+
+      const pickUpARTransaction = {
+        ...common,
+        account: ar?._id,
+        vendor: order.buyer?.buyerName,
+        amount: Number(order.pickUp.pickUpPrice),
+        description: `Pick-Up Track Rent`,
+      }
+      await Transaction.create(pickUpARTransaction)
     }
 
     // Drop Off
-    if (order.dropOff.dropOffCost) {
+    if (order.dropOff.dropOffCost && order.dropOff.dropOffPrice) {
       const dropOffTransaction = {
         ...common,
         account: ap?._id,
@@ -141,6 +161,24 @@ handler.put(async (req, res) => {
         description: `Drop-Off Track Rent`,
       }
       await Transaction.create(dropOffTransaction)
+
+      const dropOffGOSTransaction = {
+        ...common,
+        account: gos?._id,
+        vendor: order.buyer?.buyerName,
+        amount: Number(order.dropOff.dropOffPrice),
+        description: `Drop-Off Track Rent`,
+      }
+      await Transaction.create(dropOffGOSTransaction)
+
+      const dropOffARTransaction = {
+        ...common,
+        account: ar?._id,
+        vendor: order.buyer?.buyerName,
+        amount: Number(order.dropOff.dropOffPrice),
+        description: `Drop-Off Track Rent`,
+      }
+      await Transaction.create(dropOffARTransaction)
     }
     // Demurrage
     if (order.demurrage > 0) {
@@ -166,20 +204,35 @@ handler.put(async (req, res) => {
       await Transaction.create(overWeightTransaction)
     }
 
-    // Container
+    // Container for account receivable
     const containerTransaction = {
       ...common,
       amount: Number(
         order.other.containers.reduce(
-          (acc, cur) => (acc + cur.cost) * cur.quantity,
+          (acc, cur) => (acc + cur.price) * cur.quantity,
           0
         )
       ),
       account: ar?._id,
-      customer: order.createdBy,
+      vendor: order.buyer?.buyerName,
       description: `FCL Booking`,
     }
     await Transaction.create(containerTransaction)
+
+    // Container for account gos
+    const containerGOSTransaction = {
+      ...common,
+      amount: Number(
+        order.other.containers.reduce(
+          (acc, cur) => (acc + cur.price) * cur.quantity,
+          0
+        )
+      ),
+      account: gos?._id,
+      vendor: order.buyer?.buyerName,
+      description: `FCL Booking`,
+    }
+    await Transaction.create(containerGOSTransaction)
 
     return res.status(200).send('Order confirmed successfully')
   } catch (error) {

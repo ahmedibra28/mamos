@@ -13,7 +13,7 @@ const Home = () => {
   const orderHook = useOrdersHook({
     page,
     q,
-    limit: 10,
+    limit: 20,
   })
 
   useEffect(() => {

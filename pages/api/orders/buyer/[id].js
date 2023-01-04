@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import Order from '../../../../models/Order'
 import { isAuth } from '../../../../utils/auth'
+import Vendor from '../../../../models/Vendor'
 
 const schemaName = Order
 
@@ -25,10 +26,17 @@ handler.put(async (req, res) => {
     if (!order || !order.buyer.buyerName)
       return res.status(404).json({ error: 'Order not found' })
 
+    const vendor = await Vendor.findOne({
+      _id: buyerName,
+      type: 'customer',
+      status: 'active',
+    })
+    if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
+
     order.buyer.buyerName = buyerName
-    order.buyer.buyerEmail = buyerEmail
-    order.buyer.buyerMobileNumber = buyerMobileNumber
-    order.buyer.buyerAddress = buyerAddress
+    // order.buyer.buyerEmail = buyerEmail
+    // order.buyer.buyerMobileNumber = buyerMobileNumber
+    // order.buyer.buyerAddress = buyerAddress
 
     await order.save()
 

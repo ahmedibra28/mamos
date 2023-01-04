@@ -1,35 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import withAuth from '../../HOC/withAuth'
+import withAuth from '../../../HOC/withAuth'
 import dynamic from 'next/dynamic'
-import apiHook from '../../api'
-import { Spinner, Pagination, Message, Search } from '../../components'
+import apiHook from '../../../api'
+import { Spinner, Pagination, Message } from '../../../components'
 import moment from 'moment'
+import { useRouter } from 'next/router'
 
-const Transaction = () => {
+const TransactionDetails = () => {
   const [page, setPage] = useState(1)
-  const [q, setQ] = useState('')
+  const router = useRouter()
+  const { id } = router.query
 
   const getApi = apiHook({
-    key: ['transactions'],
+    key: [`transactions-${id}`],
     method: 'GET',
-    url: `accounts/transactions?page=${page}&q=${q}&limit=${25}`,
+    url: `accounts/transactions/${id}`,
   })?.get
 
   useEffect(() => {
     getApi?.refetch()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
-
-  useEffect(() => {
-    if (!q) getApi?.refetch()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q])
-
-  const searchHandler = (e) => {
-    e.preventDefault()
-    getApi?.refetch()
-    setPage(1)
-  }
 
   const currency = (amount) =>
     amount?.toLocaleString('en-US', {
@@ -52,17 +43,9 @@ const Transaction = () => {
           <div className='d-flex align-items-center flex-column mb-2'>
             <h3 className='fw-light text-muted'>
               Transactions
-              <sup className='fs-6'> [{getApi?.data?.total}] </sup>
+              <sup className='fs-6'> [{getApi?.data?.total}] </sup> -{' '}
+              {getApi?.data?.data?.[0]?.vendor?.name}
             </h3>
-
-            <div className='col-auto'>
-              <Search
-                placeholder='Search by name'
-                setQ={setQ}
-                q={q}
-                searchHandler={searchHandler}
-              />
-            </div>
           </div>
           <table className='table table-sm table-border'>
             <thead className='border-0'>
@@ -104,6 +87,6 @@ const Transaction = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(withAuth(Transaction)), {
+export default dynamic(() => Promise.resolve(withAuth(TransactionDetails)), {
   ssr: false,
 })

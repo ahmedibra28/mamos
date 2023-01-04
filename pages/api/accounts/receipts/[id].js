@@ -12,7 +12,7 @@ handler.put(async (req, res) => {
   try {
     const { account, amount, status, vendor, totalAmount } = req.body
 
-    if (status === 'accounts payable') {
+    if (status === 'accounts receivable') {
       // check existence
       const accObj = await Account.findOne({
         _id: account,
@@ -39,11 +39,11 @@ handler.put(async (req, res) => {
       if (!a)
         return res
           .status(400)
-          .json({ error: 'Error creating payable transaction' })
+          .json({ error: 'Error creating receivable transaction' })
 
       res.status(200).send('success')
     }
-    if (status === 'payments') {
+    if (status === 'receipts') {
       if (totalAmount < Number(amount))
         return res
           .status(400)
@@ -57,7 +57,7 @@ handler.put(async (req, res) => {
       })
       if (!cashBankAcc)
         return res.status(400).json({ error: `Account not found` })
-      const pay = await Account.findOne({ code: 2022 }, { _id: 1 })
+      const rec = await Account.findOne({ code: 2023 }, { _id: 1 })
       const exp = await Account.findOne({ code: 50000 }, { _id: 1 })
 
       // Expenses
@@ -76,21 +76,21 @@ handler.put(async (req, res) => {
           .status(400)
           .json({ error: 'Error creating expense transaction' })
 
-      // Payment
-      const payTransaction = {
+      // Receipt
+      const recTransaction = {
         date: new Date(),
         discount: 0,
         createdBy: req.user._id,
-        account: pay?._id,
+        account: rec?._id,
         vendor: req.body._id,
         amount: Number(amount),
-        description: `Payments with ${cashBankAcc?.name}`,
+        description: `Receipts with ${cashBankAcc?.name}`,
       }
-      const p = await Transaction.create(payTransaction)
+      const p = await Transaction.create(recTransaction)
       if (!p)
         return res
           .status(400)
-          .json({ error: 'Error creating payment transaction' })
+          .json({ error: 'Error creating receipt transaction' })
       res.status(200).send('success')
     }
   } catch (error) {
