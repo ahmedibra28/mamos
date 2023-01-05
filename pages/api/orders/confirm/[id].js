@@ -204,21 +204,6 @@ handler.put(async (req, res) => {
       await Transaction.create(overWeightTransaction)
     }
 
-    // Container for account receivable
-    const containerTransaction = {
-      ...common,
-      amount: Number(
-        order.other.containers.reduce(
-          (acc, cur) => (acc + cur.price) * cur.quantity,
-          0
-        )
-      ),
-      account: ar?._id,
-      vendor: order.buyer?.buyerName,
-      description: `FCL Booking`,
-    }
-    await Transaction.create(containerTransaction)
-
     // Container for account gos
     const containerGOSTransaction = {
       ...common,
@@ -233,6 +218,21 @@ handler.put(async (req, res) => {
       description: `FCL Booking`,
     }
     await Transaction.create(containerGOSTransaction)
+
+    // Container for account receivable
+    const containerTransaction = {
+      ...common,
+      amount: Number(
+        order.other.containers.reduce(
+          (acc, cur) => (acc + cur.price) * cur.quantity,
+          0
+        )
+      ),
+      account: ar?._id,
+      vendor: order.buyer?.buyerName,
+      description: `FCL Booking`,
+    }
+    await Transaction.create(containerTransaction)
 
     return res.status(200).send('Order confirmed successfully')
   } catch (error) {

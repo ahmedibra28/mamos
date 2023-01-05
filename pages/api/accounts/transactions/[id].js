@@ -2,6 +2,7 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
+import Account from '../../../../models/Account'
 
 const handler = nc()
 handler.use(isAuth)
@@ -9,34 +10,26 @@ handler.get(async (req, res) => {
   await db()
   try {
     const { id } = req.query
-    let query = Transaction.find({ vendor: id })
 
-    const page = parseInt(req.query.page) || 1
-    const pageSize = parseInt(req.query.limit) || 25
-    const skip = (page - 1) * pageSize
-    const total = await Transaction.countDocuments({ vendor: id })
+    // 12100	Accounts Receivable
+    // 21000	Accounts Payable
+    // 2023	Receipts
+    // 2022	Payments
 
-    const pages = Math.ceil(total / pageSize)
+    const accounts = await Account.find({
+      code: { $in: [12100, 21000, 2023, 2022] },
+    }).lean()
 
-    query = query
-      .skip(skip)
-      .limit(pageSize)
-      .sort({ date: -1 })
+    const transactions = await Transaction.find({
+      vendor: id,
+      account: { $in: accounts.map((acc) => acc._id) },
+    })
+      .sort({ createdAt: 1 })
       .lean()
       .populate('vendor', ['name'])
       .populate('account', ['name', 'code'])
 
-    const result = await query
-
-    res.status(200).json({
-      startIndex: skip + 1,
-      endIndex: skip + result.length,
-      count: result.length,
-      page,
-      pages,
-      total,
-      data: result,
-    })
+    res.status(200).json(transactions)
 
     // const vTransactions = await Transaction.find({ vendor: id }).lean()
     // if (vTransactions.length > 0) return res.json(vTransactions)

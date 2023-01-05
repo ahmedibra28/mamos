@@ -12,6 +12,7 @@ handler.put(async (req, res) => {
   try {
     const { account, amount, status, vendor, totalAmount } = req.body
 
+    // not using code
     if (status === 'accounts receivable') {
       // check existence
       const accObj = await Account.findOne({
@@ -43,6 +44,7 @@ handler.put(async (req, res) => {
 
       res.status(200).send('success')
     }
+
     if (status === 'receipts') {
       if (totalAmount < Number(amount))
         return res
@@ -57,24 +59,25 @@ handler.put(async (req, res) => {
       })
       if (!cashBankAcc)
         return res.status(400).json({ error: `Account not found` })
-      const rec = await Account.findOne({ code: 2023 }, { _id: 1 })
-      const exp = await Account.findOne({ code: 50000 }, { _id: 1 })
 
-      // Expenses
-      const expTransaction = {
-        date: new Date(),
-        discount: 0,
-        createdBy: req.user._id,
-        account: exp?._id,
-        vendor: req.body._id,
-        amount: Number(amount),
-        description: `Expenses`,
-      }
-      const e = await Transaction.create(expTransaction)
-      if (!e)
-        return res
-          .status(400)
-          .json({ error: 'Error creating expense transaction' })
+      const rec = await Account.findOne({ code: 2023 }, { _id: 1 })
+      // const exp = await Account.findOne({ code: 50000 }, { _id: 1 })
+
+      // // Expenses
+      // const expTransaction = {
+      //   date: new Date(),
+      //   discount: 0,
+      //   createdBy: req.user._id,
+      //   account: exp?._id,
+      //   vendor: req.body._id,
+      //   amount: Number(amount),
+      //   description: `Expenses`,
+      // }
+      // const e = await Transaction.create(expTransaction)
+      // if (!e)
+      //   return res
+      //     .status(400)
+      //     .json({ error: 'Error creating expense transaction' })
 
       // Receipt
       const recTransaction = {

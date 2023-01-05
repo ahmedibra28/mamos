@@ -70,9 +70,9 @@ const Transaction = () => {
                 <th>Acc. Code</th>
                 <th>Account</th>
                 <th>Vendor/Customer</th>
-                <th>Reference</th>
+                {/* <th>Reference</th> */}
                 <th>Amount</th>
-                <th>Discount</th>
+                {/* <th>Discount</th> */}
                 <th>Description</th>
                 <th>DateTime</th>
               </tr>
@@ -86,14 +86,16 @@ const Transaction = () => {
                     {item?.vendor?.name}
                     {item?.customer?.name}
                   </td>
-                  <td>
+                  {/* <td>
                     {item?.transportation}
                     {item?.order}
-                  </td>
+                  </td> */}
                   <td>{currency(item?.amount)}</td>
-                  <td>{currency(item?.discount)}</td>
+                  {/* <td>{currency(item?.discount)}</td> */}
                   <td>{item?.description}</td>
-                  <td>{moment(item?.date || item?.createdAt).format('lll')}</td>
+                  <td>
+                    {moment(item?.date || item?.createdAt).format('YYYY-MM-DD')}
+                  </td>
                 </tr>
               ))}
             </tbody>
