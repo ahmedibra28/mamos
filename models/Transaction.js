@@ -7,7 +7,7 @@ import Order from './Order'
 
 const transactionSchema = mongoose.Schema(
   {
-    date: { type: String, required: true },
+    date: { type: Date, required: true },
     account: {
       type: mongoose.Schema.Types.ObjectId,
       ref: Account,

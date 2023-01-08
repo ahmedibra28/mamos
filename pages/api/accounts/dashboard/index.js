@@ -1,98 +1,171 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import AccountType from '../../../../models/AccountType'
 import { isAuth } from '../../../../utils/auth'
+import Transaction from '../../../../models/Transaction'
+import Account from '../../../../models/Account'
+import moment from 'moment'
 
 const handler = nc()
 handler.use(isAuth)
 handler.get(async (req, res) => {
   await db()
   try {
-    const obj = await AccountType.aggregate([
+    const start = req.query?.start || moment().format('YYYY-MM-DD')
+    const end = req.query?.end || moment().format('YYYY-MM-DD')
+
+    let transactions = await Transaction.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: new Date(`${start} 00:00:00`),
+            $lte: new Date(`${end} 23:59:59`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$account',
+          totalAmount: {
+            $sum: '$amount',
+          },
+        },
+      },
       {
         $lookup: {
           from: 'accounts',
           localField: '_id',
-          foreignField: 'accountType',
-          as: 'accounts',
+          foreignField: '_id',
+          as: 'account',
         },
-      },
-      {
-        $lookup: {
-          from: 'transactions',
-          localField: 'accounts._id',
-          foreignField: 'account',
-          as: 'transactions',
-        },
-      },
-      {
-        $unset: [
-          'accountType',
-          'description',
-          'status',
-          'createdBy',
-          'createdAt',
-          'updatedAt',
-          'updatedBy',
-          '__v',
-          // 'accounts.accountType',
-          'accounts.description',
-          'accounts.status',
-          'accounts.createdBy',
-          'accounts.createdAt',
-          'accounts.updatedBy',
-          'accounts.updatedAt',
-          'accounts.__v',
-          'transactions.createdBy',
-          'transactions.createdAt',
-          'transactions.updatedBy',
-          'transactions.updatedAt',
-          'transactions.__v',
-        ],
       },
     ])
 
-    const transactions = obj.map((t) => t.transactions).flat()
-    const accounts = obj.map((t) => t.accounts).flat()
+    transactions = transactions?.map((trans) => ({
+      code: trans.account[0].code,
+      amount: trans.totalAmount + trans.account[0].openingBalance,
+    }))
 
-    const accountResults = []
-    accounts.forEach((account) => {
-      const tId = transactions.map((t) => t.account.toString())
-      if (tId.includes(account._id.toString())) {
-        accountResults.push({
-          accountType: account.accountType.toString(),
-          code: account.code,
-          name: account.name,
-          transactions: transactions.filter(
-            (t) => t.account.toString() === account._id.toString()
-          ),
-          totalAmountTransactions: transactions
-            .filter((t) => t.account.toString() === account._id.toString())
-            ?.reduce((acc, cur) => acc + cur.amount, 0),
-        })
+    // const accountCash = await Account.findOne(
+    //   { name: 'Cash' },
+    //   { openingBalance: 1 }
+    // )
+    // const accountBank = await Account.findOne(
+    //   { name: 'Bank' },
+    //   { openingBalance: 1 }
+    // )
+
+    // ======================== RECEIPTS ========================
+    const receipt = async () => {
+      const receiptAccount = await Account.findOne(
+        { code: 2023 },
+        { code: 1, _id: 1, openingBalance: 1 }
+      )
+
+      const receipts = await Transaction.find(
+        {
+          account: receiptAccount._id,
+          date: {
+            $gte: new Date(`${start} 00:00:00`),
+            $lte: new Date(`${end} 23:59:59`),
+          },
+        },
+        { amount: 1, description: 1 }
+      )
+
+      let receiptCash = 0
+      let receiptBank = 0
+      receipts?.forEach(({ amount, description }) => {
+        if (description === 'Receipts with Cash') {
+          receiptCash = receiptCash + amount
+        }
+        if (description === 'Receipts with Bank') {
+          receiptBank = receiptBank + amount
+        }
+      })
+
+      return {
+        // cash: receiptCash + accountCash?.openingBalance,
+        // bank: receiptBank + accountBank?.openingBalance,
+        cash: receiptCash,
+        bank: receiptBank,
       }
-    })
+    }
 
-    const finalResults = []
-    obj.map((accT) => {
-      const accId = accountResults.map((t) => t.accountType.toString())
-      if (accId.includes(accT._id.toString())) {
-        finalResults.push({
-          accountType: accT.name,
-          totalAmountAccounts: accountResults
-            .filter((acc) => acc.accountType.toString() === accT._id.toString())
-            .reduce((acc, cur) => acc + cur.totalAmountTransactions, 0),
-          accounts: accountResults.filter(
-            (acc) => acc.accountType.toString() === accT._id.toString()
-          ),
-        })
+    // ======================== PAYMENT ========================
+    const payment = async () => {
+      const paymentAccount = await Account.findOne(
+        { code: 2022 },
+        { code: 1, _id: 1 }
+      )
+
+      const payments = await Transaction.find(
+        {
+          account: paymentAccount._id,
+          date: {
+            $gte: new Date(`${start} 00:00:00`),
+            $lte: new Date(`${end} 23:59:59`),
+          },
+        },
+        { amount: 1, description: 1 }
+      )
+
+      let paymentCash = 0
+      let paymentBank = 0
+      payments?.forEach(({ amount, description }) => {
+        if (description === 'Payments with Cash') {
+          paymentCash = paymentCash + amount
+        }
+        if (description === 'Payments with Bank') {
+          paymentBank = paymentBank + amount
+        }
+      })
+
+      return {
+        // cash: accountCash?.openingBalance - paymentCash,
+        // bank: accountBank?.openingBalance - paymentBank,
+        cash: paymentCash,
+        bank: paymentBank,
       }
-    })
+    }
 
-    res.json(finalResults)
+    const ap = transactions?.find(
+      (trans) => trans.code === 21000 && delete trans.code
+    ) || { amount: 0 }
+
+    const ar = transactions?.find(
+      (trans) => trans.code === 12100 && delete trans.code
+    ) || { amount: 0 }
+    const gos = transactions?.find(
+      (trans) => trans.code === 40000 && delete trans.code
+    ) || { amount: 0 }
+    const expense = transactions?.find(
+      (trans) => trans.code === 50000 && delete trans.code
+    ) || { amount: 0 }
+
+    const pay = await payment()
+    const rec = await receipt()
+
+    const data = {
+      expense,
+      ap,
+      payment: pay,
+      gos,
+      ar,
+      receipt: rec,
+      finalAP: { amount: ap.amount - (pay.bank + pay.cash) },
+      finalAR: { amount: ar.amount - (rec.bank + rec.cash) },
+      cash: { amount: rec.cash - pay.cash },
+      bank: { amount: rec.bank - pay.bank },
+      grossIncome: { amount: gos.amount },
+      netIncome: { amount: gos.amount - expense.amount },
+    }
+
+    return res.json(data)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
 })
+
+handler.use(isAuth)
 
 export default handler

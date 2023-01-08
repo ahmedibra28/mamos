@@ -40,6 +40,22 @@ export const isAuth = async (req, res, next) => {
       const urlArray = url.split('/')
       const lastIndex = urlArray.pop()
 
+      // remove ?start=''&&end=''
+      if (lastIndex.includes('start')) {
+        if (url.includes('?')) {
+          url = url.split('?')[0]
+
+          if (
+            userRole.role.permission.find(
+              (permission) =>
+                permission.route === url && permission.method === method
+            )
+          ) {
+            return next()
+          }
+        }
+      }
+
       if (lastIndex.length > 18 && !lastIndex.includes('q')) {
         const queryKey = Object.keys(req.query)
         url = urlArray.join('/') + '/' + `:${queryKey[0]}`
@@ -52,6 +68,7 @@ export const isAuth = async (req, res, next) => {
           url = url.split('?')[0]
         }
       }
+
       if (
         userRole.role.permission.find(
           (permission) =>

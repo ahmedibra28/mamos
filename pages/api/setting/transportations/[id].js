@@ -171,7 +171,6 @@ handler.put(async (req, res) => {
       transportation: object._id,
       createdBy: object.createdBy,
     }
-    console.log(transaction)
     await Transaction.create(transaction)
 
     res.status(200).send(`${schemaNameString} updated`)
