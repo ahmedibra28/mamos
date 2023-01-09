@@ -19,6 +19,7 @@ const Accounts = () => {
 
   useEffect(() => {
     getApi?.refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate])
 
   const currency = (amount) =>

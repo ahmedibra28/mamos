@@ -16,8 +16,12 @@ if (!cached) {
 async function db() {
   if (cached.conn) cached.conn
 
-  if (!cached.promise)
-    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose)
+  if (!cached.promise) {
+    mongoose.set('strictQuery', false)
+    return (cached.promise = mongoose
+      .connect(MONGO_URI)
+      .then((mongoose) => mongoose))
+  }
 
   cached.conn = await cached.promise
 
