@@ -21,13 +21,21 @@ const Accounts = () => {
     getApi?.refetch()
   }, [startDate, endDate])
 
+  const currency = (amount) =>
+    amount?.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    })
+
   const listItem = (title, amount) => {
     return (
       <li className='list-group-item d-flex justify-content-between align-items-start'>
         <div className='ms-2 me-auto'>
           <div className='fw-bold'>{title}</div>
         </div>
-        <span className='badge bg-primary rounded-pill'>{amount}</span>
+        <span className='badge bg-primary rounded-pill'>
+          {currency(amount)}
+        </span>
       </li>
     )
   }

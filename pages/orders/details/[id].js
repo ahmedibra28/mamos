@@ -595,6 +595,7 @@ const Details = () => {
       label: 'Vendor',
       name: 'overWeightVendor',
       value: 'name',
+      isRequired: false,
       data: getApi?.data?.data?.filter(
         (v) => v.status === 'active' && v.type === 'government'
       ),
