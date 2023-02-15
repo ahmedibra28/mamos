@@ -116,7 +116,7 @@ handler.put(async (req, res) => {
 
     order.status = 'Confirmed'
     order.account = ['5000 Cost of Goods Sold']
-    order.customer = req.user.id
+    order.customer = order.createdBy
     order.amount = Number(
       order.other.containers.reduce(
         (acc, cur) => (acc + cur.price) * cur.quantity,
@@ -124,7 +124,38 @@ handler.put(async (req, res) => {
       )
     )
 
-    await order.save()
+    const saveOrder = await order.save()
+
+    if (!saveOrder)
+      return res.status(400).json({ error: 'Order not confirmed' })
+
+    if (order.pickUp.pickUpCost > 0) {
+      const pickUpTransaction = {
+        date: new Date(),
+        createdBy: order.createdBy,
+        reference: order._id,
+        type: 'Pick Up',
+        account: ['1001 Stock/Inventory'],
+        vendor: order.pickUp.pickUpVendor,
+        amount: order.pickUp.pickUpCost,
+        description: `Pick up for ${order.TrackingNo}`,
+      }
+      await Transaction.create(pickUpTransaction)
+    }
+
+    if (order.dropOff.dropOffCost > 0) {
+      const dropOffTransaction = {
+        date: new Date(),
+        createdBy: order.createdBy,
+        reference: order._id,
+        type: 'Drop Off',
+        account: ['1001 Stock/Inventory'],
+        vendor: order.dropOff.dropOffVendor,
+        amount: order.dropOff.dropOffCost,
+        description: `Drop off for ${order.TrackingNo}`,
+      }
+      await Transaction.create(dropOffTransaction)
+    }
 
     // Demurrage
     if (order.demurrage > 0) {

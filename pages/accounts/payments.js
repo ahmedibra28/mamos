@@ -107,7 +107,7 @@ const Payments = () => {
       data: getVendorApi?.data?.data?.filter(
         (v) =>
           v.status === 'Active' &&
-          (v.type === 'Government' || v.type === 'Ship')
+          (v.type === 'Government' || v.type === 'Ship' || v.type === 'Track')
       ),
     }),
     postSearchVendorApi?.data?.amount > 0 &&

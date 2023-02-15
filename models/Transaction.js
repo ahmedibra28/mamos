@@ -8,7 +8,7 @@ import Commodity from './Commodity'
 
 const transactionSchema = mongoose.Schema(
   {
-    date: String,
+    date: Date,
     account: [String],
     reference: String,
     status: {
@@ -37,6 +37,8 @@ const transactionSchema = mongoose.Schema(
         'Overweight',
         'Payment',
         'Receipt',
+        'Pick Up',
+        'Drop Off',
       ],
     },
     cargo: { type: String, enum: ['FCL'] },

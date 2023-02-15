@@ -84,17 +84,8 @@ handler.post(async (req, res) => {
     const { _id: customer, amount } = req.body
 
     const transactions = await Transaction.find({
-      $or: [
-        {
-          type: 'Receipt',
-          customer: { $in: [customer] },
-        },
-        {
-          type: 'FCL Booking',
-          createdBy: { $in: [customer] },
-        },
-      ],
-
+      type: { $in: ['Receipt', 'FCL Booking'] },
+      customer,
       status: {
         $in: ['Confirmed', 'Active'],
       },
@@ -129,7 +120,12 @@ handler.post(async (req, res) => {
         .reduce((acc, cur) => acc + Number(cur.dropOff.dropOffPrice), 0) || 0
 
     const totalAmount =
-      transactions?.reduce((acc, cur) => acc + Number(cur.amount), 0) || 0
+      transactions
+        ?.filter(
+          (trans) =>
+            trans.type === 'FCL Booking' && trans.status === 'Confirmed'
+        )
+        ?.reduce((acc, cur) => acc + Number(cur.amount), 0) || 0
 
     const totalReceipt = transactions
       ?.filter((trans) => trans.type === 'Receipt')

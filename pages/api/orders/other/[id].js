@@ -26,8 +26,6 @@ handler.put(async (req, res) => {
       overWeightVendor,
     } = req.body
 
-    console.log(req.body)
-
     const { role, _id } = req.user
 
     const allowed = ['AUTHENTICATED']

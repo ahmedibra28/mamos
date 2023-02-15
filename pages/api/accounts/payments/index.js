@@ -2,7 +2,6 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import { isAuth } from '../../../../utils/auth'
 import Transaction from '../../../../models/Transaction'
-import Account from '../../../../models/Account'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -109,12 +108,25 @@ handler.post(async (req, res) => {
       ?.filter((trans) => trans)
       ?.reduce((acc, cur) => acc + Number(cur.cost), 0)
 
+    const totalPickUp = transactions
+      ?.filter((trans) => trans.type === 'Pick Up')
+      .reduce((acc, cur) => acc + Number(cur.amount), 0)
+
+    const totalDropOff = transactions
+      ?.filter((trans) => trans.type === 'Drop Off')
+      .reduce((acc, cur) => acc + Number(cur.amount), 0)
+
     const totalPayment = transactions
       ?.filter((trans) => trans.type === 'Payment')
       .reduce((acc, cur) => acc + Number(cur.amount), 0)
 
     if (
-      totalOverWeight + totalDemurrage + totalContainer - Number(totalPayment) <
+      totalOverWeight +
+        totalDemurrage +
+        totalPickUp +
+        totalDropOff +
+        totalContainer -
+        Number(totalPayment) <
       amount
     )
       return res

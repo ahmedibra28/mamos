@@ -37,6 +37,14 @@ handler.post(async (req, res) => {
       ?.filter((trans) => trans)
       ?.reduce((acc, cur) => acc + Number(cur.cost), 0)
 
+    const totalPickUp = transactions
+      ?.filter((trans) => trans.type === 'Pick Up')
+      .reduce((acc, cur) => acc + Number(cur.amount), 0)
+
+    const totalDropOff = transactions
+      ?.filter((trans) => trans.type === 'Drop Off')
+      .reduce((acc, cur) => acc + Number(cur.amount), 0)
+
     const totalPayment = transactions
       ?.filter((trans) => trans.type === 'Payment')
       .reduce((acc, cur) => acc + Number(cur.amount), 0)
@@ -45,6 +53,8 @@ handler.post(async (req, res) => {
       amount:
         totalOverWeight +
         totalDemurrage +
+        totalPickUp +
+        totalDropOff +
         totalContainer -
         Number(totalPayment),
       vendor: transactions[0]?.vendor?.name,

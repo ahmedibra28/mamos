@@ -137,7 +137,6 @@ const Transportations = () => {
 
   const editHandler = (item) => {
     setId(item._id)
-    console.log(item)
 
     table.body.map((t) => setValue(t, item[t]))
     setValue('type', item?.type)
