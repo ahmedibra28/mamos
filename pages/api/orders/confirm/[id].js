@@ -1,12 +1,10 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Order from '../../../../models/Order'
-import Account from '../../../../models/Account'
 import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -19,11 +17,16 @@ handler.put(async (req, res) => {
 
     const allowed = ['AUTHENTICATED']
 
-    const order = await schemaName
+    let order = await schemaName
       .findOne(
         !allowed.includes(role)
-          ? { _id: id, status: 'pending' }
-          : { _id: id, status: 'pending', createdBy: _id }
+          ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+          : {
+              _id: id,
+              status: 'Pending',
+              type: 'FCL Booking',
+              createdBy: _id,
+            }
       )
       .populate('other.transportation', ['departureDate'])
       .populate({
@@ -34,6 +37,13 @@ handler.put(async (req, res) => {
       })
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
+
+    // find order.other.transportation.vendor
+    const transportation = await Transaction.findOne({
+      _id: order.other.transportation,
+      type: 'Ship',
+      status: { $in: ['Active', 'Pending'] },
+    }).populate('vendor', ['name'])
 
     // validate order data
 
@@ -57,7 +67,7 @@ handler.put(async (req, res) => {
     if (!order.other.payment)
       return res.status(400).json({ error: 'Payment is required' })
 
-    if (order.status !== 'pending')
+    if (order.status !== 'Pending')
       return res
         .status(400)
         .json({ error: 'You can not confirm or cancel this order' })
@@ -68,15 +78,14 @@ handler.put(async (req, res) => {
     //     .json({ error: 'Please upload invoice before submitting' })
 
     if (
-      !order.trackingNo ||
-      order.trackingNo === 'N/A' ||
-      order.trackingNo === 'n/a'
+      !order.TrackingNo ||
+      order.TrackingNo === 'N/A' ||
+      order.TrackingNo === 'n/a'
     )
       return res.status(400).json({ error: 'Booking trace number is required' })
 
-    // if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
-    if (!order.buyer.buyerName)
-      return res.status(400).json({ error: 'Buyer information is not arrived' })
+    if (!order.buyer.buyerEmail || !order.buyer.buyerMobileNumber)
+      return res.status(400).json({ error: 'Buyer information is not Arrived' })
 
     const movementTypes = {
       pickUp: ['door to door', 'door to port'],
@@ -105,89 +114,29 @@ handler.put(async (req, res) => {
         .status(400)
         .json({ error: 'The booked date has already expire' })
 
-    order.status = 'confirmed'
-
-    // update the transaction => accounts receivable
-    const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
-    const ar = await Account.findOne({ code: 12100 }, { _id: 1 })
-    const gos = await Account.findOne({ code: 40000 }, { _id: 1 })
+    order.status = 'Confirmed'
+    order.account = ['5000 Cost of Goods Sold']
+    order.customer = req.user.id
+    order.amount = Number(
+      order.other.containers.reduce(
+        (acc, cur) => (acc + cur.price) * cur.quantity,
+        0
+      )
+    )
 
     await order.save()
 
-    const common = {
-      date: new Date(),
-      discount: 0,
-      createdBy: order.createdBy,
-      order: order._id,
-    }
-
-    // Pick Up
-    if (order.pickUp.pickUpCost && order.pickUp.pickUpPrice) {
-      const pickUpTransaction = {
-        ...common,
-        account: ap?._id,
-        vendor: order.pickUp.pickUpVendor,
-        amount: Number(order.pickUp.pickUpCost),
-        description: `Pick-Up Track Rent`,
-      }
-      await Transaction.create(pickUpTransaction)
-
-      const pickUpGOSTransaction = {
-        ...common,
-        account: gos?._id,
-        vendor: order.buyer?.buyerName,
-        amount: Number(order.pickUp.pickUpPrice),
-        description: `Pick-Up Track Rent`,
-      }
-      await Transaction.create(pickUpGOSTransaction)
-
-      const pickUpARTransaction = {
-        ...common,
-        account: ar?._id,
-        vendor: order.buyer?.buyerName,
-        amount: Number(order.pickUp.pickUpPrice),
-        description: `Pick-Up Track Rent`,
-      }
-      await Transaction.create(pickUpARTransaction)
-    }
-
-    // Drop Off
-    if (order.dropOff.dropOffCost && order.dropOff.dropOffPrice) {
-      const dropOffTransaction = {
-        ...common,
-        account: ap?._id,
-        vendor: order.dropOff.dropOffVendor,
-        amount: Number(order.dropOff.dropOffCost),
-        description: `Drop-Off Track Rent`,
-      }
-      await Transaction.create(dropOffTransaction)
-
-      const dropOffGOSTransaction = {
-        ...common,
-        account: gos?._id,
-        vendor: order.buyer?.buyerName,
-        amount: Number(order.dropOff.dropOffPrice),
-        description: `Drop-Off Track Rent`,
-      }
-      await Transaction.create(dropOffGOSTransaction)
-
-      const dropOffARTransaction = {
-        ...common,
-        account: ar?._id,
-        vendor: order.buyer?.buyerName,
-        amount: Number(order.dropOff.dropOffPrice),
-        description: `Drop-Off Track Rent`,
-      }
-      await Transaction.create(dropOffARTransaction)
-    }
     // Demurrage
     if (order.demurrage > 0) {
       const demurrageTransaction = {
-        ...common,
-        account: ap?._id,
-        vendor: order.other.transportation.vendor._id,
+        date: new Date(),
+        createdBy: order.createdBy,
+        reference: order._id,
+        type: 'Demurrage',
+        account: ['1001 Stock/Inventory'],
+        vendor: transportation.vendor._id,
         amount: Number(order.demurrage), // Marsek
-        description: `Demurrage`,
+        description: `Demurrage for ${order.TrackingNo}`,
       }
       await Transaction.create(demurrageTransaction)
     }
@@ -195,46 +144,19 @@ handler.put(async (req, res) => {
     // Overweight
     if (order.overWeight.amount > 0) {
       const overWeightTransaction = {
-        ...common,
-        account: ap?._id,
-        vendor: order.overWeight.vendor, // Gov
+        date: new Date(),
+        createdBy: order.createdBy,
+        reference: order._id,
+        type: 'Overweight',
+        account: ['1001 Stock/Inventory'],
+        vendor: order.overWeight.vendor,
         amount: Number(order.overWeight.amount),
-        description: `Overweight`,
+        description: `Overweight for ${order.TrackingNo}`,
       }
       await Transaction.create(overWeightTransaction)
     }
 
-    // Container for account gos
-    const containerGOSTransaction = {
-      ...common,
-      amount: Number(
-        order.other.containers.reduce(
-          (acc, cur) => (acc + cur.price) * cur.quantity,
-          0
-        )
-      ),
-      account: gos?._id,
-      vendor: order.buyer?.buyerName,
-      description: `FCL Booking`,
-    }
-    await Transaction.create(containerGOSTransaction)
-
-    // Container for account receivable
-    const containerTransaction = {
-      ...common,
-      amount: Number(
-        order.other.containers.reduce(
-          (acc, cur) => (acc + cur.price) * cur.quantity,
-          0
-        )
-      ),
-      account: ar?._id,
-      vendor: order.buyer?.buyerName,
-      description: `FCL Booking`,
-    }
-    await Transaction.create(containerTransaction)
-
-    return res.status(200).send('Order confirmed successfully')
+    return res.status(200).send('Order Confirmed successfully')
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

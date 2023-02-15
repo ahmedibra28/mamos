@@ -1,10 +1,9 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Container from '../../../../models/Container'
-import Order from '../../../../models/Order'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -21,11 +20,13 @@ handler.put(async (req, res) => {
       noOfPackages,
       cargoDescription,
       grossWeight,
-      trackingNo,
+      TrackingNo,
       demurrage,
       overWeight,
       overWeightVendor,
     } = req.body
+
+    console.log(req.body)
 
     const { role, _id } = req.user
 
@@ -34,8 +35,13 @@ handler.put(async (req, res) => {
     const order = await schemaName
       .findOne(
         !allowed.includes(role)
-          ? { _id: id, status: 'pending' }
-          : { _id: id, status: 'pending', createdBy: _id }
+          ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+          : {
+              _id: id,
+              status: 'Pending',
+              type: 'FCL Booking',
+              createdBy: _id,
+            }
       )
       .populate('other.transportation')
 
@@ -56,12 +62,14 @@ handler.put(async (req, res) => {
     order.other.noOfPackages = noOfPackages
     order.other.cargoDescription = cargoDescription
     order.other.grossWeight = grossWeight
-    order.trackingNo = trackingNo
+    order.TrackingNo = TrackingNo
 
     order.demurrage = demurrage
-    order.overWeight = {
-      amount: overWeight,
-      vendor: overWeightVendor,
+    if (overWeightVendor) {
+      order.overWeight = {
+        amount: overWeight,
+        vendor: overWeightVendor,
+      }
     }
 
     await order.save()

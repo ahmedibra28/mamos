@@ -9,7 +9,7 @@ const agencyScheme = mongoose.Schema(
     email: { type: String, required: true, unique: true, lowercase: true },
     address: { type: String, required: true },
     city: { type: String, required: true },
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: { type: String, enum: ['Active', 'inActive'], default: 'Active' },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -104,7 +104,7 @@ handler.post(async (req, res) => {
       name,
       email: authEmail,
       password: authPassword,
-      confirmed: true,
+      Confirmed: true,
       blocked: false,
     })
     if (!agencyUser)

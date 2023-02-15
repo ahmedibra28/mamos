@@ -58,7 +58,7 @@ handler.post(async (req, res) => {
       employee,
       response: '',
       task,
-      status: 'pending',
+      status: 'Pending',
       createdBy: req.user._id,
     })
     res.status(200).send(object)

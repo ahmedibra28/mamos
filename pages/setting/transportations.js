@@ -19,6 +19,7 @@ import {
 import TableView from '../../components/TableView'
 import FormView from '../../components/FormView'
 import apiHook from '../../api'
+import moment from 'moment'
 
 const Transportations = () => {
   const [page, setPage] = useState(1)
@@ -123,7 +124,7 @@ const Transportations = () => {
     body: [
       'vendor.name',
       'reference',
-      'cargoType',
+      'cargo',
       'cost',
       'price',
       'departureDate',
@@ -136,16 +137,25 @@ const Transportations = () => {
 
   const editHandler = (item) => {
     setId(item._id)
+    console.log(item)
 
     table.body.map((t) => setValue(t, item[t]))
-    setValue('transportationType', item?.transportationType)
+    setValue('type', item?.type)
     setValue('departureSeaport', item?.departureSeaport?._id)
     setValue('arrivalSeaport', item?.arrivalSeaport?._id)
     setValue('vendor', item?.vendor?._id)
-    setValue('vgmDate', item?.vgmDate)
-    setValue('storageFreeGateInDate', item?.storageFreeGateInDate)
-    setValue('shippingInstructionDate', item?.shippingInstructionDate)
-    setValue('delayDate', item?.delayDate)
+    setValue('vgmDate', moment(item?.vgmDate).format('YYYY-MM-DD'))
+    setValue(
+      'storageFreeGateInDate',
+      moment(item?.storageFreeGateInDate).format('YYYY-MM-DD')
+    )
+    setValue(
+      'shippingInstructionDate',
+      moment(item?.shippingInstructionDate).format('YYYY-MM-DD')
+    )
+    setValue('delayDate', moment(item?.delayDate).format('YYYY-MM-DD'))
+    setValue('departureDate', moment(item?.departureDate).format('YYYY-MM-DD'))
+    setValue('arrivalDate', moment(item?.arrivalDate).format('YYYY-MM-DD'))
 
     setEdit(true)
     setValue(
@@ -194,7 +204,7 @@ const Transportations = () => {
       placeholder: 'Select vendor',
       value: 'name',
       data: getApi?.data?.data?.filter(
-        (item) => item.status === 'active' && item.type === 'ship'
+        (item) => item.status === 'Active' && item.type === 'Ship'
       ),
     }),
 
@@ -202,20 +212,20 @@ const Transportations = () => {
       register,
       errors,
       label: 'Transportation Type',
-      name: 'transportationType',
+      name: 'type',
       placeholder: 'Select transportation type',
-      data: [{ name: 'ship' }],
+      data: [{ name: 'Ship' }],
     }),
 
     staticInputSelect({
       register,
       errors,
       label: 'Cargo Type',
-      name: 'cargoType',
+      name: 'cargo',
       placeholder: 'Select cargo type',
       data: [{ name: 'FCL' }],
     }),
-    watch().cargoType === 'FCL' && watch().transportationType === 'ship' ? (
+    watch().cargo === 'FCL' && watch().type === 'Ship' ? (
       <div>
         {inputMultipleCheckBox({
           register,
@@ -224,7 +234,7 @@ const Transportations = () => {
           name: 'container',
           value: 'name',
           data: containersData?.data?.filter(
-            (item) => item.status === 'active'
+            (item) => item.status === 'Active'
           ),
         })}
       </div>
@@ -236,7 +246,7 @@ const Transportations = () => {
         name: 'container',
         placeholder: 'Select container',
         value: 'name',
-        data: containersData?.data?.filter((item) => item.status === 'active'),
+        data: containersData?.data?.filter((item) => item.status === 'Active'),
       })
     ),
 
@@ -278,7 +288,7 @@ const Transportations = () => {
       value: 'name',
       data: seaportsData?.data?.filter(
         (item) =>
-          item.status === 'active' && item._id !== watch().arrivalSeaport
+          item.status === 'Active' && item._id !== watch().arrivalSeaport
       ),
     }),
 
@@ -291,7 +301,7 @@ const Transportations = () => {
       value: 'name',
       data: seaportsData?.data?.filter(
         (item) =>
-          item.status === 'active' && item._id !== watch().departureSeaport
+          item.status === 'Active' && item._id !== watch().departureSeaport
       ),
     }),
 
@@ -328,7 +338,7 @@ const Transportations = () => {
       errors,
       label: 'Customer declaration & VGM date',
       name: 'vgmDate',
-      placeholder: 'Enter customer declaration and VGM date',
+      placeholder: 'Enter Customer declaration and VGM date',
     }),
     inputDate({
       register,
@@ -345,7 +355,7 @@ const Transportations = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Select status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
   ]
 

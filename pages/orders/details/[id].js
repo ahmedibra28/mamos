@@ -255,10 +255,10 @@ const Details = () => {
   }, [data])
 
   const editBuyerHandler = () => {
-    setValueBuyer('buyerName', data?.buyer?.buyerName?._id)
-    // setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
-    // setValueBuyer('buyerEmail', data?.buyer?.buyerEmail)
-    // setValueBuyer('buyerAddress', data?.buyer?.buyerAddress)
+    setValueBuyer('buyerName', data?.buyer?.buyerName)
+    setValueBuyer('buyerMobileNumber', data?.buyer?.buyerMobileNumber)
+    setValueBuyer('buyerEmail', data?.buyer?.buyerEmail)
+    setValueBuyer('buyerAddress', data?.buyer?.buyerAddress)
   }
   const editPickUpHandler = () => {
     setValuePickUp('pickUpWarehouse', data?.pickUp?.pickUpWarehouse)
@@ -278,7 +278,7 @@ const Details = () => {
   }
   const editOtherHandler = () => {
     setValueOther('importExport', data?.other?.importExport)
-    setValueOther('trackingNo', data?.trackingNo)
+    setValueOther('TrackingNo', data?.TrackingNo)
     setValueOther(
       'isTemperatureControlled',
       data?.other?.isTemperatureControlled
@@ -384,39 +384,35 @@ const Details = () => {
   })
 
   const formBuyer = [
-    dynamicInputSelect({
+    inputText({
       register: registerBuyer,
       errors: errorsBuyer,
+      label: 'Name',
       name: 'buyerName',
-      label: 'Who is your buyer?',
-      placeholder: 'Select buyer name',
-      value: 'name',
-      data: getApi?.data?.data?.filter(
-        (v) => v?.type === 'customer' && v?.status === 'active'
-      ),
+      placeholder: 'Enter name',
     }),
 
-    // inputTel({
-    //   register: registerBuyer,
-    //   errors: errorsBuyer,
-    //   label: 'Mobile',
-    //   name: 'buyerMobileNumber',
-    //   placeholder: 'Enter mobile',
-    // }),
-    // inputEmail({
-    //   register: registerBuyer,
-    //   errors: errorsBuyer,
-    //   label: 'Email',
-    //   name: 'buyerEmail',
-    //   placeholder: 'Enter email',
-    // }),
-    // inputText({
-    //   register: registerBuyer,
-    //   errors: errorsBuyer,
-    //   label: 'Address',
-    //   name: 'buyerAddress',
-    //   placeholder: 'Enter address',
-    // }),
+    inputTel({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Mobile',
+      name: 'buyerMobileNumber',
+      placeholder: 'Enter mobile',
+    }),
+    inputEmail({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Email',
+      name: 'buyerEmail',
+      placeholder: 'Enter email',
+    }),
+    inputText({
+      register: registerBuyer,
+      errors: errorsBuyer,
+      label: 'Address',
+      name: 'buyerAddress',
+      placeholder: 'Enter address',
+    }),
   ]
 
   const formPickUp = [
@@ -448,7 +444,7 @@ const Details = () => {
       name: 'pickUpVendor',
       value: 'name',
       data: getApi?.data?.data?.filter(
-        (v) => v.status === 'active' && v.type === 'track'
+        (v) => v.status === 'Active' && v.type === 'Track'
       ),
     }),
     inputText({
@@ -496,7 +492,7 @@ const Details = () => {
       name: 'dropOffVendor',
       value: 'name',
       data: getApi?.data?.data?.filter(
-        (v) => v.status === 'active' && v.type === 'track'
+        (v) => v.status === 'Active' && v.type === 'Track'
       ),
     }),
     inputText({
@@ -526,7 +522,7 @@ const Details = () => {
       register: registerOther,
       errors: errorsOther,
       label: 'Tracking No',
-      name: 'trackingNo',
+      name: 'TrackingNo',
     }),
     staticInputSelect({
       register: registerOther,
@@ -553,7 +549,7 @@ const Details = () => {
       data:
         commoditiesData &&
         commoditiesData?.data?.filter(
-          (commodity) => commodity.status === 'active'
+          (commodity) => commodity.status === 'Active'
         ),
     }),
 
@@ -597,7 +593,7 @@ const Details = () => {
       value: 'name',
       isRequired: false,
       data: getApi?.data?.data?.filter(
-        (v) => v.status === 'active' && v.type === 'government'
+        (v) => v.status === 'Active' && v.type === 'Government'
       ),
     }),
     watchOther().overWeightVendor &&
@@ -799,10 +795,10 @@ const Details = () => {
   return (
     <>
       <Head>
-        <title>Booking Details {data?.trackingNo}</title>
+        <title>Booking Details {data?.TrackingNo}</title>
         <meta
           property='og:title'
-          content={`Booking Details ${data?.trackingNo}`}
+          content={`Booking Details ${data?.TrackingNo}`}
           key='title'
         />
       </Head>
@@ -847,7 +843,7 @@ const Details = () => {
 
       {isSuccessUpdateToConfirm && (
         <Message variant='success'>
-          Order has been confirmed successfully
+          Order has been Confirmed successfully
         </Message>
       )}
       {isErrorUpdateToConfirm && (
@@ -971,7 +967,7 @@ const Details = () => {
         commoditiesData={commoditiesData}
         DEFAULT_CAPACITY={DEFAULT_CAPACITY}
         selectedTransportation={selectedTransportation}
-        cargoType={data?.other?.cargoType}
+        cargo={data?.other?.cargo}
         selectContainer={selectContainer}
         removeContainer={removeContainer}
         addContainer={addContainer}
@@ -1005,7 +1001,7 @@ const Details = () => {
         selectedTransportation={selectedTransportation}
         setSelectedTransportation={setSelectedTransportation}
         transportationData={transportationsData?.filter(
-          (t) => t.status === 'active'
+          (t) => t.status === 'Active'
         )}
         isLoadingTransportations={isLoadingTransportations}
         submitHandler={submitHandlerBookingDate}
@@ -1017,7 +1013,7 @@ const Details = () => {
         <Message variant='danger'>{error}</Message>
       ) : (
         <div className='bg-light p-3 my-2'>
-          {data?.status === 'pending' && (
+          {data?.status === 'Pending' && (
             <div className='alert alert-warning'>
               <FaExclamationCircle className='mb-1 me-2' />
               You can not edit this order after confirmed

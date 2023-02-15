@@ -8,7 +8,7 @@ const accountSchema = mongoose.Schema(
     type: { type: String, enum: ['default', 'custom'], default: 'custom' },
     openingBalance: { type: Number, default: 0 },
     description: String,
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: { type: String, enum: ['Active', 'inActive'], default: 'Active' },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

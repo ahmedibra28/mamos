@@ -174,7 +174,7 @@ const Orders = () => {
   }
 
   const seaFreightKG =
-    selectedTransportation?.cargoType === 'FCL' &&
+    selectedTransportation?.cargo === 'FCL' &&
     selectContainer?.reduce(
       (acc, curr) => acc + curr?.container?.details?.seaFreight * curr.quantity,
       0
@@ -251,7 +251,7 @@ const Orders = () => {
                 value: 'name',
                 data: seaportsData?.data?.filter(
                   (item) =>
-                    item?.status === 'active' &&
+                    item?.status === 'Active' &&
                     item._id !== watch().dropOffSeaport
                 ),
               })}
@@ -266,7 +266,7 @@ const Orders = () => {
                 value: 'name',
                 data: seaportsData?.data?.filter(
                   (item) =>
-                    item?.status === 'active' &&
+                    item?.status === 'Active' &&
                     item._id !== watch().pickUpSeaport
                 ),
               })}
@@ -423,7 +423,7 @@ const Orders = () => {
                             value: 'name',
                             data: townsData?.data?.filter(
                               (town) =>
-                                town.status === 'active' &&
+                                town.status === 'Active' &&
                                 town?.seaport?._id === watch().pickUpSeaport
                             ),
                           })}
@@ -473,7 +473,7 @@ const Orders = () => {
                             value: 'name',
                             data: townsData?.data?.filter(
                               (town) =>
-                                town.status === 'active' &&
+                                town.status === 'Active' &&
                                 town?.seaport?._id === watch().dropOffSeaport
                             ),
                           })}
@@ -536,7 +536,7 @@ const Orders = () => {
                     data:
                       commoditiesData &&
                       commoditiesData?.data?.filter(
-                        (commodity) => commodity.status === 'active'
+                        (commodity) => commodity.status === 'Active'
                       ),
                   })}
                 </div>
@@ -576,7 +576,7 @@ const Orders = () => {
                 <h4 className='fw-bold font-monospace'>Buyer Details</h4>
                 <label>
                   Enter the buyers details so they can be notified about the
-                  shipment and track the process
+                  shipment and Track the process
                 </label>
                 <div className='row gy-3 mt-3'>
                   <div className='col-12'>
@@ -584,8 +584,8 @@ const Orders = () => {
                       Person who will receive packages
                     </label>
                   </div>
-                  <div className='col-lg-4 col-md-8 col-12'>
-                    {dynamicInputSelect({
+                  <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                    {/* {dynamicInputSelect({
                       register,
                       errors,
                       name: 'buyerName',
@@ -593,18 +593,18 @@ const Orders = () => {
                       placeholder: 'Select buyer name',
                       value: 'name',
                       data: getVendorsApi?.data?.data?.filter(
-                        (v) => v?.type === 'customer' && v?.status === 'active'
+                        (v) => v?.type === 'Customer' && v?.status === 'Active'
                       ),
-                    })}
-                    {/* {inputText({
+                    })} */}
+                    {inputText({
                       register,
                       errors,
                       name: 'buyerName',
                       label: 'Who is your buyer?',
                       placeholder: 'Enter buyer name',
-                    })} */}
+                    })}
                   </div>
-                  {/* <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
+                  <div className='col-lg-3 col-md-4 col-sm-6 col-12'>
                     {inputTel({
                       register,
                       errors,
@@ -630,7 +630,7 @@ const Orders = () => {
                       label: 'Buyer address',
                       placeholder: 'Enter buyer address',
                     })}
-                  </div> */}
+                  </div>
                 </div>
               </div>
             )}

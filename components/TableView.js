@@ -126,7 +126,7 @@ const TableView = (props) => {
 
                 {table.status && (
                   <td>
-                    {item.status === 'active' ? (
+                    {item.status === 'Active' ? (
                       <FaCheckCircle className='text-success' />
                     ) : (
                       <FaTimesCircle className='text-danger' />

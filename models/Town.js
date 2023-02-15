@@ -18,7 +18,7 @@ const townScheme = mongoose.Schema(
       ref: Seaport,
     },
 
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: { type: String, enum: ['Active', 'inActive'], default: 'Active' },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

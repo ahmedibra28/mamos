@@ -1,13 +1,8 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Order from '../../../models/Order'
-import Transportation from '../../../models/Transportation'
-import User from '../../../models/User'
 import { isAuth } from '../../../utils/auth'
-import Vendor from '../../../models/Vendor'
-
-const schemaName = Order
+import Transaction from '../../../models/Transaction'
 
 const handler = nc()
 handler.use(isAuth)
@@ -18,55 +13,39 @@ handler.get(async (req, res) => {
 
     const allowedRoles = ['SUPER_ADMIN', 'LOGISTIC', 'ADMIN']
     const role = req.user.role
-    const mamosBooker = await User.findOne(
-      { email: 'booking@mamosbusiness.com' },
-      { _id: 1 }
-    )
 
     const canAccess = allowedRoles.includes(role)
 
-    let query = schemaName.find(
+    let query = Transaction.find(
       q
         ? canAccess
-          ? role === 'LOGISTIC'
-            ? {
-                trackingNo: { $regex: q, $options: 'i' },
-                createdBy: mamosBooker._id,
-              }
-            : { trackingNo: { $regex: q, $options: 'i' } }
+          ? { TrackingNo: { $regex: q, $options: 'i' }, type: 'FCL Booking' }
           : {
-              trackingNo: { $regex: q, $options: 'i' },
+              TrackingNo: { $regex: q, $options: 'i' },
+              type: 'FCL Booking',
               createdBy: req.user._id,
             }
         : canAccess
-        ? role === 'LOGISTIC'
-          ? { createdBy: mamosBooker._id }
-          : {}
-        : { createdBy: req.user._id }
+        ? { type: 'FCL Booking' }
+        : { type: 'FCL Booking', createdBy: req.user._id }
     )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
 
-    let total = await schemaName.countDocuments(
+    let total = await Transaction.countDocuments(
       q
         ? canAccess
-          ? role === 'LOGISTIC'
-            ? {
-                trackingNo: { $regex: q, $options: 'i' },
-                createdBy: mamosBooker.id,
-              }
-            : { trackingNo: { $regex: q, $options: 'i' } }
+          ? { TrackingNo: { $regex: q, $options: 'i' }, type: 'FCL Booking' }
           : {
-              trackingNo: { $regex: q, $options: 'i' },
+              TrackingNo: { $regex: q, $options: 'i' },
+              type: 'FCL Booking',
               createdBy: req.user._id,
             }
         : canAccess
-        ? role === 'LOGISTIC'
-          ? { createdBy: mamosBooker.id }
-          : {}
-        : { createdBy: req.user._id }
+        ? { type: 'FCL Booking' }
+        : { type: 'FCL Booking', createdBy: req.user._id }
     )
 
     const pages = Math.ceil(total / pageSize)
@@ -82,7 +61,6 @@ handler.get(async (req, res) => {
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('createdBy', ['name'])
-      .populate('buyer.buyerName', ['name'])
       .populate({
         path: 'other.transportation',
         populate: {
@@ -90,16 +68,36 @@ handler.get(async (req, res) => {
         },
       })
 
-    const result = await query
+    let result = await query
+
+    // filter result and find the other.transportation from Transaction
+    const newResultPromise = await Promise.all(
+      result.map(async (item) => {
+        const tran = await Transaction.findOne(
+          { _id: item.other.transportation },
+          { vendor: 1, reference: 1 }
+        ).populate('vendor')
+
+        return {
+          ...item,
+          other: {
+            ...item.other,
+            transportation: tran,
+          },
+        }
+      })
+    )
+
+    const newResult = await Promise.all(newResultPromise)
 
     res.status(200).json({
       startIndex: skip + 1,
-      endIndex: skip + result.length,
-      count: result.length,
+      endIndex: skip + newResult.length,
+      count: newResult.length,
       page,
       pages,
       total,
-      data: result,
+      data: newResult,
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -130,9 +128,9 @@ handler.post(async (req, res) => {
       noOfPackages,
       grossWeight,
       buyerName,
-      // buyerMobileNumber,
-      // buyerEmail,
-      // buyerAddress,
+      buyerMobileNumber,
+      buyerEmail,
+      buyerAddress,
       // pickUpTown,
       pickUpWarehouse,
       pickUpCity,
@@ -142,23 +140,21 @@ handler.post(async (req, res) => {
       containers, // selected containers
     } = req.body
 
-    if (!buyerName)
+    if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
       return res.status(400).json({ error: 'Buyer details are required' })
-    // if (!buyerName || !buyerMobileNumber || !buyerEmail || !buyerAddress)
-    // return res.status(400).json({ error: 'Buyer details are required' })
 
-    const vendor = await Vendor.findOne({
-      _id: buyerName,
-      type: 'customer',
-      status: 'active',
-    })
-    if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
+    // const vendor = await Vendor.findOne({
+    //   _id: buyerName,
+    //   type: 'Customer',
+    //   status: 'Active',
+    // })
+    // if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
 
     const buyer = {
       buyerName,
-      buyerMobileNumber: '',
-      buyerEmail: '',
-      buyerAddress: '',
+      buyerMobileNumber,
+      buyerEmail,
+      buyerAddress,
     }
 
     const pickUp = {
@@ -195,7 +191,7 @@ handler.post(async (req, res) => {
       containers, // selected containers
     }
 
-    const trackingNo = 'N/A'
+    const TrackingNo = 'N/A'
 
     if (!movementTypes.pickUp.includes(other.movementType)) {
       // delete pickUp.pickUpTown
@@ -222,11 +218,11 @@ handler.post(async (req, res) => {
         .status(404)
         .json({ error: 'Please select at least one container' })
 
-    const transObject = await Transportation.findOne({
+    const transObject = await Transaction.findOne({
       _id: other.transportation,
       departureSeaport: pickUp.pickUpSeaport,
       arrivalSeaport: dropOff.dropOffSeaport,
-      status: 'active',
+      status: 'Active',
       vgmDate: { $gt: moment().format() },
     })
       .lean()
@@ -239,13 +235,17 @@ handler.post(async (req, res) => {
     pickUp.pickUpCountry = transObject.departureSeaport.country
     dropOff.dropOffCountry = transObject.arrivalSeaport.country
 
-    const object = await Order.create({
+    const object = await Transaction.create({
+      date: new Date(),
       buyer,
       pickUp,
       dropOff,
       other,
       createdBy: req.user._id,
-      trackingNo,
+      TrackingNo,
+      type: 'FCL Booking',
+      status: 'Pending',
+      description: `FCL Booking created by ${req.user.name}`,
     })
 
     return res.status(200).send(object)

@@ -152,10 +152,10 @@ const OrderActivityDetails = () => {
   return (
     <>
       <Head>
-        <title>Order Activity Details {data?.trackingNo}</title>
+        <title>Order Activity Details {data?.TrackingNo}</title>
         <meta
           property='og:title'
-          content={`Order Activity Details ${data?.trackingNo}`}
+          content={`Order Activity Details ${data?.TrackingNo}`}
           key='title'
         />
       </Head>
@@ -178,7 +178,7 @@ const OrderActivityDetails = () => {
               {clearanceCertificate(data?.process?.clearanceCertificate)}
               {paymentDetails(data?.process?.paymentDetails)}
               {submitStatus(
-                data?.status === 'confirmed' || data?.status === 'arrived'
+                data?.status === 'Confirmed' || data?.status === 'Arrived'
                   ? true
                   : false
               )}

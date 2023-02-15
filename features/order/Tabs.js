@@ -49,7 +49,7 @@ const Tabs = ({
   submitHandlerProcess,
   steps,
 }) => {
-  const isPending = data?.status === 'pending' ? true : false
+  const isPending = data?.status === 'Pending' ? true : false
   const navItems = [
     'Overview',
     'Buyer',
@@ -280,10 +280,10 @@ const Tabs = ({
             <div className='col-md-8 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
-                  {data?.trackingNo && (
+                  {data?.TrackingNo && (
                     <tr>
                       <td className='fw-bold'>Booking Reference</td>
-                      <td>{data?.trackingNo}</td>
+                      <td>{data?.TrackingNo}</td>
                     </tr>
                   )}
                   {data?.createdAt && (
@@ -308,12 +308,12 @@ const Tabs = ({
                               {data?.status}
                             </span>
                           )}
-                          {data?.status === 'confirmed' && (
+                          {data?.status === 'Confirmed' && (
                             <span className='badge bg-info'>
                               {data?.status}
                             </span>
                           )}
-                          {data?.status === 'arrived' && (
+                          {data?.status === 'Arrived' && (
                             <span className='badge bg-success'>
                               {data?.status}
                             </span>
@@ -344,7 +344,7 @@ const Tabs = ({
                           {trade?.tradeType === 'ship' && (
                             <FaShip className='text-primary fs-1' />
                           )}
-                          {trade?.tradeType === 'track' && (
+                          {trade?.tradeType === 'Track' && (
                             <FaTruck className='text-primary fs-1' />
                           )}
                           {trade?.tradeType === 'plane' && (
@@ -372,115 +372,92 @@ const Tabs = ({
               )}
             </div>
             <div className='col-md-4 col-12'>
-              <div>
-                {isPending && (
-                  <>
-                    <h6 className='fw-bold'>Booking actions</h6>
+              {!hide(['AUTHENTICATED']) && (
+                <>
+                  <div>
+                    {isPending && (
+                      <>
+                        <h6 className='fw-bold'>Booking actions</h6>
 
-                    <form onSubmit={handleSubmitProcess(submitHandlerProcess)}>
-                      <div className='mt-3 border border-5 border-warning border-top-0 border-bottom-0 border-end-0 mb-2'>
-                        <label className='fw-bold ms-2'>
-                          Please complete these steps to submit this booking
-                        </label>
+                        <form
+                          onSubmit={handleSubmitProcess(submitHandlerProcess)}
+                        >
+                          <div className='mt-3 border border-5 border-warning border-top-0 border-bottom-0 border-end-0 mb-2'>
+                            <label className='fw-bold ms-2'>
+                              Please complete these steps to submit this booking
+                            </label>
 
-                        <ul className='list-group list-group-flush'>
-                          {steps?.map((step) => (
-                            <li
-                              key={step?._id}
-                              className='list-group-item bg-transparent'
-                            >
-                              {inputCheckBox({
-                                register: registerProcess,
-                                error: errorsProcess,
-                                name: step?.value,
-                                label: step?.label,
-                                placeholder: step?.label,
-                                isRequired: false,
-                                resetStyle: true,
-                              })}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <button
-                        type='submit'
-                        disabled={
-                          !isPending || isLoadingUpdateProgress ? true : false
-                        }
-                        className='btn btn-warning w-100 mb-2'
-                      >
-                        {isLoadingUpdateProgress ? (
-                          <span className='spinner-border spinner-border-sm' />
-                        ) : (
-                          <>
-                            <span className='float-start'>
-                              <FaCheckCircle className='mb-1' />
-                            </span>
-                            UPDATE CURRENT PROGRESS
-                          </>
-                        )}
-                      </button>
-                    </form>
+                            <ul className='list-group list-group-flush'>
+                              {steps?.map((step) => (
+                                <li
+                                  key={step?._id}
+                                  className='list-group-item bg-transparent'
+                                >
+                                  {inputCheckBox({
+                                    register: registerProcess,
+                                    error: errorsProcess,
+                                    name: step?.value,
+                                    label: step?.label,
+                                    placeholder: step?.label,
+                                    isRequired: false,
+                                    resetStyle: true,
+                                  })}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <button
+                            type='submit'
+                            disabled={
+                              !isPending || isLoadingUpdateProgress
+                                ? true
+                                : false
+                            }
+                            className='btn btn-warning w-100 mb-2'
+                          >
+                            {isLoadingUpdateProgress ? (
+                              <span className='spinner-border spinner-border-sm' />
+                            ) : (
+                              <>
+                                <span className='float-start'>
+                                  <FaCheckCircle className='mb-1' />
+                                </span>
+                                UPDATE CURRENT PROGRESS
+                              </>
+                            )}
+                          </button>
+                        </form>
 
-                    <button
-                      disabled={
-                        !isPending || isLoadingUpdateToConfirm ? true : false
-                      }
-                      onClick={() => confirmOrderHandler()}
-                      className='btn btn-success w-100 mb-2'
-                    >
-                      {isLoadingUpdateToConfirm ? (
-                        <span className='spinner-border spinner-border-sm' />
-                      ) : (
-                        <>
-                          <span className='float-start'>
-                            <FaCheckCircle className='mb-1' />
-                          </span>
-                          CONFIRM BOOKING
-                        </>
-                      )}
-                    </button>
-                  </>
-                )}
-                {data?.status !== 'cancelled' && (
-                  <>
-                    <button
-                      onClick={() => setIsCancel(true)}
-                      disabled={
-                        !isPending || isLoadingUpdateToDelete ? true : false
-                      }
-                      className='btn btn-danger w-100 mb-2'
-                    >
-                      {isLoadingUpdateToDelete ? (
-                        <span className='spinner-border spinner-border-sm' />
-                      ) : (
-                        <>
-                          <span className='float-start'>
-                            <FaTrash className='mb-1' />
-                          </span>
-                          CANCEL BOOKING
-                        </>
-                      )}
-                    </button>
-                    {isCancel && (
-                      <div className='mb-2'>
-                        <label htmlFor='cancelledReason'>
-                          Cancelling Reason
-                        </label>
-                        <textarea
-                          cols='30'
-                          rows='3'
-                          type='text'
-                          className='form-control'
-                          onChange={(e) => setCancelledReason(e.target.value)}
-                          value={cancelledReason}
-                        />
                         <button
+                          disabled={
+                            !isPending || isLoadingUpdateToConfirm
+                              ? true
+                              : false
+                          }
+                          onClick={() => confirmOrderHandler()}
+                          className='btn btn-success w-100 mb-2'
+                        >
+                          {isLoadingUpdateToConfirm ? (
+                            <span className='spinner-border spinner-border-sm' />
+                          ) : (
+                            <>
+                              <span className='float-start'>
+                                <FaCheckCircle className='mb-1' />
+                              </span>
+                              CONFIRM BOOKING
+                            </>
+                          )}
+                        </button>
+                      </>
+                    )}
+                    {data?.status !== 'cancelled' && (
+                      <>
+                        <button
+                          onClick={() => setIsCancel(true)}
                           disabled={
                             !isPending || isLoadingUpdateToDelete ? true : false
                           }
-                          onClick={() => cancelOrderHandler(data)}
-                          className='btn btn-danger btn-sm float-end mt-1'
+                          className='btn btn-danger w-100 mb-2'
                         >
                           {isLoadingUpdateToDelete ? (
                             <span className='spinner-border spinner-border-sm' />
@@ -489,15 +466,52 @@ const Tabs = ({
                               <span className='float-start'>
                                 <FaTrash className='mb-1' />
                               </span>
-                              CONFIRM
+                              CANCEL BOOKING
                             </>
                           )}
                         </button>
-                      </div>
+                        {isCancel && (
+                          <div className='mb-2'>
+                            <label htmlFor='cancelledReason'>
+                              Cancelling Reason
+                            </label>
+                            <textarea
+                              cols='30'
+                              rows='3'
+                              type='text'
+                              className='form-control'
+                              onChange={(e) =>
+                                setCancelledReason(e.target.value)
+                              }
+                              value={cancelledReason}
+                            />
+                            <button
+                              disabled={
+                                !isPending || isLoadingUpdateToDelete
+                                  ? true
+                                  : false
+                              }
+                              onClick={() => cancelOrderHandler(data)}
+                              className='btn btn-danger btn-sm float-end mt-1'
+                            >
+                              {isLoadingUpdateToDelete ? (
+                                <span className='spinner-border spinner-border-sm' />
+                              ) : (
+                                <>
+                                  <span className='float-start'>
+                                    <FaTrash className='mb-1' />
+                                  </span>
+                                  CONFIRM
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -513,10 +527,10 @@ const Tabs = ({
             <div className='col-md-8 col-12'>
               <table className='table table-striped table-borderless mt-2'>
                 <tbody>
-                  {data?.buyer?.buyerName?.name && (
+                  {data?.buyer?.buyerName && (
                     <tr>
                       <td className='fw-bold'>Name </td>
-                      <td>{data?.buyer?.buyerName?.name} </td>
+                      <td>{data?.buyer?.buyerName} </td>
                     </tr>
                   )}
                   {data?.buyer?.buyerMobileNumber && (
@@ -541,19 +555,23 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-'>
-              <h6 className='fw-bold'>Other actions</h6>
-              <button
-                disabled={!isPending}
-                data-bs-toggle='modal'
-                data-bs-target={`#${modalBuyer}`}
-                onClick={editBuyerHandler}
-                className='btn btn-primary w-100 mb-2'
-              >
-                <span className='float-start'>
-                  <FaEdit className='mb-1' />
-                </span>
-                UPDATE BUYER DETAILS
-              </button>
+              {!hide(['AUTHENTICATED']) && (
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalBuyer}`}
+                    onClick={editBuyerHandler}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    UPDATE BUYER DETAILS
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -614,21 +632,25 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-12'>
-              {movementTypes.pickUp.includes(data?.other?.movementType) && (
+              {!hide(['AUTHENTICATED']) && (
                 <>
-                  <h6 className='fw-bold'>Other actions</h6>
-                  <button
-                    disabled={!isPending}
-                    data-bs-toggle='modal'
-                    data-bs-target={`#${modalPickUp}`}
-                    onClick={editPickUpHandler}
-                    className='btn btn-primary w-100 mb-2'
-                  >
-                    <span className='float-start'>
-                      <FaEdit className='mb-1' />
-                    </span>
-                    UPDATE PICK-UP DETAILS
-                  </button>
+                  {movementTypes.pickUp.includes(data?.other?.movementType) && (
+                    <>
+                      <h6 className='fw-bold'>Other actions</h6>
+                      <button
+                        disabled={!isPending}
+                        data-bs-toggle='modal'
+                        data-bs-target={`#${modalPickUp}`}
+                        onClick={editPickUpHandler}
+                        className='btn btn-primary w-100 mb-2'
+                      >
+                        <span className='float-start'>
+                          <FaEdit className='mb-1' />
+                        </span>
+                        UPDATE PICK-UP DETAILS
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -691,21 +713,27 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-'>
-              {movementTypes.dropOff.includes(data?.other?.movementType) && (
+              {!hide(['AUTHENTICATED']) && (
                 <>
-                  <h6 className='fw-bold'>Other actions</h6>
-                  <button
-                    disabled={!isPending}
-                    data-bs-toggle='modal'
-                    data-bs-target={`#${modalDropOff}`}
-                    onClick={editDropOffHandler}
-                    className='btn btn-primary w-100 mb-2'
-                  >
-                    <span className='float-start'>
-                      <FaEdit className='mb-1' />
-                    </span>
-                    UPDATE DROP-OFF DETAILS
-                  </button>
+                  {movementTypes.dropOff.includes(
+                    data?.other?.movementType
+                  ) && (
+                    <>
+                      <h6 className='fw-bold'>Other actions</h6>
+                      <button
+                        disabled={!isPending}
+                        data-bs-toggle='modal'
+                        data-bs-target={`#${modalDropOff}`}
+                        onClick={editDropOffHandler}
+                        className='btn btn-primary w-100 mb-2'
+                      >
+                        <span className='float-start'>
+                          <FaEdit className='mb-1' />
+                        </span>
+                        UPDATE DROP-OFF DETAILS
+                      </button>
+                    </>
+                  )}
                 </>
               )}
             </div>
@@ -758,22 +786,22 @@ const Tabs = ({
                       </td>
                     </tr>
                   )}
-                  {data?.price?.customerPrice && (
+                  {data?.price?.CustomerPrice && (
                     <tr>
                       <td className='fw-bold'>Cargo Amount: </td>
                       <td>
                         {hide(['LOGISTIC']) ? (
                           <span className='badge bg-danger'>N/A</span>
                         ) : (
-                          data?.price?.customerPrice
+                          data?.price?.CustomerPrice
                         )}{' '}
                       </td>
                     </tr>
                   )}
-                  {data?.price?.customerCBM && (
+                  {data?.price?.CustomerCBM && (
                     <tr>
                       <td className='fw-bold'>Total CBM: </td>
-                      <td>{data?.price?.customerCBM} </td>
+                      <td>{data?.price?.CustomerCBM} </td>
                     </tr>
                   )}
                 </tbody>
@@ -907,10 +935,10 @@ const Tabs = ({
                       <td>{data?.other?.movementType} </td>
                     </tr>
                   )}
-                  {data?.other?.cargoType && (
+                  {data?.other?.cargo && (
                     <tr>
                       <td className='fw-bold'>Cargo Type: </td>
-                      <td>{data?.other?.cargoType} </td>
+                      <td>{data?.other?.cargo} </td>
                     </tr>
                   )}
                   {data?.other?.cargoDescription && (
@@ -987,32 +1015,36 @@ const Tabs = ({
               </table>
             </div>
             <div className='col-md-4 col-12'>
-              <h6 className='fw-bold'>Other actions</h6>
+              {!hide(['AUTHENTICATED']) && (
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
 
-              <button
-                disabled={!isPending}
-                data-bs-toggle='modal'
-                data-bs-target={`#${modalOther}`}
-                onClick={editOtherHandler}
-                className='btn btn-primary w-100 mb-2'
-              >
-                <span className='float-start'>
-                  <FaEdit className='mb-1' />
-                </span>
-                UPDATE OTHER DETAILS
-              </button>
-              <button
-                disabled={!isPending}
-                data-bs-toggle='modal'
-                data-bs-target={`#${modalBookingDate}`}
-                onClick={editBookingDateHandler}
-                className='btn btn-warning w-100 mb-2'
-              >
-                <span className='float-start'>
-                  <FaEdit className='mb-1' />
-                </span>
-                CHANGE BOOKING DATE
-              </button>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalOther}`}
+                    onClick={editOtherHandler}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    UPDATE OTHER DETAILS
+                  </button>
+                  <button
+                    disabled={!isPending}
+                    data-bs-toggle='modal'
+                    data-bs-target={`#${modalBookingDate}`}
+                    onClick={editBookingDateHandler}
+                    className='btn btn-warning w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaEdit className='mb-1' />
+                    </span>
+                    CHANGE BOOKING DATE
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1044,18 +1076,22 @@ const Tabs = ({
               ))}
             </div>
             <div className='col-md-4 col-12'>
-              <h6 className='fw-bold'>Other actions</h6>
+              {!hide(['AUTHENTICATED']) && (
+                <>
+                  <h6 className='fw-bold'>Other actions</h6>
 
-              <button
-                disabled={!isPending}
-                onClick={updatePayment}
-                className='btn btn-primary w-100 mb-2'
-              >
-                <span className='float-start'>
-                  <FaPaperPlane className='mb-1' />
-                </span>
-                SUBMIT PAYMENT
-              </button>
+                  <button
+                    disabled={!isPending}
+                    onClick={updatePayment}
+                    className='btn btn-primary w-100 mb-2'
+                  >
+                    <span className='float-start'>
+                      <FaPaperPlane className='mb-1' />
+                    </span>
+                    SUBMIT PAYMENT
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

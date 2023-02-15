@@ -1,7 +1,7 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
 import Tradelane from '../../../../models/Tradelane'
-import Transportation from '../../../../models/Transportation'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
 const schemaName = Tradelane
@@ -25,12 +25,12 @@ handler.put(async (req, res) => {
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
-    const transportationObj = await Transportation.findOne({
+    const transportationObj = await Transaction.findOne({
       _id: transportation,
-      status: 'active',
+      status: 'Pending',
     })
     if (!transportationObj)
-      return res.status(404).json({ error: 'Transportation not found' })
+      return res.status(404).json({ error: 'Transaction not found' })
 
     object.transportation = transportation
     object.tradelane = tradelane
@@ -51,7 +51,8 @@ handler.delete(async (req, res) => {
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
-    await object.remove()
+    object.status = 'Cancelled'
+    await object.save()
     res.status(200).send(`${schemaNameString} removed`)
   } catch (error) {
     res.status(500).json({ error: error.message })

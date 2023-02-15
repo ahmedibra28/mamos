@@ -1,7 +1,7 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
 import Tradelane from '../../../../models/Tradelane'
-import Transportation from '../../../../models/Transportation'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
 const schemaName = Tradelane
@@ -13,7 +13,7 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    const transportation = await Transportation.findOne({ name: q })
+    const transportation = await Transaction.findOne({ reference: q })
 
     let query = schemaName.find(
       q && transportation ? { transportation: transportation._id } : {}
@@ -36,24 +36,26 @@ handler.get(async (req, res) => {
       // .populate('transportation')
       .populate({
         path: 'transportation',
+        select: ['vendor', 'reference'],
         populate: {
           path: 'vendor',
+          select: ['name'],
         },
       })
 
     const result = await query
 
     // const tradelanes = await Tradelane.find({}).lean()
-    let transportations = await Transportation.find(
+    let transportations = await Transaction.find(
       {
-        status: 'active',
+        status: 'Active',
       },
       { reference: 1 }
     ).lean()
 
     const tradelanes = await Tradelane.find({}, { transportation: 1 }).lean()
 
-    const newTransportation = transportations.filter(
+    const newTransaction = transportations.filter(
       (trans) =>
         !tradelanes
           .map((trade) => trade.transportation.toString())
@@ -68,7 +70,7 @@ handler.get(async (req, res) => {
       pages,
       total,
       data: result,
-      newTransportation,
+      newTransaction,
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -86,12 +88,12 @@ handler.post(async (req, res) => {
     if (tradelane.length === 0)
       return res.status(404).json({ error: `Tradelane can't be empty` })
 
-    const transportationObj = await Transportation.findOne({
+    const transportationObj = await Transaction.findOne({
       _id: transportation,
-      status: 'active',
+      status: 'Pending',
     })
     if (!transportationObj)
-      return res.status(404).json({ error: 'Transportation not found' })
+      return res.status(404).json({ error: 'Transaction not found' })
 
     // check existence of object
     const object = await schemaName.findOne({
@@ -108,8 +110,8 @@ handler.post(async (req, res) => {
       return res.status(200).send(result)
     }
 
-    if (object.status !== 'active')
-      return res.status(400).json({ error: 'Tradelane is not active' })
+    if (object.status !== 'Active')
+      return res.status(400).json({ error: 'Tradelane is not Active' })
 
     object.tradelane = [...object.tradelane, ...tradelane]
     object.updatedBy = req.user._id

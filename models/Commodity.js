@@ -4,7 +4,7 @@ import User from './User'
 const commodityScheme = mongoose.Schema(
   {
     name: { type: String, required: true },
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: { type: String, enum: ['Active', 'inActive'], default: 'Active' },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -96,7 +96,7 @@ const TransactionDetails = () => {
                   <td>{item?.account?.name}</td>
                   <td>
                     {item?.vendor?.name}
-                    {item?.customer?.name}
+                    {item?.Customer?.name}
                   </td>
                   {/* <td>
                     {item?.transportation}

@@ -1,11 +1,10 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Transportation from '../../../../models/Transportation'
-import { priceFormat } from '../../../../utils/priceFormat'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Transportation
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -23,8 +22,9 @@ handler.get(async (req, res) => {
         ? {
             arrivalDate: { $gte: start, $lt: end },
             arrivalDate: { $lt: currentDate },
+            type: 'FCL Booking',
           }
-        : { arrivalDate: { $lt: currentDate } }
+        : { arrivalDate: { $lt: currentDate }, type: 'FCL Booking' }
     )
 
     const page = parseInt(req.query.page) || 1
@@ -35,8 +35,9 @@ handler.get(async (req, res) => {
         ? {
             arrivalDate: { $gte: start, $lt: end },
             arrivalDate: { $lt: currentDate },
+            type: 'FCL Booking',
           }
-        : { arrivalDate: { $lt: currentDate } }
+        : { arrivalDate: { $lt: currentDate }, type: 'FCL Booking' }
     )
 
     const pages = Math.ceil(total / pageSize)

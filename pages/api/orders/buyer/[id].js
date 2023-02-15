@@ -1,10 +1,10 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Order from '../../../../models/Order'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
-import Vendor from '../../../../models/Vendor'
+// import Vendor from '../../../../models/Vendor'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -19,24 +19,29 @@ handler.put(async (req, res) => {
 
     const order = await schemaName.findOne(
       !allowed.includes(role)
-        ? { _id: id, status: 'pending' }
-        : { _id: id, status: 'pending', createdBy: _id }
+        ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+        : {
+            _id: id,
+            status: 'Pending',
+            createdBy: _id,
+            type: 'FCL Booking',
+          }
     )
 
     if (!order || !order.buyer.buyerName)
-      return res.status(404).json({ error: 'Order not found' })
+      return res.status(404).json({ error: 'Transaction not found' })
 
-    const vendor = await Vendor.findOne({
-      _id: buyerName,
-      type: 'customer',
-      status: 'active',
-    })
-    if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
+    // const vendor = await Vendor.findOne({
+    //   _id: buyerName,
+    //   type: 'Customer',
+    //   status: 'Active',
+    // })
+    // if (!vendor) return res.status(400).json({ error: 'Invalid buyer' })
 
     order.buyer.buyerName = buyerName
-    // order.buyer.buyerEmail = buyerEmail
-    // order.buyer.buyerMobileNumber = buyerMobileNumber
-    // order.buyer.buyerAddress = buyerAddress
+    order.buyer.buyerEmail = buyerEmail
+    order.buyer.buyerMobileNumber = buyerMobileNumber
+    order.buyer.buyerAddress = buyerAddress
 
     await order.save()
 

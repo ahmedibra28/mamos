@@ -10,6 +10,7 @@ import { dynamicInputSelect, staticInputSelect } from '../../utils/dynamicForm'
 import TableView from '../../components/TableView'
 import TradelaneFormView from '../../components/TradelaneFormView'
 import moment from 'moment'
+import apiHook from '../../api'
 
 const Tradelanes = () => {
   const [tempTrans, setTempTrans] = useState('')
@@ -26,6 +27,12 @@ const Tradelanes = () => {
       location: '',
     },
   ])
+
+  const getTransportationApi = apiHook({
+    key: ['transportation', 'id'],
+    method: 'GET',
+    url: 'transactions/transportation',
+  }).get
 
   const {
     register,
@@ -46,7 +53,7 @@ const Tradelanes = () => {
 
   const { data, isLoading, isError, error, refetch } = getTradelanes
 
-  let newTransportation = data?.newTransportation
+  let newTransportation = getTransportationApi?.data
 
   const {
     isLoading: isLoadingUpdate,
@@ -184,7 +191,7 @@ const Tradelanes = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Select status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
   ]
 

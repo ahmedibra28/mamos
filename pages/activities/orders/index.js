@@ -92,10 +92,10 @@ const Orders = () => {
                 <tr key={order?._id}>
                   <td>{order?.other?.transportation?.reference}</td>
                   <td>
-                    {order?.trackingNo === 'N/A' ? (
+                    {order?.TrackingNo === 'N/A' ? (
                       <span className='badge bg-danger'>no provided</span>
                     ) : (
-                      order?.trackingNo
+                      order?.TrackingNo
                     )}
                   </td>
                   <td>{order?.createdAt?.slice(0, 10)}</td>
@@ -104,15 +104,15 @@ const Orders = () => {
                   </td>
                   <td>
                     <span>
-                      {order?.status === 'pending' && (
+                      {order?.status === 'Pending' && (
                         <span className='badge bg-warning'>
                           {order?.status}
                         </span>
                       )}
-                      {order?.status === 'confirmed' && (
+                      {order?.status === 'Confirmed' && (
                         <span className='badge bg-info'>{order?.status}</span>
                       )}
-                      {order?.status === 'arrived' && (
+                      {order?.status === 'Arrived' && (
                         <span className='badge bg-success'>
                           {order?.status}
                         </span>
@@ -129,8 +129,8 @@ const Orders = () => {
                     order?.process?.instructionForShipments &&
                     order?.process?.clearanceCertificate &&
                     order?.process?.paymentDetails &&
-                    (order.status === 'confirmed' ||
-                      order.status === 'arrived') ? (
+                    (order.status === 'Confirmed' ||
+                      order.status === 'Arrived') ? (
                       <FaCheckCircle className={`fs-4 text-success`} />
                     ) : (
                       <FaTimesCircle className={`fs-4 text-danger`} />

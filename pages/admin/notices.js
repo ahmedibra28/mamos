@@ -32,7 +32,7 @@ const Notices = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      status: 'inactive',
+      status: 'inActive',
     },
   })
 
@@ -129,7 +129,7 @@ const Notices = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
     inputTextArea({
       register,

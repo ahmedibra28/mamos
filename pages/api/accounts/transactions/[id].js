@@ -34,7 +34,7 @@ handler.get(async (req, res) => {
     // const vTransactions = await Transaction.find({ vendor: id }).lean()
     // if (vTransactions.length > 0) return res.json(vTransactions)
 
-    // const cTransactions = await Transaction.find({ customer: id }).lean()
+    // const cTransactions = await Transaction.find({ Customer: id }).lean()
     // if (cTransactions.length > 0) return res.json(cTransactions)
   } catch (error) {
     res.status(500).json({ error: error.message })

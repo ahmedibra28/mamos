@@ -1,12 +1,11 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Transportation from '../../../models/Transportation'
-import Order from '../../../models/Order'
+import Transaction from '../../../models/Transaction'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 
-const schemaName = Transportation
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -19,13 +18,13 @@ handler.post(async (req, res) => {
       .find({
         departureSeaport: pickUpSeaport,
         arrivalSeaport: dropOffSeaport,
-        status: 'active',
+        status: 'Active',
         vgmDate: { $gt: moment().format() },
       })
       .lean()
       .sort({ createdAt: -1 })
       .populate('container.container')
-      .populate('vendor')
+      .populate('vendor', ['name'])
 
     object = object.map((obj) => ({
       ...obj,
@@ -40,7 +39,7 @@ handler.post(async (req, res) => {
     const data = []
     const newPromiseObject = Promise.all(
       object.map(async (trans) => {
-        const order = await Order.exists({
+        const order = await Transaction.exists({
           'other.transportation': trans._id,
           $or: [{ status: { $ne: 'cancelled' } }],
         })

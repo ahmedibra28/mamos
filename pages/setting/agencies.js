@@ -192,7 +192,7 @@ const Agencies = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Select status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
     inputTextArea({
       register,

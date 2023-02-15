@@ -178,7 +178,7 @@ const Employees = () => {
                         )}
                         <div
                           className={`badge bg-${
-                            task?.status === 'pending' ? 'warning' : 'success'
+                            task?.status === 'Pending' ? 'warning' : 'success'
                           }`}
                         >
                           {task?.status?.toUpperCase()}

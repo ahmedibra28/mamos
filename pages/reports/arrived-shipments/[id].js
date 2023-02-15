@@ -144,18 +144,18 @@ const ArrivedBookedShipments = () => {
                 <tr key={book?._id}>
                   <td>{book?.createdBy?.name}</td>
                   <td>{book?.createdAt?.slice(0, 10)}</td>
-                  <td>{book?.trackingNo}</td>
+                  <td>{book?.TrackingNo}</td>
                   <td>{book?.buyer?.buyerName}</td>
                   <td>{book?.buyer?.buyerMobileNumber}</td>
                   <td>
                     <span>
-                      {book?.status === 'pending' && (
+                      {book?.status === 'Pending' && (
                         <span className='badge bg-warning'>{book?.status}</span>
                       )}
-                      {book?.status === 'confirmed' && (
+                      {book?.status === 'Confirmed' && (
                         <span className='badge bg-info'>{book?.status}</span>
                       )}
-                      {book?.status === 'arrived' && (
+                      {book?.status === 'Arrived' && (
                         <span className='badge bg-success'>{book?.status}</span>
                       )}
                       {book?.status === 'cancelled' && (

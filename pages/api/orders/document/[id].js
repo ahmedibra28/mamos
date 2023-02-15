@@ -1,10 +1,9 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Container from '../../../../models/Container'
-import Order from '../../../../models/Order'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -20,8 +19,13 @@ handler.put(async (req, res) => {
 
     const order = await schemaName.findOne(
       !allowed.includes(role)
-        ? { _id: id, status: 'pending' }
-        : { _id: id, status: 'pending', createdBy: _id }
+        ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+        : {
+            _id: id,
+            status: 'Pending',
+            type: 'FCL Booking',
+            createdBy: _id,
+          }
     )
 
     // if (!order || !order.other.importExport)

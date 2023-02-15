@@ -25,9 +25,9 @@ handler.put(async (req, res) => {
     if (!object)
       return res
         .status(404)
-        .json({ error: 'Shipment not found or not arrived yet!' })
+        .json({ error: 'Shipment not found or not Arrived yet!' })
 
-    object.status = 'arrived'
+    object.status = 'Arrived'
     object.updatedBy = req.user._id
     await object.save()
 
@@ -36,7 +36,7 @@ handler.put(async (req, res) => {
     Promise.all(
       orders.map(
         async (o) =>
-          await Order.updateOne({ _id: o._id }, { $set: { status: 'arrived' } })
+          await Order.updateOne({ _id: o._id }, { $set: { status: 'Arrived' } })
       )
     )
 

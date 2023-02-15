@@ -123,12 +123,12 @@ const ArrivedShipments = () => {
                     <button
                       onClick={() => confirmArrivalHandler(transport._id)}
                       className={`btn btn-sm ${
-                        transport.status === 'arrived'
+                        transport.status === 'Arrived'
                           ? 'btn-outline-success'
                           : 'btn-success'
                       }`}
                       disabled={
-                        isLoadingUpdate || transport.status === 'arrived'
+                        isLoadingUpdate || transport.status === 'Arrived'
                       }
                     >
                       {isLoadingUpdate ? (
@@ -138,7 +138,7 @@ const ArrivedShipments = () => {
                       )}
                     </button>
                     <Link
-                      href={`arrived-shipments/${transport._id}`}
+                      href={`Arrived-shipments/${transport._id}`}
                       className='btn btn-primary btn-sm ms-2'
                     >
                       Details

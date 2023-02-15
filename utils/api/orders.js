@@ -132,7 +132,7 @@ export default function useOrdersHook(props) {
     {
       retry: 0,
       onSuccess: () =>
-        queryClient.invalidateQueries([`arrived-booked-shipments`]),
+        queryClient.invalidateQueries([`Arrived-booked-shipments`]),
     }
   )
 

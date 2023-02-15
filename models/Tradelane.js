@@ -1,12 +1,12 @@
 import mongoose from 'mongoose'
 import User from './User'
-import Transportation from './Transportation'
+import Transaction from './Transaction'
 
 const tradelaneScheme = mongoose.Schema(
   {
     transportation: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: Transportation,
+      ref: Transaction,
       required: true,
     },
     tradelane: [
@@ -16,12 +16,16 @@ const tradelaneScheme = mongoose.Schema(
         tradeType: {
           type: String,
           required: true,
-          enum: ['track', 'ship', 'train', 'plane'],
+          enum: ['Track', 'Ship', 'Train', 'Plane'],
         },
         location: { type: String, required: true },
       },
     ],
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: {
+      type: String,
+      enum: ['Active', 'inActive', 'Cancelled'],
+      default: 'Active',
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

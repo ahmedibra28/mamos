@@ -85,14 +85,14 @@ const orderScheme = mongoose.Schema(
       containers: [], // selected shipments
     },
 
-    trackingNo: { type: String, default: 'N/A' },
+    TrackingNo: { type: String, default: 'N/A' },
     cancelledReason: String,
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'cancelled', 'arrived'],
-      default: 'pending',
+      enum: ['Pending', 'Confirmed', 'cancelled', 'Arrived'],
+      default: 'Pending',
     },
-    arrived: {
+    Arrived: {
       status: String,
       description: String,
     },

@@ -4,14 +4,14 @@ import Container from '../../../../models/Container'
 import Order from '../../../../models/Order'
 import Seaport from '../../../../models/Seaport'
 import Tradelane from '../../../../models/Tradelane'
-import Transportation from '../../../../models/Transportation'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 import { undefinedChecker } from '../../../../utils/helper'
 // import Account from '../../../../models/Account'
 // import Transaction from '../../../../models/Transaction'
 
-const schemaName = Transportation
-const schemaNameString = 'Transportation'
+const schemaName = Transaction
+const schemaNameString = 'Transaction'
 
 const handler = nc()
 handler.use(isAuth)
@@ -21,9 +21,9 @@ handler.put(async (req, res) => {
     const { id } = req.query
     const {
       vendor,
-      transportationType,
+      type,
       reference,
-      cargoType,
+      cargo,
       cost,
       price,
       departureSeaport,
@@ -53,7 +53,7 @@ handler.put(async (req, res) => {
     const tempCost = Array.isArray(cost) ? cost[0] : cost
     const tempPrice = Array.isArray(price) ? price[0] : price
 
-    if (cargoType !== 'FCL') {
+    if (cargo !== 'FCL') {
       if (Number(tempCost) > Number(tempPrice))
         return res
           .status(404)
@@ -76,14 +76,14 @@ handler.put(async (req, res) => {
     container.map(async (c) => {
       const containerObj = await Container.findOne({
         _id: c,
-        status: 'active',
+        status: 'Active',
       })
       if (!containerObj)
         return res.status(404).json({ error: 'Container not found' })
     })
 
     // FCL Container structuring
-    if (cargoType === 'FCL') {
+    if (cargo === 'FCL') {
       const containerLength = container.length
 
       const costAmount = Array.isArray(cost)
@@ -116,7 +116,7 @@ handler.put(async (req, res) => {
       container = result
     }
 
-    if (cargoType !== 'FCL') {
+    if (cargo !== 'FCL') {
       container = container.map((c) => ({
         container: c,
         cost: tempCost,
@@ -124,15 +124,15 @@ handler.put(async (req, res) => {
       }))
     }
 
-    // check if status is active
+    // check if status is Active
     if (departureSeaport || arrivalSeaport) {
       const departure = await Seaport.findOne({
         _id: departureSeaport,
-        status: 'active',
+        status: 'Active',
       })
       const arrival = await Seaport.findOne({
         _id: arrivalSeaport,
-        status: 'active',
+        status: 'Active',
       })
       if (!departure || !arrival)
         return res
@@ -141,8 +141,8 @@ handler.put(async (req, res) => {
     }
 
     object.vendor = vendor
-    object.transportationType = transportationType
-    object.cargoType = cargoType
+    object.type = type
+    object.cargo = cargo
     object.container = container
     object.reference = reference
     object.departureSeaport = undefinedChecker(departureSeaport)
@@ -156,22 +156,6 @@ handler.put(async (req, res) => {
     object.status = status
     object.updatedBy = req.user._id
     await object.save()
-
-    // update the transaction => accounts payable
-    // const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
-    // const transaction = {
-    //   date: new Date(),
-    //   account: ap?._id,
-    //   vendor: object.vendor,
-    //   amount: Number(
-    //     object.container?.reduce((acc, curr) => acc + curr.cost, 0)
-    //   ),
-    //   discount: 0,
-    //   description: 'Container Rent',
-    //   transportation: object._id,
-    //   createdBy: object.createdBy,
-    // }
-    // await Transaction.create(transaction)
 
     res.status(200).send(`${schemaNameString} updated`)
   } catch (error) {
@@ -193,13 +177,18 @@ handler.delete(async (req, res) => {
 
     if (orders.length > 0) {
       orders.forEach(async (order) => {
-        await Order.remove({ _id: order._id })
+        await Order.updateOne(
+          { _id: order._id },
+          { $unset: { status: 'Cancelled' } }
+        )
       })
     }
     if (tradelane) {
-      await tradelane.remove()
+      tradelane.status = 'Cancelled'
+      await tradelane.save()
     }
-    await object.remove()
+    object.status = 'Cancelled'
+    await object.save()
 
     res.status(200).send(`${schemaNameString} removed`)
   } catch (error) {

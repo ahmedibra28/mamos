@@ -24,7 +24,7 @@ const CustomFormView = ({
   DEFAULT_CAPACITY,
   USED_CBM,
   selectedTransportation,
-  cargoType,
+  cargo,
   selectContainer,
   removeContainer,
   addContainer,
@@ -62,7 +62,7 @@ const CustomFormView = ({
                       {f}
                     </div>
                   ))}
-                  {cargoType === 'FCL' ? (
+                  {cargo === 'FCL' ? (
                     <div className='row mt-3 gy-3'>
                       {selectedTransportation?.container?.map((container) => (
                         <div
@@ -193,7 +193,7 @@ const CustomFormView = ({
                                 <option value=''>-------</option>
                                 {commoditiesData?.data?.map(
                                   (c) =>
-                                    c.status === 'active' && (
+                                    c.status === 'Active' && (
                                       <option value={c._id} key={c._id}>
                                         {c.name}
                                       </option>

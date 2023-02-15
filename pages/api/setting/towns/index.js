@@ -66,19 +66,19 @@ handler.post(async (req, res) => {
         .status(404)
         .json({ error: 'Cost must be greater than price amount' })
 
-    // check if status is active
+    // check if status is Active
     if (req.body.country) {
       const obj = await Country.findOne({
-        country: req.body.country,
-        status: 'active',
+        _id: req.body.country,
+        status: 'Active',
       })
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
 
     if (req.body.seaport) {
       const obj = await Seaport.findOne({
-        seaport: req.body.seaport,
-        status: 'active',
+        _id: req.body.seaport,
+        status: 'Active',
       })
       if (!obj) return res.status(404).json({ error: 'Seaport not found' })
     }
@@ -88,12 +88,12 @@ handler.post(async (req, res) => {
       isPort
         ? {
             name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
-            country: req.body.country,
-            seaport: req.body.seaport,
+            _id: req.body.country,
+            _id: req.body.seaport,
           }
         : {
             name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
-            country: req.body.country,
+            _id: req.body.country,
           }
     )
 

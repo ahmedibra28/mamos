@@ -16,7 +16,7 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
 
         <div className='col-auto'>
           <Search
-            placeholder='Search by tracking no.'
+            placeholder='Search by Tracking no.'
             setQ={setQ}
             q={q}
             searchHandler={handleSearch}
@@ -40,7 +40,7 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
         <hr className='mt-4 mb-2' />
 
         {data?.data
-          ?.filter((d) => d?.status === 'pending')
+          // ?.filter((d) => ['Pending', 'Active'].includes(d?.status))
           ?.map((obj) => (
             <div key={obj?._id} className='col-lg-6 col-12'>
               <div className='card border-0 bg-light'>
@@ -48,7 +48,7 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                   <div className='d-flex justify-content-between'>
                     <div>
                       <span className='badge bg-primary ms-1'>
-                        {obj?.trackingNo}
+                        {obj?.TrackingNo}
                       </span>
                       <span className='badge bg-primary ms-1'>
                         {obj?.other?.importExport}
@@ -63,9 +63,9 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                     <div>
                       <button
                         className={`btn btn-${
-                          obj?.status === 'pending'
+                          obj?.status === 'Pending'
                             ? 'warning'
-                            : obj?.status === 'confirmed'
+                            : obj?.status === 'Confirmed'
                             ? 'success'
                             : obj?.status === 'cancelled' && 'danger'
                         } btn-sm me-1`}
@@ -116,7 +116,7 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                   <div className='d-flex justify-content-between my-3'>
                     <div>
                       <span>Buyer</span>
-                      <h6 className='fw-bold'>{obj?.buyer?.buyerName?.name}</h6>
+                      <h6 className='fw-bold'>{obj?.buyer?.buyerName}</h6>
                     </div>
                     <div>
                       <span>Booked By</span>

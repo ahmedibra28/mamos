@@ -17,7 +17,7 @@ export default function useProfilesHook(props) {
   )
 
   const getUserProfiles = useQuery(
-    'user profiles',
+    ['user profiles'],
     async () =>
       await dynamicAPI(
         'get',

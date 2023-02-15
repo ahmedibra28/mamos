@@ -36,7 +36,7 @@ const Account = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      confirmed: true,
+      Confirmed: true,
       blocked: false,
     },
   })
@@ -164,7 +164,7 @@ const Account = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Enter status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
   ]
 

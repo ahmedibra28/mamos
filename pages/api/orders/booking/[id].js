@@ -1,10 +1,10 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Order from '../../../../models/Order'
+import Transaction from '../../../../models/Transaction'
 import Transportation from '../../../../models/Transportation'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -15,7 +15,7 @@ handler.put(async (req, res) => {
     const { selectedTransportation } = req.body
     const { role, _id } = req.user
 
-    if (selectedTransportation.cargoType !== 'FCL')
+    if (selectedTransportation.cargo !== 'FCL')
       return res.status(400).json({ error: 'Invalid cargo type request' })
 
     const allowed = ['AUTHENTICATED']
@@ -23,8 +23,13 @@ handler.put(async (req, res) => {
     const order = await schemaName
       .findOne(
         !allowed.includes(role)
-          ? { _id: id, status: 'pending' }
-          : { _id: id, status: 'pending', createdBy: _id }
+          ? { _id: id, status: 'Pending', transportType: 'FCL Booking' }
+          : {
+              _id: id,
+              status: 'Pending',
+              createdBy: _id,
+              transportType: 'FCL Booking',
+            }
       )
       .populate('other.transportation')
 
@@ -32,7 +37,7 @@ handler.put(async (req, res) => {
 
     const transportation = await Transportation.findOne({
       _id: selectedTransportation._id,
-      status: 'active',
+      status: 'Active',
     }).lean()
 
     if (!transportation)

@@ -9,7 +9,7 @@ const containerScheme = mongoose.Schema(
     height: { type: Number, required: true },
     details: {},
 
-    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    status: { type: String, enum: ['Active', 'inActive'], default: 'Active' },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

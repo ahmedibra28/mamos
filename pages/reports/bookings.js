@@ -79,6 +79,7 @@ const Bookings = () => {
               <tr>
                 <th>Shipment Reference</th>
                 <th>Booking Reference</th>
+                <th>Booked By</th>
                 <th>Booked Date</th>
                 <th>Departure Date</th>
                 <th>Status</th>
@@ -90,25 +91,26 @@ const Bookings = () => {
                 <tr key={book?._id}>
                   <td>{book?.other?.transportation?.reference}</td>
                   <td>
-                    {book?.trackingNo === 'N/A' ? (
+                    {book?.TrackingNo === 'N/A' ? (
                       <span className='badge bg-danger'>not provided</span>
                     ) : (
-                      book?.trackingNo
+                      book?.TrackingNo
                     )}
                   </td>
+                  <td>{book?.createdBy?.name}</td>
                   <td>{book?.createdAt?.slice(0, 10)}</td>
                   <td>
                     {book?.other?.transportation?.departureDate?.slice(0, 10)}
                   </td>
                   <td>
                     <span>
-                      {book?.status === 'pending' && (
+                      {book?.status === 'Pending' && (
                         <span className='badge bg-warning'>{book?.status}</span>
                       )}
-                      {book?.status === 'confirmed' && (
+                      {book?.status === 'Confirmed' && (
                         <span className='badge bg-info'>{book?.status}</span>
                       )}
-                      {book?.status === 'arrived' && (
+                      {book?.status === 'Arrived' && (
                         <span className='badge bg-success'>{book?.status}</span>
                       )}
                       {book?.status === 'cancelled' && (

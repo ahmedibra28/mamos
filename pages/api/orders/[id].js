@@ -1,13 +1,12 @@
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Order from '../../../models/Order'
-import Transportation from '../../../models/Transportation'
+import Transaction from '../../../models/Transaction'
 import Tradelane from '../../../models/Tradelane'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
 import User from '../../../models/User'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -20,20 +19,18 @@ handler.get(async (req, res) => {
 
     const allowedRoles = ['SUPER_ADMIN', 'LOGISTIC', 'ADMIN']
     const canAccess = allowedRoles.includes(role)
-    const mamosBooker = await User.findOne(
-      { email: 'booking@mamosbusiness.com' },
-      { _id: 1 }
-    )
 
     let order = await schemaName
       .findOne(
         canAccess
-          ? role === 'LOGISTIC'
-            ? { createdBy: mamosBooker._id, _id: id }
-            : { _id: id }
-          : {
-              createdBy: _id,
+          ? {
               _id: id,
+              type: 'FCL Booking',
+            }
+          : {
+              createdBy: req.user._id,
+              _id: id,
+              type: 'FCL Booking',
             }
       )
       .lean()
@@ -45,23 +42,24 @@ handler.get(async (req, res) => {
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('other.transportation')
-      .populate('other.transportation.container.container')
+      // .populate('other.transportation.container.container')
       .populate('other.commodity')
       .populate('overWeight.vendor')
       .populate('buyer.buyerName', ['name'])
 
-    if (!order) return res.status(404).json({ error: 'Order not found' })
+    if (!order) return res.status(404).json({ error: 'Transaction not found' })
+
     const tradelane = await Tradelane.findOne(
       {
-        transportation: order.other.transportation._id,
+        transportation: order.other.transportation,
       },
       { tradelane: 1 }
     ).lean()
 
     order = { ...order, tradelane: tradelane?.tradelane }
 
-    order.other.transportation = await Transportation.findById(
-      order.other.transportation._id
+    order.other.transportation = await Transaction.findById(
+      order.other.transportation
     )
       .populate('container.container')
       .populate('vendor')
@@ -79,12 +77,12 @@ handler.get(async (req, res) => {
       price: c.price,
     }))
 
-    const customerCBM = containerInfo.reduce(
+    const CustomerCBM = containerInfo.reduce(
       (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
       0
     )
 
-    const customerPrice = containerInfo.reduce(
+    const CustomerPrice = containerInfo.reduce(
       (acc, curr) => acc + Number(curr.price) * Number(curr.quantity),
       0
     )
@@ -97,13 +95,13 @@ handler.get(async (req, res) => {
       // invoicePrice: priceFormat(invoicePrice),
       pickUpPrice: priceFormat(pickUpPrice),
       dropOffPrice: priceFormat(dropOffPrice),
-      customerPrice: priceFormat(customerPrice),
-      customerCBM: `${customerCBM.toFixed(2)} cubic meter`,
+      CustomerPrice: priceFormat(CustomerPrice),
+      CustomerCBM: `${CustomerCBM.toFixed(2)} cubic meter`,
       containerCBM: `${containerCBM.toFixed(2)} cubic meter`,
       containerInfo: containerInfo,
       totalPrice: priceFormat(
         // Number(invoicePrice) +
-        Number(pickUpPrice) + Number(dropOffPrice) + Number(customerPrice)
+        Number(pickUpPrice) + Number(dropOffPrice) + Number(CustomerPrice)
       ),
     }
 

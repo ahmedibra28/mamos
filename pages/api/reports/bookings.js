@@ -1,14 +1,12 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Container from '../../../models/Container'
-import Order from '../../../models/Order'
+import Transaction from '../../../models/Transaction'
 import Tradelane from '../../../models/Tradelane'
-import Transportation from '../../../models/Transportation'
 import { priceFormat } from '../../../utils/priceFormat'
 import { isAuth } from '../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -24,8 +22,9 @@ handler.get(async (req, res) => {
       q
         ? {
             createdAt: { $gte: start, $lt: end },
+            type: 'FCL Booking',
           }
-        : {}
+        : { type: 'FCL Booking' }
     )
 
     const page = parseInt(req.query.page) || 1
@@ -35,8 +34,9 @@ handler.get(async (req, res) => {
       q
         ? {
             createdAt: { $gte: start, $lt: end },
+            type: 'FCL Booking',
           }
-        : {}
+        : { type: 'FCL Booking' }
     )
 
     const pages = Math.ceil(total / pageSize)
@@ -53,8 +53,6 @@ handler.get(async (req, res) => {
       // .populate('dropOff.dropOffTown')
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
-      .populate('other.transportation')
-      .populate('other.transportation.container.container')
       .populate('other.commodity')
 
     let result = await query
@@ -63,15 +61,15 @@ handler.get(async (req, res) => {
       result.map(async (order) => {
         const tradelane = await Tradelane.findOne(
           {
-            transportation: order.other.transportation._id,
+            transportation: order.other.transportation,
           },
           { tradelane: 1 }
         ).lean()
 
         order = { ...order, tradelane: tradelane?.tradelane }
 
-        order.other.transportation = await Transportation.findById(
-          order.other.transportation._id
+        order.other.transportation = await Transaction.findById(
+          order.other.transportation
         ).populate('container.container')
 
         // const invoicePrice = order.other.isHasInvoice ? 0.0 : 200.0
@@ -87,12 +85,12 @@ handler.get(async (req, res) => {
           price: c.price,
         }))
 
-        const customerCBM = containerInfo.reduce(
+        const CustomerCBM = containerInfo.reduce(
           (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
           0
         )
 
-        const customerPrice = containerInfo.reduce(
+        const CustomerPrice = containerInfo.reduce(
           (acc, curr) => acc + Number(curr.price) * Number(curr.quantity),
           0
         )
@@ -105,13 +103,13 @@ handler.get(async (req, res) => {
           // invoicePrice: priceFormat(invoicePrice),
           pickUpPrice: priceFormat(pickUpPrice),
           dropOffPrice: priceFormat(dropOffPrice),
-          customerPrice: priceFormat(customerPrice),
-          customerCBM: `${customerCBM.toFixed(2)} cubic meter`,
+          CustomerPrice: priceFormat(CustomerPrice),
+          CustomerCBM: `${CustomerCBM.toFixed(2)} cubic meter`,
           containerCBM: `${containerCBM.toFixed(2)} cubic meter`,
           containerInfo: containerInfo,
           totalPrice: priceFormat(
             // Number(invoicePrice) +
-            Number(pickUpPrice) + Number(dropOffPrice) + Number(customerPrice)
+            Number(pickUpPrice) + Number(dropOffPrice) + Number(CustomerPrice)
           ),
         }
 

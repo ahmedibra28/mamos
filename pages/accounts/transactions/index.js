@@ -67,7 +67,6 @@ const Transaction = () => {
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Acc. Code</th>
                 <th>Account</th>
                 <th>Vendor/Customer</th>
                 {/* <th>Reference</th> */}
@@ -80,11 +79,14 @@ const Transaction = () => {
             <tbody>
               {getApi?.data?.data?.map((item, i) => (
                 <tr key={i}>
-                  <td>{item?.account?.code}</td>
-                  <td>{item?.account?.name}</td>
                   <td>
-                    {item?.vendor?.name}
-                    {item?.customer?.name}
+                    {item?.account?.map((acc) => (
+                      <span key={acc}>{acc}</span>
+                    ))}
+                  </td>
+                  <td>
+                    {item?.vendor?.name || item?.createdBy?.name}
+                    {item?.Customer?.name}
                   </td>
                   {/* <td>
                     {item?.transportation}

@@ -147,10 +147,10 @@ const Vendors = () => {
       name: 'type',
       placeholder: 'Enter vendor type',
       data: [
-        { name: 'ship' },
-        { name: 'track' },
-        { name: 'government' },
-        { name: 'customer' },
+        { name: 'Ship' },
+        { name: 'Track' },
+        { name: 'Government' },
+        { name: 'Customer' },
       ],
     }),
     staticInputSelect({
@@ -159,7 +159,7 @@ const Vendors = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Enter status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
   ]
 
@@ -259,7 +259,7 @@ const Vendors = () => {
                   <td>{item?.email}</td>
                   <td>{item?.address}</td>
                   <td>
-                    {item?.status === 'active' ? (
+                    {item?.status === 'Active' ? (
                       <FaCheckCircle className='text-success' />
                     ) : (
                       <FaTimesCircle className='text-danger' />

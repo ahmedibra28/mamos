@@ -67,12 +67,12 @@ handler.get(async (req, res) => {
       price: c.price,
     }))
 
-    const customerCBM = containerInfo.reduce(
+    const CustomerCBM = containerInfo.reduce(
       (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
       0
     )
 
-    const customerPrice = containerInfo.reduce(
+    const CustomerPrice = containerInfo.reduce(
       (acc, curr) => acc + Number(curr.price) * Number(curr.quantity),
       0
     )
@@ -85,15 +85,15 @@ handler.get(async (req, res) => {
       invoicePrice: priceFormat(invoicePrice),
       pickUpPrice: priceFormat(pickUpPrice),
       dropOffPrice: priceFormat(dropOffPrice),
-      customerPrice: priceFormat(customerPrice),
-      customerCBM: `${customerCBM.toFixed(2)} cubic meter`,
+      CustomerPrice: priceFormat(CustomerPrice),
+      CustomerCBM: `${CustomerCBM.toFixed(2)} cubic meter`,
       containerCBM: `${containerCBM.toFixed(2)} cubic meter`,
       containerInfo: containerInfo,
       totalPrice: priceFormat(
         Number(invoicePrice) +
           Number(pickUpPrice) +
           Number(dropOffPrice) +
-          Number(customerPrice)
+          Number(CustomerPrice)
       ),
     }
 

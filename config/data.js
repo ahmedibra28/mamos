@@ -66,7 +66,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Accounts Payable',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
   {
@@ -76,7 +76,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Accounts Receivable',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
   {
@@ -86,7 +86,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Expenses',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
   {
@@ -96,7 +96,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Cost Of Sales (GOS)',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
 
@@ -107,7 +107,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Payments',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
   {
@@ -117,7 +117,7 @@ const defaultAccounts = [
     type: 'default',
     openingBalance: 0,
     description: 'Receipts',
-    status: 'active',
+    status: 'Active',
     createdBy: '63b28f2acc5b18dda70b8450',
   },
 ]
@@ -1201,11 +1201,11 @@ const permissions = [
     method: 'GET',
   },
   {
-    description: 'Update Receipt',
-    route: '/api/accounts/receipts/:id',
+    description: 'Create Receipt',
+    route: '/api/accounts/receipts',
     auth: true,
     name: 'Receipts',
-    method: 'PUT',
+    method: 'POST',
   },
 
   // Payment endpoint
@@ -1217,11 +1217,11 @@ const permissions = [
     method: 'GET',
   },
   {
-    description: 'Update Payment',
-    route: '/api/accounts/payments/:id',
+    description: 'Create Payment',
+    route: '/api/accounts/payments',
     auth: true,
     name: 'Payments',
-    method: 'PUT',
+    method: 'POST',
   },
 ]
 

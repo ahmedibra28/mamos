@@ -19,12 +19,13 @@ handler.put(async (req, res) => {
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
-    // check if status is active
+    // check if status is Active
     if (country) {
       const obj = await Country.findOne({
-        country,
-        status: 'active',
+        _id: country,
+        status: 'Active',
       })
+
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
 

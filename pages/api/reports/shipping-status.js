@@ -1,23 +1,26 @@
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Transportation from '../../../models/Transportation'
+import Transaction from '../../../models/Transaction'
 import { isAuth } from '../../../utils/auth'
 import moment from 'moment'
 // import { priceFormat } from '../../../utils/priceFormat'
 
-const schemaName = Transportation
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
 handler.get(async (req, res) => {
   await db()
   try {
-    let query = schemaName.find({ status: 'active' })
+    let query = schemaName.find({ type: 'Ship', status: 'Active' })
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
-    const total = await schemaName.countDocuments({ status: 'active' })
+    const total = await schemaName.countDocuments({
+      type: 'Ship',
+      status: 'Active',
+    })
 
     const pages = Math.ceil(total / pageSize)
 

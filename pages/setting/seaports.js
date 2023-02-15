@@ -144,7 +144,7 @@ const Seaports = () => {
       label: 'Country',
       name: 'country',
       placeholder: 'Select country',
-      data: countriesData?.data?.filter((item) => item.status === 'active'),
+      data: countriesData?.data?.filter((item) => item.status === 'Active'),
       value: 'name',
     }),
     staticInputSelect({
@@ -153,7 +153,7 @@ const Seaports = () => {
       label: 'Status',
       name: 'status',
       placeholder: 'Select status',
-      data: [{ name: 'active' }, { name: 'inactive' }],
+      data: [{ name: 'Active' }, { name: 'inActive' }],
     }),
   ]
 

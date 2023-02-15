@@ -32,11 +32,31 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('account', ['name', 'code'])
-      .populate('customer', ['name'])
+      .populate('Customer', ['name'])
       .populate('vendor', ['name'])
+      .populate('createdBy', ['name'])
 
-    const result = await query
+    let result = await query
+
+    result = result?.map((r) => {
+      let amount = 0
+      if (r?.type === 'Ship') {
+        amount = r?.container?.reduce((acc, cur) => acc + Number(cur.cost), 0)
+      }
+      if (r?.type === 'FCL Booking') {
+        amount =
+          Number(r?.pickUp?.pickUpPrice) +
+          Number(r?.dropOff?.dropOffPrice) +
+          Number(r?.amount)
+      }
+      if (['Demurrage', 'Overweight'].includes(r?.type)) {
+        amount = r?.amount
+      }
+      return {
+        ...r,
+        amount,
+      }
+    })
 
     res.status(200).json({
       startIndex: skip + 1,

@@ -2,115 +2,164 @@ import nc from 'next-connect'
 import db from '../../../../config/db'
 import { isAuth } from '../../../../utils/auth'
 import Transaction from '../../../../models/Transaction'
-import Account from '../../../../models/Account'
+
+import { v4 as uuidv4 } from 'uuid'
 
 const handler = nc()
 handler.use(isAuth)
+
 handler.get(async (req, res) => {
   await db()
   try {
-    const query = async (code) => {
-      const account = await Account.findOne({ code })
-      // vendors
-      let vendors = await Transaction.aggregate([
-        {
-          $match: {
-            account: account._id,
-          },
-        },
-        {
-          $group: {
-            _id: '$vendor',
-            totalAmount: {
-              $sum: '$amount',
+    const q = req.query && req.query.q
+
+    let query = Transaction.find(
+      q
+        ? {
+            description: { $regex: q, $options: 'i' },
+            status: 'Active',
+            type: 'Receipt',
+            account: {
+              $in: ['TEMP 555'],
             },
-          },
-        },
-        {
-          $lookup: {
-            from: 'vendors',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'vendor',
-          },
-        },
-      ])
-
-      vendors = vendors?.map((v) => ({
-        _id: v._id,
-        totalAmount: v.totalAmount,
-        name: v.vendor[0]?.name,
-        email: v.vendor[0]?.email,
-        type: v.vendor[0]?.type,
-      }))
-
-      // customers
-      let customers = await Transaction.aggregate([
-        {
-          $match: {
-            account: account._id,
-          },
-        },
-        {
-          $group: {
-            _id: '$customer',
-            totalAmount: {
-              $sum: '$amount',
+          }
+        : {
+            status: 'Active',
+            type: 'Receipt',
+            account: {
+              $in: ['TEMP 555'],
             },
-          },
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: '_id',
-            foreignField: '_id',
-            as: 'user',
-          },
-        },
-      ])
+          }
+    )
 
-      customers = customers?.map((c) => ({
-        _id: c._id,
-        totalAmount: c.totalAmount,
-        name: c.user[0]?.name,
-        email: c.user[0]?.email,
-        type: 'customer',
-      }))
+    const page = parseInt(req.query.page) || 1
+    const pageSize = parseInt(req.query.limit) || 25
+    const skip = (page - 1) * pageSize
+    const total = await Transaction.countDocuments(
+      q
+        ? {
+            description: { $regex: q, $options: 'i' },
+            status: 'Active',
+            account: {
+              $in: ['TEMP 555'],
+            },
+          }
+        : {
+            status: 'Active',
+            account: {
+              $in: ['TEMP 555'],
+            },
+          }
+    )
 
-      const transactions = [...customers, ...vendors]
-      return transactions?.filter((trans) => trans._id)
-    }
+    const pages = Math.ceil(total / pageSize)
 
-    const ar = await query(12100)
-    const rec = await query(2023)
+    query = query
+      .skip(skip)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .select('type amount customer date description')
+      .populate('createdBy', ['name'])
+      .lean()
 
-    const accountReceivable = []
-    ar.forEach((aReceivable) => {
-      if (rec.length < 1) return accountReceivable.push(aReceivable)
-      if (
-        !rec.map((p) => p._id.toString()).includes(aReceivable._id.toString())
-      )
-        return accountReceivable.push(aReceivable)
+    const result = await query
 
-      rec.map((payment) => {
-        if (payment._id.toString() === aReceivable._id.toString()) {
-          accountReceivable.push({
-            _id: aReceivable._id,
-            totalAmount: aReceivable.totalAmount - payment.totalAmount,
-            name: aReceivable.name,
-            email: aReceivable.email,
-            type: aReceivable.type,
-          })
-        }
-      })
+    res.status(200).json({
+      startIndex: skip + 1,
+      endIndex: skip + result.length,
+      count: result.length,
+      page,
+      pages,
+      total,
+      data: result,
     })
-
-    res.json(accountReceivable?.filter((ar) => ar?.totalAmount > 0))
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
 })
 
-handler.use(isAuth)
+handler.post(async (req, res) => {
+  await db()
+  try {
+    const { _id: customer, amount } = req.body
+
+    const transactions = await Transaction.find({
+      $or: [
+        {
+          type: 'Receipt',
+          customer: { $in: [customer] },
+        },
+        {
+          type: 'FCL Booking',
+          createdBy: { $in: [customer] },
+        },
+      ],
+
+      status: {
+        $in: ['Confirmed', 'Active'],
+      },
+      account: {
+        $in: ['5000 Cost of Goods Sold', 'TEMP 555'],
+      },
+    })
+      .select(
+        'type amount pickUp.pickUpPrice, dropOff.dropOffPrice createdBy status'
+      )
+      .populate('createdBy', ['name'])
+      .lean()
+
+    const totalPickUp =
+      transactions
+        ?.filter(
+          (trans) =>
+            trans.type === 'FCL Booking' &&
+            trans.status === 'Confirmed' &&
+            trans.pickUp
+        )
+        .reduce((acc, cur) => acc + Number(cur.pickUp.pickUpPrice), 0) || 0
+
+    const totalDropOff =
+      transactions
+        ?.filter(
+          (trans) =>
+            trans.type === 'FCL Booking' &&
+            trans.status === 'Confirmed' &&
+            trans.dropOff
+        )
+        .reduce((acc, cur) => acc + Number(cur.dropOff.dropOffPrice), 0) || 0
+
+    const totalAmount =
+      transactions?.reduce((acc, cur) => acc + Number(cur.amount), 0) || 0
+
+    const totalReceipt = transactions
+      ?.filter((trans) => trans.type === 'Receipt')
+      .reduce((acc, cur) => acc + Number(cur.amount), 0)
+
+    if (
+      totalPickUp + totalDropOff + totalAmount - Number(totalReceipt) <
+      amount
+    )
+      return res
+        .status(400)
+        .json({ error: `Amount is greater than total amount` })
+
+    const object = {
+      date: new Date(),
+      createdBy: req.user._id,
+      reference: uuidv4(),
+      type: 'Receipt',
+      account: ['1200 Bank Current Account', 'TEMP 555'],
+      customer,
+      amount,
+      description: `Receipt of ${amount} to ${transactions[0]?.createdBy?.name}`,
+    }
+
+    await Transaction.create(object)
+
+    res.json({ message: 'Receipt created successfully' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
 
 export default handler

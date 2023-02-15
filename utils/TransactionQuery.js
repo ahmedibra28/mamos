@@ -6,12 +6,12 @@ export const TransactionQuery = async ({
   code,
   cType,
   vendor,
-  customer,
+  Customer,
   amount,
   discount,
   createdBy,
   updatedBy,
-  transactionType,
+  type,
 }) => {
   const acc = await Account.findOne({ code }, { _id: 1 })
 
@@ -19,17 +19,17 @@ export const TransactionQuery = async ({
     date,
     account: acc?._id,
     vendor: cType === 'vendor' ? vendor : undefined,
-    customer: cType === 'customer' ? customer : undefined,
+    Customer: cType === 'Customer' ? Customer : undefined,
     amount: Number(amount),
     discount: Number(discount),
     createdBy,
     updatedBy,
-    transactionType,
+    type,
   }
 
   if (type === 'update') {
-    const vc = cType === 'vendor' ? vendor : customer
-    
+    const vc = cType === 'vendor' ? vendor : Customer
+
     const trans = await Transaction.findOne({ account: acc?._id }, { _id: 1 })
   }
   if (type === 'new') {

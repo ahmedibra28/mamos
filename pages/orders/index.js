@@ -37,11 +37,11 @@ const OrderOrders = () => {
       mutateAsync({
         startDate: moment().subtract(90, 'days'),
         endDate: moment().format(),
-        status: 'pending',
+        status: 'Pending',
       })
       setStartDate(moment().subtract(90, 'days').format('YYYY-MM-DD'))
       setEndDate(moment().format('YYYY-MM-DD'))
-      setStatus('pending')
+      setStatus('Pending')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -93,7 +93,7 @@ const OrderOrders = () => {
               className='form-control mb-2'
             >
               <option value=''>-----------</option>
-              {['pending', 'confirmed', 'arrived', 'cancelled'].map((s) => (
+              {['Pending', 'Confirmed', 'Arrived', 'cancelled'].map((s) => (
                 <option value={s} key={s}>
                   {s}
                 </option>
@@ -133,10 +133,10 @@ const OrderOrders = () => {
                 return (
                   <tr key={item._id}>
                     <td>
-                      {item?.trackingNo === 'N/A' ? (
+                      {item?.TrackingNo === 'N/A' ? (
                         <span className='badge bg-danger'>Not Provided</span>
                       ) : (
-                        item?.trackingNo
+                        item?.TrackingNo
                       )}
                     </td>
                     <td>{item?.createdBy?.name}</td>
@@ -145,15 +145,15 @@ const OrderOrders = () => {
                     <td>{item?.other?.transportation?.reference}</td>
                     <td>
                       <span>
-                        {item?.status === 'pending' && (
+                        {item?.status === 'Pending' && (
                           <span className='badge bg-warning'>
                             {item?.status}
                           </span>
                         )}
-                        {item?.status === 'confirmed' && (
+                        {item?.status === 'Confirmed' && (
                           <span className='badge bg-info'>{item?.status}</span>
                         )}
-                        {item?.status === 'arrived' && (
+                        {item?.status === 'Arrived' && (
                           <span className='badge bg-success'>
                             {item?.status}
                           </span>

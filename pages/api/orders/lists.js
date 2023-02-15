@@ -1,10 +1,10 @@
 import moment from 'moment'
 import nc from 'next-connect'
 import db from '../../../config/db'
-import Order from '../../../models/Order'
+import Transaction from '../../../models/Transaction'
 import { isAuth } from '../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -35,16 +35,25 @@ handler.post(async (req, res) => {
     let query = schemaName.find(
       status
         ? canAccess
-          ? { status, createdAt: { $gte: start, $lt: end } }
+          ? {
+              status,
+              type: 'FCL Booking',
+              createdAt: { $gte: start, $lt: end },
+            }
           : {
               status,
               createdBy: req.user._id,
+              type: 'FCL Booking',
               createdAt: { $gte: start, $lt: end },
             }
         : canAccess
-        ? { createdAt: { $gte: start, $lt: end } }
+        ? {
+            type: 'FCL Booking',
+            createdAt: { $gte: start, $lt: end },
+          }
         : {
             createdBy: req.user._id,
+            type: 'FCL Booking',
             createdAt: { $gte: start, $lt: end },
           }
     )
@@ -56,16 +65,25 @@ handler.post(async (req, res) => {
     let total = await schemaName.countDocuments(
       status
         ? canAccess
-          ? { status, createdAt: { $gte: start, $lt: end } }
+          ? {
+              status,
+              type: 'FCL Booking',
+              createdAt: { $gte: start, $lt: end },
+            }
           : {
               status,
               createdBy: req.user._id,
+              type: 'FCL Booking',
               createdAt: { $gte: start, $lt: end },
             }
         : canAccess
-        ? { createdAt: { $gte: start, $lt: end } }
+        ? {
+            type: 'FCL Booking',
+            createdAt: { $gte: start, $lt: end },
+          }
         : {
             createdBy: req.user._id,
+            type: 'FCL Booking',
             createdAt: { $gte: start, $lt: end },
           }
     )
@@ -84,14 +102,33 @@ handler.post(async (req, res) => {
 
     const result = await query
 
+    const newResultPromise = await Promise.all(
+      result.map(async (item) => {
+        const trans = await Transaction.findOne(
+          { _id: item.other.transportation },
+          { vendor: 1, reference: 1 }
+        ).populate('vendor', ['name'])
+
+        return {
+          ...item,
+          other: {
+            ...item.other,
+            transportation: trans,
+          },
+        }
+      })
+    )
+
+    const newResult = await Promise.all(newResultPromise)
+
     res.status(200).json({
       startIndex: skip + 1,
-      endIndex: skip + result.length,
-      count: result.length,
+      endIndex: skip + newResult.length,
+      count: newResult.length,
       page,
       pages,
       total,
-      data: result,
+      data: newResult,
     })
   } catch (error) {
     res.status(500).json({ error: error.message })

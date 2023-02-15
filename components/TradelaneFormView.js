@@ -112,7 +112,7 @@ const TradelaneFormView = ({
                         onChange={(e) => handleInputChange(e, index)}
                       >
                         <option value=''>Select Trade Type</option>
-                        {['track', 'ship', 'train', 'plane'].map(
+                        {['Track', 'Ship', 'Train', 'Plane'].map(
                           (type, index) => (
                             <option key={index} value={type}>
                               {type}

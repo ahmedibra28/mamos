@@ -1,9 +1,9 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Order from '../../../../models/Order'
+import Transaction from '../../../../models/Transaction'
 import { isAuth } from '../../../../utils/auth'
 
-const schemaName = Order
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -13,7 +13,11 @@ handler.put(async (req, res) => {
     const { id } = req.query
     const { data } = req.body
 
-    const order = await schemaName.findOne({ _id: id, status: 'pending' })
+    const order = await schemaName.findOne({
+      _id: id,
+      status: 'Pending',
+      type: 'FCL Booking',
+    })
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
 

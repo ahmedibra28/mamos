@@ -3,140 +3,138 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import withAuth from '../../HOC/withAuth'
 import { useForm } from 'react-hook-form'
-import { Spinner, Message } from '../../components'
-import {
-  dynamicInputSelect,
-  inputEmail,
-  inputNumber,
-  inputText,
-} from '../../utils/dynamicForm'
+import { Spinner, Message, Pagination, Search } from '../../components'
+import { dynamicInputSelect, inputNumber } from '../../utils/dynamicForm'
 import FormView from '../../components/FormView'
-import { FaCashRegister, FaInfoCircle } from 'react-icons/fa'
 import apiHook from '../../api'
-import Link from 'next/link'
+import { currency } from '../../utils/currency'
+import moment from 'moment'
 
 const Receipts = () => {
-  const [id, setId] = useState(null)
   const [edit, setEdit] = useState(false)
-
-  const getApi = apiHook({
-    key: ['receipts'],
-    method: 'GET',
-    url: `accounts/receipts`,
-  })?.get
-
-  const getAccountApi = apiHook({
-    key: ['accounts'],
-    method: 'GET',
-    url: `accounts/accounts`,
-    url: `accounts/accounts?page=${1}&q=&limit=${250}`,
-  })?.get
-
-  const getVendorApi = apiHook({
-    key: ['vendors'],
-    method: 'GET',
-    url: `setting/vendors?page=${1}&q=&limit=${250}`,
-  })?.get
-
-  const updateApi = apiHook({
-    key: ['receipts'],
-    method: 'PUT',
-    url: `accounts/receipts`,
-  })?.put
+  const [page, setPage] = useState(1)
+  const [q, setQ] = useState('')
 
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
     watch,
     formState: { errors },
   } = useForm({})
 
+  const getApi = apiHook({
+    key: ['receipts'],
+    method: 'GET',
+    url: `accounts/receipts?page=${page}&q=${q}&limit=${25}`,
+  })?.get
+
+  const postApi = apiHook({
+    key: ['receipts'],
+    method: 'POST',
+    url: `accounts/receipts`,
+  })?.post
+
+  const postSearchCustomerApi = apiHook({
+    key: ['search-customer', watch().customer],
+    method: 'POST',
+    url: `accounts/search-customer`,
+  })?.post
+
   useEffect(() => {
-    if (updateApi?.isSuccess) formCleanHandler()
-    getApi?.refetch()
+    if (watch().customer) {
+      postSearchCustomerApi.mutateAsync({ customer: watch().customer })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [updateApi?.isSuccess])
+  }, [watch().customer])
 
-  const editHandler = (item) => {
-    setId(item._id)
-    setValue('name', item?.name)
-    setValue('email', item?.email)
-    setValue('type', item?.type)
-    setValue('totalAmount', item?.totalAmount)
-    setEdit(true)
-  }
+  const getCustomerApi = apiHook({
+    key: ['customers'],
+    method: 'GET',
+    url: `auth/users?page=${1}&q=&limit=${250}`,
+  })?.get
 
-  const name = 'Receivable List'
+  const name = 'Receipt List'
   const label = 'Receipt'
   const modal = 'receipt'
 
   // FormView
   const formCleanHandler = () => {
     reset()
+
     setEdit(false)
   }
 
+  useEffect(() => {
+    if (postApi?.isSuccess) {
+      formCleanHandler()
+      getApi?.refetch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postApi?.isSuccess])
+
+  useEffect(() => {
+    getApi?.refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
+
+  useEffect(() => {
+    if (!q) getApi?.refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q])
+
+  const searchHandler = (e) => {
+    e.preventDefault()
+    getApi?.refetch()
+    setPage(1)
+  }
+
   const submitHandler = (data) => {
-    updateApi?.mutateAsync({
-      _id: id,
-      totalAmount: data?.totalAmount,
-      account: data?.account,
+    postApi?.mutateAsync({
+      _id: data?.customer,
       amount: data?.amount,
-      status: 'receipts',
     })
   }
 
   const form = [
-    edit &&
-      inputText({
-        register,
-        errors,
-        label: 'Name',
-        name: 'name',
-        placeholder: 'Enter name',
-        disabled: true,
-      }),
-    edit &&
-      inputEmail({
-        register,
-        errors,
-        label: 'Email',
-        name: 'email',
-        placeholder: 'Enter email address',
-        disabled: true,
-      }),
-    edit &&
-      inputText({
-        register,
-        errors,
-        label: 'Total Amount',
-        name: 'totalAmount',
-        placeholder: 'Enter total amount',
-        disabled: true,
-      }),
-
     dynamicInputSelect({
       register,
       errors,
-      label: 'Account',
-      name: 'account',
-      placeholder: 'Select account',
+      label: 'Customer',
+      name: 'customer',
+      placeholder: 'Select customer',
       value: 'name',
-      data: getAccountApi?.data?.data?.filter((acc) =>
-        acc.status === 'active' && edit
-          ? acc.type === 'custom'
-          : acc.code === 21000
+      data: getCustomerApi?.data?.data?.filter(
+        (v) => v.confirmed && !v.blocked
       ),
     }),
+    postSearchCustomerApi?.data?.amount > 0 &&
+      postSearchCustomerApi?.data?.customer &&
+      watch().customer && (
+        <div className='col-12'>
+          <div className='border p-3 mb-2 mt-1'>
+            <div className='mb-1'>
+              <span className='text-muted'>Customer: </span>
+              <span className='fw-bold text-muted'>
+                {postSearchCustomerApi?.data?.customer}
+              </span>
+            </div>
+            <div className='mb-1'>
+              <span className='text-muted'>Amount: </span>
+              <span className='fw-bold text-muted'>
+                {currency(postSearchCustomerApi?.data?.amount)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ),
     inputNumber({
       register,
       errors,
       label: 'Amount',
       name: 'amount',
       placeholder: 'Enter amount',
-      max: watch().totalAmount,
+      max: Number(postSearchCustomerApi?.data?.amount),
     }),
   ]
 
@@ -149,21 +147,25 @@ const Receipts = () => {
         <meta property='og:title' content='Receipts' key='title' />
       </Head>
 
-      {updateApi?.isSuccess && (
+      {postApi?.isSuccess && (
         <Message variant='success'>
-          {`${label} has been updated successfully.`}
+          {`${label} has been paid successfully.`}
         </Message>
       )}
-      {updateApi?.isError && (
-        <Message variant='danger'> {updateApi?.error}</Message>
+      {postApi?.isError && (
+        <Message variant='danger'> {postApi?.error}</Message>
       )}
+
+      <div className='ms-auto text-end'>
+        <Pagination data={getApi?.data} setPage={setPage} />
+      </div>
 
       <FormView
         edit={edit}
         formCleanHandler={formCleanHandler}
         form={form}
-        isLoadingUpdate={updateApi?.isLoading}
-        isLoadingPost={false}
+        isLoadingUpdate={false}
+        isLoadingPost={postApi?.isLoading}
         handleSubmit={handleSubmit}
         submitHandler={submitHandler}
         modal={modal}
@@ -180,52 +182,45 @@ const Receipts = () => {
           <div className='d-flex align-items-center flex-column mb-2'>
             <h3 className='fw-light text-muted'>
               {name}
-              <sup className='fs-6'> [{getApi?.data?.length}] </sup>
+              <sup className='fs-6'> [{getApi?.data?.total || 0}] </sup>
             </h3>
+            <button
+              className='btn btn-outline-primary btn-sm shadow my-2'
+              data-bs-toggle='modal'
+              data-bs-target={`#${modal}`}
+            >
+              Add New {label}
+            </button>
+
+            <div className='col-auto'>
+              <Search
+                placeholder={`Search ${label}...`}
+                setQ={setQ}
+                q={q}
+                searchHandler={searchHandler}
+              />
+            </div>
           </div>
           <table className='table table-sm table-border'>
             <thead className='border-0'>
               <tr>
-                <th>Vendor/Customer</th>
-                <th>Email</th>
+                <th>Customer/Customer</th>
                 <th>Type</th>
+                <th>Date</th>
                 <th>Total Amount</th>
-                <th>Actions</th>
+                <th>Description</th>
               </tr>
             </thead>
             <tbody>
-              {getApi?.data?.map((item, i) => (
+              {getApi?.data?.data?.map((item, i) => (
                 <tr key={i}>
-                  <td>{item?.name}</td>
-                  <td>{item?.email}</td>
+                  <td>{item?.createdBy?.name}</td>
                   <td>
                     <span className='bg-warning badge'>{item?.type}</span>
                   </td>
-                  <td>
-                    {item?.totalAmount?.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'USD',
-                    })}
-                  </td>
-
-                  <td>
-                    <div className='btn-group'>
-                      <button
-                        className='btn btn-primary btn-sm rounded-pill'
-                        onClick={() => editHandler(item)}
-                        data-bs-toggle='modal'
-                        data-bs-target={`#${modal}`}
-                      >
-                        <FaCashRegister className='mb-1' /> Receipt
-                      </button>
-                      <Link
-                        className='btn btn-success btn-sm rounded-pill ms-1'
-                        href={`/accounts/transactions/${item?._id}`}
-                      >
-                        <FaInfoCircle className='mb-1' /> Details
-                      </Link>
-                    </div>
-                  </td>
+                  <td>{moment(item?.createdAt).format('YYYY-MM-DD')}</td>
+                  <td>{currency(item?.amount)}</td>
+                  <td>{item?.description}</td>
                 </tr>
               ))}
             </tbody>

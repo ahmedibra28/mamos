@@ -1,16 +1,16 @@
 import nc from 'next-connect'
 import db from '../../../../config/db'
-import Transportation from '../../../../models/Transportation'
+import Transaction from '../../../../models/Transaction'
 import Container from '../../../../models/Container'
 import { isAuth } from '../../../../utils/auth'
 import { undefinedChecker } from '../../../../utils/helper'
 import moment from 'moment'
 import { priceFormat } from '../../../../utils/priceFormat'
 import Seaport from '../../../../models/Seaport'
-import Transaction from '../../../../models/Transaction'
 import Account from '../../../../models/Account'
+import { v4 as uuidv4 } from 'uuid'
 
-const schemaName = Transportation
+const schemaName = Transaction
 
 const handler = nc()
 handler.use(isAuth)
@@ -37,31 +37,23 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('container.container')
-      .populate('vendor')
+      .populate('container.container', ['name'])
+      .populate('vendor', ['name'])
       .populate({
         path: 'departureSeaport',
-        populate: { path: 'country' },
+        select: ['country', 'name'],
+        populate: { path: 'country', select: ['name'] },
       })
       .populate({
         path: 'arrivalSeaport',
-        populate: { path: 'country' },
+        select: ['country', 'name'],
+        populate: { path: 'country', select: ['name'] },
       })
 
     let result = await query
 
     result = result.map((trans) => ({
       ...trans,
-      departureDate: moment(trans.departureDate).format('YYYY-MM-DD'),
-      arrivalDate: moment(trans.arrivalDate).format('YYYY-MM-DD'),
-      storageFreeGateInDate: moment(trans.storageFreeGateInDate).format(
-        'YYYY-MM-DD'
-      ),
-      shippingInstructionDate: moment(trans.shippingInstructionDate).format(
-        'YYYY-MM-DD'
-      ),
-      vgmDate: moment(trans.vgmDate).format('YYYY-MM-DD'),
-      delayDate: moment(trans.delayDate).format('YYYY-MM-DD'),
       cost: priceFormat(
         trans.container.reduce((acc, curr) => acc + Number(curr.cost), 0) || 0
       ),
@@ -89,9 +81,8 @@ handler.post(async (req, res) => {
   try {
     const {
       vendor,
-      reference,
-      transportationType,
-      cargoType,
+      type,
+      cargo,
       cost,
       price,
       departureSeaport,
@@ -105,16 +96,18 @@ handler.post(async (req, res) => {
       status,
     } = req.body
     let container = req.body.container
+    const reference = req.body.reference || uuidv4()
 
     const tempCost = Array.isArray(cost) ? cost[0] : cost
     const tempPrice = Array.isArray(price) ? price[0] : price
 
-    if (cargoType !== 'FCL') {
+    if (cargo !== 'FCL') {
       if (Number(tempCost) > Number(tempPrice))
         return res
           .status(404)
           .json({ error: 'Cost must be less than price amount' })
     }
+
     if (
       arrivalDate < departureDate ||
       arrivalDate > delayDate ||
@@ -132,14 +125,14 @@ handler.post(async (req, res) => {
     container.map(async (c) => {
       const containerObj = await Container.findOne({
         _id: c,
-        status: 'active',
+        status: 'Active',
       })
       if (!containerObj)
         return res.status(404).json({ error: 'Container not found' })
     })
 
     // FCL Container structuring
-    if (cargoType === 'FCL') {
+    if (cargo === 'FCL') {
       const containerLength = container.length
 
       const costAmount = Array.isArray(cost)
@@ -172,7 +165,7 @@ handler.post(async (req, res) => {
       container = result
     }
 
-    if (cargoType !== 'FCL') {
+    if (cargo !== 'FCL') {
       container = container.map((c) => ({
         container: c,
         cost: tempCost,
@@ -180,15 +173,15 @@ handler.post(async (req, res) => {
       }))
     }
 
-    // check if status is active
+    // check if status is Active
     if (departureSeaport || arrivalSeaport) {
       const departure = await Seaport.findOne({
         _id: departureSeaport,
-        status: 'active',
+        status: 'Active',
       })
       const arrival = await Seaport.findOne({
         _id: arrivalSeaport,
-        status: 'active',
+        status: 'Active',
       })
       if (!departure || !arrival)
         return res
@@ -202,37 +195,25 @@ handler.post(async (req, res) => {
     if (trans) return res.status(400).json({ error: 'Reference already exist' })
 
     const object = await schemaName.create({
+      date: new Date(),
+      type,
+      account: ['1001 Stock/Inventory'],
       vendor,
-      transportationType,
-      cargoType,
+      cargo,
       container,
-      departureSeaport: undefinedChecker(departureSeaport),
-      arrivalSeaport: undefinedChecker(arrivalSeaport),
+      departureSeaport,
+      arrivalSeaport,
       departureDate,
       arrivalDate,
       vgmDate,
       storageFreeGateInDate,
       shippingInstructionDate,
       delayDate,
-      reference,
+      reference: reference.toUpperCase(),
       status,
+      description: `Rent transportation from ${vendor}`,
       createdBy: req.user._id,
     })
-
-    // update the transaction => accounts payable
-    const ap = await Account.findOne({ code: 21000 }, { _id: 1 })
-    const transaction = {
-      date: new Date(),
-      account: ap?._id,
-      vendor: object.vendor,
-      amount: Number(
-        object.container?.reduce((acc, curr) => acc + curr.cost, 0)
-      ),
-      discount: 0,
-      description: 'Container Rent',
-      transportation: object._id,
-    }
-    await Transaction.create(transaction)
 
     res.status(200).send(object)
   } catch (error) {

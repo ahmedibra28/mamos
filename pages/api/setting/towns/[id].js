@@ -26,19 +26,19 @@ handler.put(async (req, res) => {
     if (!object)
       return res.status(400).json({ error: `${schemaNameString} not found` })
 
-    // check if status is active
+    // check if status is Active
     if (req.body.country) {
       const obj = await Country.findOne({
-        country: req.body.country,
-        status: 'active',
+        _id: req.body.country,
+        status: 'Active',
       })
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
 
     if (req.body.seaport) {
       const obj = await Seaport.findOne({
-        seaport: req.body.seaport,
-        status: 'active',
+        _id: req.body.seaport,
+        status: 'Active',
       })
       if (!obj) return res.status(404).json({ error: 'Seaport not found' })
     }

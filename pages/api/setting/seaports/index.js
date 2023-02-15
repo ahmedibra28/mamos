@@ -50,11 +50,11 @@ handler.get(async (req, res) => {
 handler.post(async (req, res) => {
   await db()
   try {
-    // check if status is active
+    // check if status is Active
     if (req.body.country) {
       const obj = await Country.findOne({
-        country: req.body.country,
-        status: 'active',
+        _id: req.body.country,
+        status: 'Active',
       })
       if (!obj) return res.status(404).json({ error: 'Country not found' })
     }
@@ -62,7 +62,7 @@ handler.post(async (req, res) => {
     // check existence of object
     const exist = await schemaName.findOne({
       name: { $regex: `^${req.body.name.trim()}$`, $options: 'i' },
-      country: req.body.country,
+      _id: req.body.country,
     })
 
     if (exist)
