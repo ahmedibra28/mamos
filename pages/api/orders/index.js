@@ -55,27 +55,32 @@ handler.get(async (req, res) => {
       .limit(pageSize)
       .sort({ createdAt: -1 })
       .lean()
-      .populate('other.transportation')
+      // .populate('other.transportation')
       .populate('pickUp.pickUpCountry')
       .populate('pickUp.pickUpSeaport')
       .populate('dropOff.dropOffCountry')
       .populate('dropOff.dropOffSeaport')
       .populate('createdBy', ['name'])
-      .populate({
-        path: 'other.transportation',
-        populate: {
-          path: 'vendor',
-        },
-      })
+    // .populate({
+    //   path: 'other.transportation',
+    //   populate: {
+    //     path: 'vendor',
+    //   },
+    // })
 
     let result = await query
-
     // filter result and find the other.transportation from Transaction
     const newResultPromise = await Promise.all(
-      result.map(async (item) => {
+      result?.map(async (item) => {
         const tran = await Transaction.findOne(
-          { _id: item.other.transportation },
-          { vendor: 1, reference: 1 }
+          { _id: item?.other?.transportation },
+          {
+            vendor: 1,
+            reference: 1,
+            departureDate: 1,
+            arrivalDate: 1,
+            delayDate: 1,
+          }
         ).populate('vendor')
 
         return {

@@ -98,7 +98,7 @@ const UserRoles = () => {
   // TableView
   const table = {
     header: ['Name', 'Email', 'Role', 'Role Type'],
-    body: ['role.name', 'user.email', 'role.name', 'role.type'],
+    body: ['user.name', 'user.email', 'role.name', 'role.type'],
     createdAt: 'createdAt',
     data: data,
   }

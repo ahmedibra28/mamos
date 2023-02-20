@@ -13,7 +13,10 @@ handler.get(async (req, res) => {
   try {
     const q = req.query && req.query.q
 
-    const transportation = await Transaction.findOne({ reference: q })
+    const transportation = await Transaction.findOne({
+      reference: q,
+      type: 'Ship',
+    })
 
     let query = schemaName.find(
       q && transportation ? { transportation: transportation._id } : {}

@@ -3,11 +3,8 @@ import db from '../../../../config/db'
 import Transaction from '../../../../models/Transaction'
 import Container from '../../../../models/Container'
 import { isAuth } from '../../../../utils/auth'
-import { undefinedChecker } from '../../../../utils/helper'
-import moment from 'moment'
 import { priceFormat } from '../../../../utils/priceFormat'
 import Seaport from '../../../../models/Seaport'
-import Account from '../../../../models/Account'
 import { v4 as uuidv4 } from 'uuid'
 
 const schemaName = Transaction
@@ -20,14 +17,18 @@ handler.get(async (req, res) => {
     const q = req.query && req.query.q
 
     let query = schemaName.find(
-      q ? { reference: { $regex: q, $options: 'i' } } : {}
+      q
+        ? { reference: { $regex: q, $options: 'i' }, type: 'Ship' }
+        : { type: 'Ship' }
     )
 
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.limit) || 25
     const skip = (page - 1) * pageSize
     const total = await schemaName.countDocuments(
-      q ? { reference: { $regex: q, $options: 'i' } } : {}
+      q
+        ? { reference: { $regex: q, $options: 'i' }, type: 'Ship' }
+        : { type: 'Ship' }
     )
 
     const pages = Math.ceil(total / pageSize)

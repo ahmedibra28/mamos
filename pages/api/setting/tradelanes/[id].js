@@ -27,7 +27,7 @@ handler.put(async (req, res) => {
 
     const transportationObj = await Transaction.findOne({
       _id: transportation,
-      status: 'Pending',
+      status: 'Active',
     })
     if (!transportationObj)
       return res.status(404).json({ error: 'Transaction not found' })
