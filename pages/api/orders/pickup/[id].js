@@ -24,17 +24,24 @@ handler.put(async (req, res) => {
     const { role, _id } = req.user
 
     const allowed = ['AUTHENTICATED']
+    console.log('----')
 
     const order = await schemaName.findOne(
       !allowed.includes(role)
-        ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+        ? {
+            _id: id,
+            status: 'Pending',
+            type: { $in: ['FCL Booking', 'LCL Booking'] },
+          }
         : {
             _id: id,
             status: 'Pending',
-            type: 'FCL Booking',
+            type: { $in: ['FCL Booking', 'LCL Booking'] },
             createdBy: _id,
           }
     )
+
+    console.log(order)
 
     if (!order) return res.status(404).json({ error: 'Order not found' })
 

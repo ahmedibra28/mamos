@@ -39,7 +39,7 @@ export default function useOrdersHook(props) {
   )
 
   const postOrder = useMutation(
-    async (obj) => await dynamicAPI('post', url, obj),
+    async (obj) => await dynamicAPI('post', `${url}/fcl`, obj),
     {
       retry: 0,
       onSuccess: () => queryClient.invalidateQueries(queryKey),

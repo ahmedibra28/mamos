@@ -20,11 +20,15 @@ handler.put(async (req, res) => {
     let order = await schemaName
       .findOne(
         !allowed.includes(role)
-          ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+          ? {
+              _id: id,
+              status: 'Pending',
+              type: { $in: ['FCL Booking', 'LCL Booking'] },
+            }
           : {
               _id: id,
               status: 'Pending',
-              type: 'FCL Booking',
+              type: { $in: ['FCL Booking', 'LCL Booking'] },
               createdBy: _id,
             }
       )
@@ -117,12 +121,36 @@ handler.put(async (req, res) => {
     order.status = 'Confirmed'
     order.account = ['5000 Cost of Goods Sold']
     order.customer = order.createdBy
-    order.amount = Number(
-      order.other.containers.reduce(
-        (acc, cur) => (acc + cur.price) * cur.quantity,
-        0
+
+    if (order.type === 'FCL Booking') {
+      order.amount = Number(
+        order.other.containers.reduce(
+          (acc, cur) => (acc + cur.price) * cur.quantity,
+          0
+        )
       )
-    )
+    }
+
+    if (order.type === 'LCL Booking') {
+      const cbm =
+        order.other?.containers?.reduce(
+          (acc, cur) =>
+            acc + Number(cur.width) * Number(cur.length) * Number(cur.height),
+          0
+        ) / 1000000
+
+      const cont = await Transaction.findOne(
+        {
+          _id: order.other.transportation,
+        },
+        { container: 1 }
+      ).populate('container.container')
+
+      order.amount =
+        (Number(cont.container[0].price) /
+          cont.container[0].container.details.CBM) *
+        cbm
+    }
 
     const saveOrder = await order.save()
 

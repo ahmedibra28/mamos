@@ -12,7 +12,7 @@ handler.use(isAuth)
 handler.post(async (req, res) => {
   await db()
   try {
-    const { pickUpSeaport, dropOffSeaport } = req.body
+    const { pickUpSeaport, dropOffSeaport, cargo } = req.body
 
     let object = await schemaName
       .find({
@@ -34,23 +34,53 @@ handler.post(async (req, res) => {
       price: priceFormat(
         obj.container.reduce((acc, curr) => acc + Number(curr.price), 0) || 0
       ),
+
+      TOTAL_CBM:
+        obj.container
+          ?.map((c) => c?.container)
+          ?.reduce((acc, curr) => acc + curr?.details?.CBM, 0) || 0,
     }))
 
-    const data = []
-    const newPromiseObject = Promise.all(
-      object.map(async (trans) => {
-        const order = await Transaction.exists({
+    if (cargo !== 'LCL') {
+      object = object.filter((obj) => obj?.type === 'FCL Booking')
+      return res.status(200).send(object)
+    }
+
+    const bookedShipments = []
+    const newPromise = Promise.all(
+      object?.map(async (trans) => {
+        const order = await Transaction.find({
           'other.transportation': trans._id,
-          $or: [{ status: { $ne: 'cancelled' } }],
+          type: 'LCL Booking',
+          status: 'Pending',
         })
 
-        if (!order) data.push(trans)
+        const totalBookedCBM =
+          order
+            ?.map((o) => o?.other?.containers)
+            ?.flat()
+            ?.reduce(
+              (acc, curr) =>
+                acc +
+                Number(curr?.length) *
+                  Number(curr?.width) *
+                  Number(curr?.height) *
+                  Number(curr?.qty),
+              0
+            ) || 0
+
+        bookedShipments.push({
+          ...trans,
+          totalBookedCBM: totalBookedCBM / 1000000,
+        })
       })
     )
 
-    await newPromiseObject
+    await newPromise
 
-    res.status(200).send(data)
+    object = bookedShipments?.filter((ship) => ship.totalBookedCBM > 0)
+
+    res.status(200).send(object)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

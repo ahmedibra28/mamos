@@ -824,7 +824,7 @@ const Tabs = ({
                       {data?.price?.containerInfo?.map((item, index) => (
                         <tr key={index}>
                           <td>{item?.name}</td>
-                          <td>{item?.quantity}</td>
+                          <td>{item?.quantity | 1}</td>
                           <td>
                             {' '}
                             {hide(['LOGISTIC']) ? (
@@ -838,7 +838,8 @@ const Tabs = ({
                               <span className='badge bg-danger'>N/A</span>
                             ) : (
                               `$${(
-                                item?.quantity * Number(item?.price)
+                                (item?.quantity | 1) *
+                                Number(item?.price)
                               ).toFixed(2)}`
                             )}
                           </td>

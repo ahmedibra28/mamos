@@ -40,6 +40,18 @@ const Details = () => {
   const [transportationsData, setTransportationsData] = useState([])
   const [cancelledReason, setCancelledReason] = useState('')
   const [isCancel, setIsCancel] = useState(false)
+  const [inputFields, setInputFields] = useState([
+    {
+      qty: 0,
+      packageUnit: '',
+      weight: 0,
+      commodity: '',
+      unit: '',
+      length: '',
+      width: '',
+      height: '',
+    },
+  ])
 
   const {
     getOrderDetails,
@@ -293,6 +305,8 @@ const Details = () => {
     setValueOther('demurrage', data?.demurrage)
     setValueOther('overWeight', data?.overWeight?.amount)
     setValueOther('overWeightVendor', data?.overWeight?.vendor?._id)
+
+    setInputFields(data?.other?.containers)
   }
 
   // const editDocumentHandler = () => {
@@ -540,63 +554,73 @@ const Details = () => {
         'My cargo is not temperature-controlled and does not include any hazardous or personal goods',
     }),
 
-    dynamicInputSelect({
-      register: registerOther,
-      errors: errorsOther,
-      label: 'Commodity *',
-      name: 'commodity',
-      value: 'name',
-      data:
-        commoditiesData &&
-        commoditiesData?.data?.filter(
-          (commodity) => commodity.status === 'Active'
+    selectedTransportation?.cargo === 'FCL' &&
+      dynamicInputSelect({
+        register: registerOther,
+        errors: errorsOther,
+        label: 'Commodity *',
+        name: 'commodity',
+        value: 'name',
+        data:
+          commoditiesData &&
+          commoditiesData?.data?.filter(
+            (commodity) => commodity.status === 'Active'
+          ),
+      }),
+
+    selectedTransportation?.cargo === 'FCL' &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'noOfPackages',
+        label: 'No. of Packages',
+        placeholder: 'Enter number of packages',
+      }),
+
+    selectedTransportation?.cargo === 'FCL' &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'grossWeight',
+        label: 'Gross Weight as KG',
+        max: seaFreightKG,
+        placeholder: 'Enter gross weight as KG',
+      }),
+
+    selectedTransportation?.cargo === 'FCL' &&
+      inputText({
+        register: registerOther,
+        errors: errorsOther,
+        name: 'cargoDescription',
+        label: 'Cargo Description',
+        placeholder: 'Enter cargo description',
+      }),
+
+    selectedTransportation?.cargo === 'FCL' && <hr key='hr0' />,
+
+    selectedTransportation?.cargo === 'FCL' &&
+      inputNumber({
+        register: registerOther,
+        errors: errorsOther,
+        label: 'Demurrage',
+        name: 'demurrage',
+      }),
+
+    selectedTransportation?.cargo === 'FCL' &&
+      dynamicInputSelect({
+        register: registerOther,
+        errors: errorsOther,
+        label: 'Vendor',
+        name: 'overWeightVendor',
+        value: 'name',
+        isRequired: false,
+        data: getApi?.data?.data?.filter(
+          (v) => v.status === 'Active' && v.type === 'Government'
         ),
-    }),
+      }),
 
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'noOfPackages',
-      label: 'No. of Packages',
-      placeholder: 'Enter number of packages',
-    }),
-
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'grossWeight',
-      label: 'Gross Weight as KG',
-      max: seaFreightKG,
-      placeholder: 'Enter gross weight as KG',
-    }),
-
-    inputText({
-      register: registerOther,
-      errors: errorsOther,
-      name: 'cargoDescription',
-      label: 'Cargo Description',
-      placeholder: 'Enter cargo description',
-    }),
-
-    <hr key='hr0' />,
-    inputNumber({
-      register: registerOther,
-      errors: errorsOther,
-      label: 'Demurrage',
-      name: 'demurrage',
-    }),
-    dynamicInputSelect({
-      register: registerOther,
-      errors: errorsOther,
-      label: 'Vendor',
-      name: 'overWeightVendor',
-      value: 'name',
-      isRequired: false,
-      data: getApi?.data?.data?.filter(
-        (v) => v.status === 'Active' && v.type === 'Government'
-      ),
-    }),
-    watchOther().overWeightVendor &&
+    selectedTransportation?.cargo === 'FCL' &&
+      watchOther().overWeightVendor &&
       inputNumber({
         register: registerOther,
         errors: errorsOther,
@@ -667,6 +691,50 @@ const Details = () => {
     setTransportationsData([])
     setCancelledReason('')
     setIsCancel(false)
+
+    setInputFields([
+      {
+        qty: 0,
+        packageUnit: '',
+        weight: 0,
+        commodity: '',
+        unit: '',
+        length: '',
+        width: '',
+        height: '',
+      },
+    ])
+  }
+
+  const handleAddField = () => {
+    setInputFields([
+      ...inputFields,
+      {
+        qty: '',
+        packageUnit: '',
+        weight: '',
+        commodity: '',
+        unit: '',
+        length: '',
+        width: '',
+        height: '',
+      },
+    ])
+  }
+
+  const handleRemoveField = (index) => {
+    const list = [...inputFields]
+    list.splice(index, 1)
+    setInputFields(list)
+  }
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target
+    const old = inputFields[index]
+    const updated = { ...old, [name]: value }
+    var list = [...inputFields]
+    list[index] = updated
+    setInputFields(list)
   }
 
   useEffect(() => {
@@ -763,7 +831,15 @@ const Details = () => {
       ...dataObj,
       _id: id,
       transportation: selectedTransportation,
-      containers: selectContainer,
+      containers:
+        selectedTransportation?.cargo === 'FCL' ? selectContainer : inputFields,
+    })
+    console.log({
+      ...dataObj,
+      _id: id,
+      transportation: selectedTransportation,
+      containers:
+        selectedTransportation?.cargo === 'FCL' ? selectContainer : inputFields,
     })
   }
 
@@ -791,6 +867,22 @@ const Details = () => {
   const DEFAULT_CAPACITY = Number(
     data?.other?.transportation?.container[0]?.container?.details?.CBM
   )
+
+  const postLCLApi = apiHook({
+    key: ['all-transportation'],
+    method: 'POST',
+    url: `orders/transportations`,
+  })?.post
+
+  useEffect(() => {
+    if (selectedTransportation?.cargo === 'LCL') {
+      postLCLApi.mutateAsync({
+        _id: selectedTransportation?.pickUp?.pickUpSeaport,
+        cargo: selectedTransportation?.cargo,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTransportation])
 
   return (
     <>
@@ -971,6 +1063,10 @@ const Details = () => {
         selectContainer={selectContainer}
         removeContainer={removeContainer}
         addContainer={addContainer}
+        inputFields={inputFields}
+        handleInputChange={handleInputChange}
+        handleAddField={handleAddField}
+        handleRemoveField={handleRemoveField}
       />
 
       {/* Document Modal Form */}

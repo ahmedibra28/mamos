@@ -16,7 +16,7 @@ handler.put(async (req, res) => {
     const order = await schemaName.findOne({
       _id: id,
       status: 'Pending',
-      type: 'FCL Booking',
+      type: { $in: ['FCL Booking', 'LCL Booking'] },
     })
 
     if (!order) return res.status(404).json({ error: 'Order not found' })

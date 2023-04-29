@@ -70,7 +70,7 @@ const Shipment = ({ data, setPage, q, setQ, handleSearch }) => {
                             : obj?.status === 'cancelled' && 'danger'
                         } btn-sm me-1`}
                       >
-                        Booking is {obj?.status}
+                        {obj?.type} is {obj?.status}
                       </button>
                       <Link
                         href={`/orders/details/${obj?._id}`}

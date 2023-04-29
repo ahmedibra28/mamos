@@ -1,6 +1,12 @@
 import axios from 'axios'
 
-const baseUrl = 'http://fcl.mamosbusiness.com/api'
+let baseUrl = ''
+
+if (process.env.NODE_ENV === 'development') {
+  baseUrl = 'http://localhost:3000/api'
+} else {
+  baseUrl = 'http://fcl.mamosbusiness.com/api'
+}
 
 export const userInfo = () => {
   return {

@@ -33,6 +33,7 @@ const transactionSchema = mongoose.Schema(
       enum: [
         'Ship',
         'FCL Booking',
+        'LCL Booking',
         'Demurrage',
         'Overweight',
         'Payment',
@@ -41,7 +42,7 @@ const transactionSchema = mongoose.Schema(
         'Drop Off',
       ],
     },
-    cargo: { type: String, enum: ['FCL'] },
+    cargo: { type: String, enum: ['FCL', 'LCL'] },
     container: [
       {
         container: { type: mongoose.Schema.Types.ObjectId, ref: Container },

@@ -4,7 +4,6 @@ import Transaction from '../../../models/Transaction'
 import Tradelane from '../../../models/Tradelane'
 import { isAuth } from '../../../utils/auth'
 import { priceFormat } from '../../../utils/priceFormat'
-import User from '../../../models/User'
 
 const schemaName = Transaction
 
@@ -25,12 +24,12 @@ handler.get(async (req, res) => {
         canAccess
           ? {
               _id: id,
-              type: 'FCL Booking',
+              type: { $in: ['FCL Booking', 'LCL Booking'] },
             }
           : {
               createdBy: req.user._id,
               _id: id,
-              type: 'FCL Booking',
+              type: { $in: ['FCL Booking', 'LCL Booking'] },
             }
       )
       .lean()
@@ -70,26 +69,55 @@ handler.get(async (req, res) => {
 
     const dropOffPrice = order.dropOff.dropOffPrice || 0.0
 
-    const containerInfo = order.other.containers.map((c) => ({
-      name: c.container.name,
-      CBM: c.container.details.CBM,
-      quantity: c.quantity,
-      price: c.price,
-    }))
+    // console.log({ pickUpPrice })
+    // console.log({ dropOffPrice })
+
+    let containerInfo
+
+    if (order.other.transportation.cargo === 'LCL') {
+      containerInfo = order.other.transportation.container.map((c) => ({
+        name: c.container?.name,
+        CBM: c.container.details.CBM,
+        quantity: c.quantity,
+        price: c.price,
+      }))
+    } else {
+      containerInfo = order.other.containers.map((c) => ({
+        name: c.container?.name,
+        CBM: c.container.details.CBM,
+        quantity: c.quantity,
+        price: c.price,
+      }))
+    }
+
+    const cargo = order?.other?.transportation?.cargo
+    const cbm =
+      order.other?.containers?.reduce(
+        (acc, cur) =>
+          acc + Number(cur.width) * Number(cur.length) * Number(cur.height),
+        0
+      ) / 1000000
 
     const CustomerCBM = containerInfo.reduce(
-      (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
+      (acc, curr) =>
+        acc +
+        Number(cargo === 'LCL' ? cbm : curr.CBM) * Number(curr.quantity | 1),
       0
     )
 
-    const CustomerPrice = containerInfo.reduce(
-      (acc, curr) => acc + Number(curr.price) * Number(curr.quantity),
+    let CustomerPrice = containerInfo.reduce(
+      (acc, curr) => acc + Number(curr.price) * Number(curr.quantity | 1),
       0
     )
+
     const containerCBM = containerInfo.reduce(
-      (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity),
+      (acc, curr) => acc + Number(curr.CBM) * Number(curr.quantity | 1),
       0
     )
+
+    if (cargo === 'LCL') {
+      CustomerPrice = (CustomerPrice / containerCBM) * cbm
+    }
 
     const price = {
       // invoicePrice: priceFormat(invoicePrice),

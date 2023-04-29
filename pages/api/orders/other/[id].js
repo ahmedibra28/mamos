@@ -33,11 +33,15 @@ handler.put(async (req, res) => {
     const order = await schemaName
       .findOne(
         !allowed.includes(role)
-          ? { _id: id, status: 'Pending', type: 'FCL Booking' }
+          ? {
+              _id: id,
+              status: 'Pending',
+              type: { $in: ['LCL Booking', 'FCL Booking'] },
+            }
           : {
               _id: id,
               status: 'Pending',
-              type: 'FCL Booking',
+              type: { $in: ['LCL Booking', 'FCL Booking'] },
               createdBy: _id,
             }
       )

@@ -222,7 +222,7 @@ const Transportations = () => {
       label: 'Cargo Type',
       name: 'cargo',
       placeholder: 'Select cargo type',
-      data: [{ name: 'FCL' }],
+      data: [{ name: 'FCL' }, { name: 'LCL' }],
     }),
     watch().cargo === 'FCL' && watch().type === 'Ship' ? (
       <div>

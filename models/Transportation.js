@@ -17,7 +17,7 @@ const transportationScheme = mongoose.Schema(
       required: true,
       enum: ['Ship'],
     },
-    cargo: { type: String, enum: ['FCL'], required: true },
+    cargo: { type: String, enum: ['FCL', 'LCL'], required: true },
     container: [
       {
         container: { type: mongoose.Schema.Types.ObjectId, ref: Container },
