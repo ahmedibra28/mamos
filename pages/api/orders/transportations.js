@@ -26,7 +26,7 @@ handler.post(async (req, res) => {
       .populate('container.container')
       .populate('vendor', ['name'])
 
-    object = object.map((obj) => ({
+    object = object?.map((obj) => ({
       ...obj,
       cost: priceFormat(
         obj.container.reduce((acc, curr) => acc + Number(curr.cost), 0) || 0
@@ -55,6 +55,7 @@ handler.post(async (req, res) => {
           status: 'Pending',
         })
 
+        // if (order?.length > 0) {
         const totalBookedCBM =
           order
             ?.map((o) => o?.other?.containers)
@@ -76,9 +77,12 @@ handler.post(async (req, res) => {
       })
     )
 
-    await newPromise
+    const v = await newPromise
+    v
 
-    object = bookedShipments?.filter((ship) => ship.totalBookedCBM > 0)
+    object = bookedShipments?.filter(
+      (ship) => ship.totalBookedCBM < ship.TOTAL_CBM
+    )
 
     res.status(200).send(object)
   } catch (error) {
